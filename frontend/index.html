@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>紫微斗数 · 你的专属命盘</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
   :root {
     --bg: #0a0a18; --bg2: #111128; --card: #181833; --border: #282850;
@@ -23,6 +24,7 @@
     background-image:radial-gradient(ellipse at 50% -10%,rgba(212,168,83,.04) 0%,transparent 55%),
     radial-gradient(ellipse at 20% 80%,rgba(155,126,216,.03) 0%,transparent 45%),
     radial-gradient(ellipse at 80% 60%,rgba(232,93,93,.02) 0%,transparent 45%);
+    overflow-x:hidden;
   }
   .container{max-width:820px;margin:0 auto;padding:14px}
 
@@ -49,137 +51,161 @@
   .city-item:hover{background:var(--gold-dim)}
 
   /* ── Loading ── */
-  .loading{text-align:center;padding:50px;color:var(--text-dim)}
-  .spinner{width:32px;height:32px;margin:0 auto 14px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
+  .loading-wrap{text-align:center;padding:40px 16px}
+  .spinner{width:36px;height:36px;margin:0 auto 14px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .6s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-tip{font-size:.72em;color:var(--text-dim);margin-top:8px;animation:fadeInOut 2s ease-in-out infinite}
+  @keyframes fadeInOut{0%,100%{opacity:.4}50%{opacity:1}}
 
-  /* ══════════════════════════════════════════════
-     🎴 稀有度卡片 — 小红书风格
-     ══════════════════════════════════════════════ */
+  /* ══════════════════════════════════════
+     ✨ SBIT-Style 递进式揭秘
+     ══════════════════════════════════════ */
+  .reveal-step{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+  .reveal-step.visible{opacity:1;transform:translateY(0)}
+
+  /* ── 稀有度英雄卡 ── */
   .rarity-hero{
-    border-radius:16px;padding:28px 20px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden;
+    border-radius:16px;padding:32px 20px;text-align:center;margin-bottom:16px;position:relative;overflow:hidden;
     border:2px solid var(--primary, var(--gold));
     box-shadow:var(--card-glow, 0 0 30px rgba(212,168,83,0.2));
     animation:rarityReveal .8s cubic-bezier(0.34,1.56,0.64,1);
+    transition:box-shadow .5s;
   }
-  @keyframes rarityReveal{0%{opacity:0;transform:scale(0.9)}100%{opacity:1;transform:scale(1)}}
+  .rarity-hero:hover{box-shadow:var(--card-glow, 0 0 50px rgba(212,168,83,0.4))}
+  @keyframes rarityReveal{0%{opacity:0;transform:scale(0.85)}100%{opacity:1;transform:scale(1)}}
   .rarity-hero::before{content:'';position:absolute;inset:0;background:var(--card-bg, radial-gradient(ellipse at 50% 0%,rgba(212,168,83,.08),transparent 70%))}
   .rarity-badge{
-    display:inline-flex;align-items:center;gap:6px;padding:5px 18px;border-radius:24px;
-    font-size:.75em;font-weight:700;letter-spacing:.12em;margin-bottom:12px;position:relative;
-    border:1px solid var(--primary, var(--gold));
-    background:rgba(212,168,83,0.08);
-    color:var(--primary, var(--gold));
+    display:inline-flex;align-items:center;gap:6px;padding:6px 20px;border-radius:24px;
+    font-size:.78em;font-weight:700;letter-spacing:.12em;margin-bottom:14px;position:relative;
+    border:1px solid var(--primary);background:rgba(212,168,83,.08);color:var(--primary);
   }
-  .rarity-score{font-size:3em;font-weight:200;letter-spacing:.04em;margin:6px 0 2px;position:relative;color:var(--primary, var(--gold))}
+  .rarity-score{font-size:3.2em;font-weight:200;letter-spacing:.04em;margin:8px 0 4px;position:relative;color:var(--primary)}
   .rarity-score-unit{font-size:.3em;opacity:.7}
-  .rarity-rank-text{font-size:.88em;color:var(--text);margin-bottom:4px;position:relative;font-weight:500}
-  .rarity-percentile{font-size:.7em;color:var(--text-dim);margin-bottom:8px;position:relative}
-
-  /* 稀有度档次图标行 */
-  .tier-icons{display:flex;justify-content:center;gap:3px;margin:10px 0}
-  .tier-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all .3s}
-  .tier-dot.active{background:var(--primary, var(--gold));box-shadow:0 0 8px var(--primary, var(--gold))}
-
-  /* ── 稀有加分项 ── */
+  .rarity-rank-text{font-size:.92em;color:var(--text);margin-bottom:4px;position:relative;font-weight:500}
+  .rarity-percentile{font-size:.72em;color:var(--text-dim);margin-bottom:10px;position:relative}
+  .tier-icons{display:flex;justify-content:center;gap:4px;margin:12px 0}
+  .tier-dot{width:12px;height:12px;border-radius:50%;background:var(--border);transition:all .5s}
+  .tier-dot.active{background:var(--primary);box-shadow:0 0 10px var(--primary);transform:scale(1.3)}
   .bonus-list{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px;position:relative}
-  .bonus-tag{padding:4px 12px;border-radius:14px;font-size:.64em;background:var(--card-bg-extra, var(--gold-dim));border:1px solid rgba(212,168,83,.15);color:var(--text-dim)}
+  .bonus-tag{padding:5px 14px;border-radius:14px;font-size:.66em;background:var(--card-bg-extra);border:1px solid rgba(212,168,83,.15);color:var(--text-dim)}
 
-  /* ══════════════════════════════════════════════
-     🎭 命码卡片 — Destiny Code
-     ══════════════════════════════════════════════ */
+  /* ── 命码卡 ── */
   .code-hero{
-    border-radius:16px;padding:22px 18px;text-align:center;margin-bottom:16px;
+    border-radius:16px;padding:24px 18px;text-align:center;margin-bottom:16px;
     border:1px solid var(--border);position:relative;overflow:hidden;
     background:linear-gradient(135deg, rgba(212,168,83,.04), rgba(155,126,216,.04));
   }
-  .code-emoji{font-size:2.8em;margin-bottom:6px;animation:float 3s ease-in-out infinite}
-  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-  .code-name{font-size:1.3em;font-weight:700;color:var(--primary, var(--gold));letter-spacing:.06em}
-  .code-tagline{font-size:.76em;color:var(--text-dim);margin:4px 0 10px;font-style:italic}
+  .code-emoji{font-size:3em;margin-bottom:8px;animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  .code-name{font-size:1.4em;font-weight:700;color:var(--primary);letter-spacing:.08em}
+  .code-tagline{font-size:.78em;color:var(--text-dim);margin:6px 0 12px;font-style:italic}
   .code-keywords{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-  .kw-tag{padding:3px 10px;border-radius:12px;font-size:.68em;background:rgba(212,168,83,.06);color:var(--primary, var(--gold));border:1px solid rgba(212,168,83,.12)}
+  .kw-tag{padding:4px 12px;border-radius:12px;font-size:.7em;background:rgba(212,168,83,.06);color:var(--primary);border:1px solid rgba(212,168,83,.12)}
 
-  /* ══════════════════════════════════════════════
-     📊 五维雷达 — Dimension Radar
-     ══════════════════════════════════════════════ */
-  .radar-card{
-    background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:16px
-  }
-  .radar-title{font-size:.8em;color:var(--text-dim);text-align:center;margin-bottom:14px;letter-spacing:.06em}
+  /* ── 五维雷达 ── */
+  .radar-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
+  .radar-title{font-size:.82em;color:var(--text-dim);text-align:center;margin-bottom:16px;letter-spacing:.08em}
   .radar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-  .radar-emoji{font-size:1.2em;width:24px;text-align:center}
-  .radar-label{font-size:.7em;color:var(--text-dim);width:32px;text-align:right;flex-shrink:0}
-  .radar-bar-wrap{flex:1;height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;position:relative}
-  .radar-bar{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(0.34,1.56,0.64,1);position:relative}
-  .radar-bar::after{content:'';position:absolute;right:0;top:-3px;width:14px;height:14px;border-radius:50%;background:inherit;opacity:.6;box-shadow:0 0 8px currentColor}
-  .radar-score{font-size:.7em;color:var(--text);width:28px;text-align:center;flex-shrink:0}
-  .radar-desc{font-size:.62em;color:var(--text-sub);margin-left:66px;margin-top:-6px;margin-bottom:8px}
+  .radar-emoji{font-size:1.3em;width:28px;text-align:center}
+  .radar-label{font-size:.72em;color:var(--text-dim);width:36px;text-align:right;flex-shrink:0}
+  .radar-bar-wrap{flex:1;height:10px;background:var(--bg2);border-radius:5px;overflow:hidden;position:relative}
+  .radar-bar{height:100%;border-radius:5px;transition:width 1.4s cubic-bezier(0.34,1.56,0.64,1);position:relative}
+  .radar-bar::after{content:'';position:absolute;right:0;top:-4px;width:18px;height:18px;border-radius:50%;background:inherit;opacity:.6;box-shadow:0 0 12px currentColor}
+  .radar-score{font-size:.72em;color:var(--text);width:30px;text-align:center;flex-shrink:0;font-weight:600}
+  .radar-desc{font-size:.64em;color:var(--text-sub);margin-left:74px;margin-top:-6px;margin-bottom:8px}
 
-  /* ══════════════════════════════════════════════
-     📱 分享卡片 — Xiaohongshu Style
-     ══════════════════════════════════════════════ */
+  /* ══════════════════════════════════════
+     🎆 粒子特效 (SSR专属)
+     ══════════════════════════════════════ */
+  .particles{position:fixed;inset:0;pointer-events:none;z-index:998}
+  .particle{position:absolute;border-radius:50%;animation:particleFall 3s ease-out forwards}
+  @keyframes particleFall{
+    0%{opacity:1;transform:translate(0,0) scale(1)}
+    100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}
+  }
+
+  /* ══════════════════════════════════════
+     📸 分享系统
+     ══════════════════════════════════════ */
   .share-overlay{
-    position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:999;
-    display:none;align-items:center;justify-content:center;
+    position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;
+    display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    overflow-y:auto;padding:20px 0;
   }
   .share-overlay.show{display:flex}
+  .share-actions-bar{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;z-index:10}
+  .sc-btn{padding:10px 18px;border-radius:10px;font-size:.74em;font-weight:600;cursor:pointer;border:none;transition:all var(--t);display:flex;align-items:center;gap:6px}
+  .sc-btn.primary{background:linear-gradient(135deg,var(--primary, var(--gold)),#b8933d);color:#0a0a18}
+  .sc-btn.secondary{background:rgba(255,255,255,.08);color:var(--text);border:1px solid var(--border)}
+  .sc-btn:hover{transform:translateY(-2px)}
+  .sc-btn.copied{background:#4ade80!important;color:#0a1a0a!important}
+  .share-card-wrap{position:relative;z-index:1}
   .share-card{
     width:340px;border-radius:20px;padding:28px 22px 22px;position:relative;
-    box-shadow:0 0 60px rgba(212,168,83,.15);
-    color:var(--text);font-family:var(--font);
+    box-shadow:0 0 60px rgba(212,168,83,.15);color:var(--text);font-family:var(--font);
+    transition:all .3s;
   }
   .share-card-inner{position:relative;z-index:1}
   .sc-header{text-align:center;margin-bottom:16px}
-  .sc-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:20px;
-    font-size:.68em;font-weight:700;letter-spacing:.1em;
-    border:1px solid var(--primary, var(--gold));margin-bottom:10px;
-    background:rgba(212,168,83,.08);color:var(--primary, var(--gold))}
-  .sc-code{font-size:1.2em;font-weight:700;color:var(--primary, var(--gold));letter-spacing:.06em;margin-bottom:2px}
-  .sc-emoji{font-size:2.2em;margin-bottom:4px}
-  .sc-tagline{font-size:.68em;color:var(--text-dim);font-style:italic;margin-bottom:10px}
+  .sc-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 16px;border-radius:20px;
+    font-size:.7em;font-weight:700;letter-spacing:.12em;
+    border:1px solid var(--primary);margin-bottom:12px;
+    background:rgba(212,168,83,.08);color:var(--primary)}
+  .sc-code{font-size:1.3em;font-weight:700;color:var(--primary);letter-spacing:.08em;margin-bottom:2px}
+  .sc-emoji{font-size:2.4em;margin-bottom:4px}
+  .sc-tagline{font-size:.7em;color:var(--text-dim);font-style:italic;margin-bottom:12px}
   .sc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:14px 0}
-  .sc-stat{text-align:center;padding:8px 4px;background:rgba(255,255,255,.03);border-radius:10px}
-  .sc-stat-val{font-size:.9em;font-weight:700;color:var(--primary, var(--gold))}
-  .sc-stat-lbl{font-size:.56em;color:var(--text-sub);margin-top:2px}
-  .sc-dims{margin:12px 0}
-  .sc-dim-row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
-  .sc-dim-emoji{font-size:.9em;width:18px;text-align:center}
-  .sc-dim-name{font-size:.6em;color:var(--text-dim);width:28px}
-  .sc-dim-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
-  .sc-dim-bar{height:100%;border-radius:3px}
-  .sc-dim-score{font-size:.6em;color:var(--text);width:22px;text-align:right}
-  .sc-footer{text-align:center;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);margin-top:10px}
-  .sc-footer span{font-size:.58em;color:var(--text-sub)}
-  .sc-close{position:absolute;top:12px;right:16px;z-index:10;background:none;border:none;color:var(--text-dim);font-size:1.3em;cursor:pointer}
-  .sc-actions{display:flex;gap:8px;justify-content:center;margin-top:14px}
-  .sc-btn{padding:8px 16px;border-radius:8px;font-size:.72em;font-weight:600;cursor:pointer;border:none;transition:all var(--t)}
-  .sc-btn.primary{background:linear-gradient(135deg,var(--primary, var(--gold)),#b8933d);color:#0a0a18}
-  .sc-btn.secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
-  .sc-btn:hover{transform:translateY(-1px)}
-  .sc-actions-wrap{text-align:center;position:relative;z-index:10}
+  .sc-stat{text-align:center;padding:10px 4px;background:rgba(255,255,255,.04);border-radius:12px}
+  .sc-stat-val{font-size:.95em;font-weight:700;color:var(--primary)}
+  .sc-stat-lbl{font-size:.58em;color:var(--text-sub);margin-top:3px}
+  .sc-dims{margin:14px 0}
+  .sc-dim-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .sc-dim-emoji{font-size:.95em;width:20px;text-align:center}
+  .sc-dim-name{font-size:.62em;color:var(--text-dim);width:30px}
+  .sc-dim-bar-wrap{flex:1;height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden}
+  .sc-dim-bar{height:100%;border-radius:4px}
+  .sc-dim-score{font-size:.62em;color:var(--text);width:24px;text-align:right;font-weight:600}
+  .sc-footer{text-align:center;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);margin-top:12px}
+  .sc-footer span{font-size:.6em;color:var(--text-sub)}
+  .sc-watermark{position:absolute;bottom:8px;right:14px;font-size:.48em;color:var(--text-sub);opacity:.5}
+  .sc-close{position:absolute;top:14px;right:18px;z-index:10;background:none;border:none;color:var(--text-dim);font-size:1.3em;cursor:pointer}
 
-  /* ══════════════════════════════════════════════
-     🏰 命盘网格 — 保持原有风格
-     ══════════════════════════════════════════════ */
+  /* ── 模板选择器 ── */
+  .tmpl-picker{display:flex;gap:6px;justify-content:center;z-index:10}
+  .tmpl-dot{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .2s}
+  .tmpl-dot.active{border-color:#fff;transform:scale(1.2)}
+  .tmpl-dot.t1{background:linear-gradient(135deg,#1a1a2e,#16213e)}
+  .tmpl-dot.t2{background:linear-gradient(135deg,#1a0a0a,#2e0d0d)}
+  .tmpl-dot.t3{background:linear-gradient(135deg,#0a1a2e,#0d1a3a)}
+
+  /* ── 社交计数 ── */
+  .social-proof{text-align:center;margin:10px 0;font-size:.68em;color:var(--text-sub)}
+  .social-proof .count{color:var(--primary);font-weight:600}
+
+  /* ── 复制文案区 ── */
+  .copy-caption-area{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;
+    font-size:.68em;color:var(--text-dim);line-height:1.8;max-width:360px;position:relative;z-index:10}
+  .copy-caption-area .copy-hint{position:absolute;top:8px;right:10px;font-size:.8em;cursor:pointer;color:var(--text-sub);transition:color .2s}
+  .copy-caption-area .copy-hint:hover{color:var(--primary)}
+
+  /* ══════════════════════════════════════
+     🏰 命盘网格
+     ══════════════════════════════════════ */
   .info-bar{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin-bottom:14px}
   .info-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
   .info-label{font-size:.62em;color:var(--text-sub);letter-spacing:.04em}
   .info-value{font-size:.8em;font-weight:500;margin-top:1px}
   .info-value.hl{color:var(--gold)}
-
   .sihua-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
   .si-tag{padding:3px 10px;border-radius:16px;font-size:.7em;font-weight:600}
   .si-lu{background:rgba(74,222,128,.08);color:var(--sihua-lu);border:1px solid rgba(74,222,128,.25)}
   .si-quan{background:rgba(249,115,22,.08);color:var(--sihua-quan);border:1px solid rgba(249,115,22,.25)}
   .si-ke{background:rgba(96,165,250,.08);color:var(--sihua-ke);border:1px solid rgba(96,165,250,.25)}
   .si-ji{background:rgba(239,68,68,.08);color:var(--sihua-ji);border:1px solid rgba(239,68,68,.25)}
-
   .tabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
   .tab{padding:6px 14px;border-radius:18px;font-size:.7em;font-weight:500;cursor:pointer;white-space:nowrap;transition:all var(--t);border:1px solid var(--border);color:var(--text-dim);background:transparent;flex-shrink:0}
   .tab.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
-
   .chart-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:16px}
   .palace{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:7px 5px;min-height:88px;cursor:pointer;position:relative;transition:all var(--t)}
   .palace:hover{border-color:rgba(212,168,83,.35);transform:translateY(-1px)}
@@ -193,29 +219,30 @@
   .st-main{color:#ffd700}.st-sha{color:#e85d5d}.st-ji{color:#5b9bd5}.st-fu{color:#5bbd72}
   .body-dot{position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:var(--body-glow);box-shadow:0 0 5px var(--body-glow)}
   .dx-tag{font-size:.56em;color:var(--text-sub);text-align:right;margin-top:3px}
-
   .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:14px}
   .panel h3{font-size:.84em;color:var(--gold);margin-bottom:8px;font-weight:500}
   .section-text{font-size:.78em;line-height:1.75;color:var(--text);margin-bottom:8px}
   .highlight-good{font-size:.76em;padding:5px 10px;margin:3px 0;border-radius:5px;background:var(--bg2);color:#5bbd72;border-left:3px solid #5bbd72}
   .highlight-warn{font-size:.76em;padding:5px 10px;margin:3px 0;border-radius:5px;background:var(--bg2);color:#e85d5d;border-left:3px solid #e85d5d}
-
-  /* ── 分享按钮 ── */
-  .share-bar{display:flex;gap:8px;justify-content:center;margin:16px 0}
+  .share-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0}
   .share-btn{padding:10px 24px;border-radius:24px;font-size:.76em;font-weight:600;cursor:pointer;border:none;transition:all var(--t);display:flex;align-items:center;gap:6px}
-  .share-btn.primary-btn{background:linear-gradient(135deg,var(--primary, var(--gold)),#b8933d);color:#0a0a18;box-shadow:0 4px 15px var(--card-glow, var(--gold-dim))}
-  .share-btn.primary-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--card-glow, var(--gold-glow))}
+  .share-btn.primary-btn{background:linear-gradient(135deg,var(--primary, var(--gold)),#b8933d);color:#0a0a18;box-shadow:0 4px 15px var(--card-glow)}
+  .share-btn.primary-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--card-glow)}
+  .share-btn.secondary-btn{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
+  .share-btn.secondary-btn:hover{background:rgba(255,255,255,.1)}
 
   .footer{text-align:center;padding:24px;color:var(--text-sub);font-size:.64em}
 
   @media(max-width:480px){
     .header h1{font-size:1.3em}.chart-grid{gap:2px}.palace{padding:5px 3px;min-height:72px}.pn{font-size:.6em}.ps{font-size:.58em}.info-bar{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr 1fr}
-    .rarity-score{font-size:2.4em}.share-card{width:92vw;padding:22px 16px 18px}
+    .rarity-score{font-size:2.6em}.share-card{width:92vw;padding:22px 16px 18px}
+    .sc-actions-bar{flex-wrap:wrap;justify-content:center}
   }
 </style>
 </head>
 <body>
-<div class="container">
+<div class="container" id="app">
+
 <div class="header"><h1>🔮 紫微斗数</h1><div class="sub">探索你的专属命盘</div><div class="sep"></div></div>
 
 <div class="form-card">
@@ -228,45 +255,86 @@
   <div class="fg"><label>时</label><input id="hour" type="number" value="12" min="0" max="23"></div>
   <div class="fg"><label>分</label><input id="min" type="number" value="0" min="0" max="59"></div>
   <div class="fg city-wrap"><label>出生城市</label><input id="city" placeholder="如:北京" autocomplete="off" oninput="searchCity()" onfocus="this.select()"><div class="city-suggest" id="cityList"></div></div>
-  <div class="fg" style="justify-content:flex-end"><button class="btn" id="go" onclick="load()">🔮 深度解读</button></div>
+  <div class="fg" style="justify-content:flex-end"><button class="btn" id="go" onclick="loadChart()">🔮 深度解读</button></div>
 </div>
 </div>
+
 <div id="out"></div>
 <div class="footer">紫微斗数 · 仅供研究参考</div>
 </div>
-<div class="share-overlay" id="shareOverlay"><div class="share-card" id="shareCard"></div></div>
+
+<!-- 分享浮层 -->
+<div class="share-overlay" id="shareOverlay">
+  <div class="tmpl-picker" id="tmplPicker">
+    <div class="tmpl-dot t1 active" onclick="switchTemplate(0)" title="暗夜星辰"></div>
+    <div class="tmpl-dot t2" onclick="switchTemplate(1)" title="赤焰流光"></div>
+    <div class="tmpl-dot t3" onclick="switchTemplate(2)" title="深蓝梦境"></div>
+  </div>
+  <div class="share-card-wrap" id="shareCardWrap"><div class="share-card" id="shareCard"></div></div>
+  <div class="share-actions-bar">
+    <button class="sc-btn primary" onclick="downloadCard()">📥 保存图片</button>
+    <button class="sc-btn secondary" onclick="copyCaption()" id="copyCaptionBtn">📋 复制文案</button>
+  </div>
+  <div class="copy-caption-area" id="captionArea" style="display:none">
+    <span class="copy-hint" onclick="copyCaption()">📋</span>
+    <div id="captionText"></div>
+  </div>
+  <div class="social-proof">已有 <span class="count" id="shareCount">1,284</span> 人探索了命盘</div>
+  <button class="sc-close" onclick="closeShare()" style="position:relative;top:auto;right:auto;margin-top:4px">关闭 ✕</button>
+</div>
+
+<!-- 粒子容器 -->
+<div class="particles" id="particles"></div>
 
 <script>
+// ══════════════════════════════════════
+// 全局状态
+// ══════════════════════════════════════
 const BR=["巳","午","未","申","辰","酉","卯","戌","寅","丑","子","亥"];
 const MAIN=new Set("紫微天机太阳武曲天同廉贞天府太阴贪狼巨门天相天梁七杀破军".match(/.{2}/g));
 const SHA=new Set(["擎羊","陀罗","火星","铃星","地劫","地空"]);
 const JI=new Set(["文昌","文曲","左辅","右弼","天魁","天钺","禄存","天马"]);
 const SIHUA_C={"化禄":"si-lu","化权":"si-quan","化科":"si-ke","化忌":"si-ji"};
-
 function sc(s){if(MAIN.has(s))return"st-main";if(SHA.has(s))return"st-sha";if(JI.has(s))return"st-ji";return"st-fu"}
 
 let chartData=null,analysisData=null,selectedPalace=null,activeTab="overview";
+let currentTemplate=0;
+const templates=[
+  {name:'暗夜星辰',bg:'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'},
+  {name:'赤焰流光',bg:'linear-gradient(135deg, #1a0a0a 0%, #2e1010 50%, #3a0a0a 100%)'},
+  {name:'深蓝梦境',bg:'linear-gradient(135deg, #0a0a2e 0%, #0d1a3a 50%, #0a1030 100%)'},
+];
 
+// ══════════════════════════════════════
+// 城市搜索
+// ══════════════════════════════════════
 async function searchCity(){
   const q=document.getElementById("city").value.trim();
   if(q.length<1){document.getElementById("cityList").classList.remove("show");return}
-  try{
-    const r=await fetch("/api/cities?q="+encodeURIComponent(q));
-    const data=await r.json();
+  try{const r=await fetch("/api/cities?q="+encodeURIComponent(q));const data=await r.json();
     const el=document.getElementById("cityList");
-    if(!data.length){el.classList.remove("show");return}
-    el.innerHTML=data.map(c=>`<div class="city-item" onclick="selectCity('${c.name}')">${c.name} ${c.province} (${c.lng.toFixed(2)},${c.lat.toFixed(2)})</div>`).join('');
-    el.classList.add("show")
-  }catch(e){}
+    el.innerHTML=data.length?data.map(c=>`<div class="city-item" onclick="selectCity('${c.city}')">${c.city} ${c.province} (${c.longitude.toFixed(2)},${c.latitude.toFixed(2)})</div>`).join(''):'<div class="city-item" style="color:var(--text-sub)">未找到城市</div>';
+    el.classList.add("show")}catch(e){}
 }
 function selectCity(n){document.getElementById("city").value=n;document.getElementById("cityList").classList.remove("show")}
+document.addEventListener('click',e=>{if(!e.target.closest('.city-wrap'))document.getElementById("cityList").classList.remove("show")});
 
-/* ══════════════════════════════════════
-   核心加载
-   ══════════════════════════════════════ */
-async function load(){
+// ══════════════════════════════════════
+// 核心加载 + 递进式揭秘
+// ══════════════════════════════════════
+const tips=['🌌 正在计算四柱八字...','⭐ 安放星曜中...','🔮 紫微定位完成...','📊 检测命盘格局...','✨ 生成专属解读...','🎭 计算人格原型...'];
+
+async function loadChart(){
   const go=document.getElementById("go");go.disabled=true;go.textContent="排盘中...";
-  document.getElementById("out").innerHTML='<div class="loading"><div class="spinner"></div>正在解读你的命盘…</div>';
+  const out=document.getElementById("out");
+  let tipIdx=0;
+
+  // 加载动画
+  out.innerHTML=`<div class="loading-wrap"><div class="spinner"></div><div class="loading-tip" id="loadTip">🌌 正在连接星空...</div></div>`;
+  const tipInterval=setInterval(()=>{
+    document.getElementById("loadTip").textContent=tips[tipIdx%tips.length];tipIdx++;
+  },800);
+
   try{
     const p={year:+document.getElementById("year").value,month:+document.getElementById("month").value,
       day:+document.getElementById("day").value,hour:+document.getElementById("hour").value,
@@ -277,73 +345,95 @@ async function load(){
     if(!r.ok){const e=await r.json();throw new Error(e.detail||"排盘失败")}
     chartData=await r.json();
     analysisData=chartData.analysis||{};
+    clearInterval(tipInterval);
     applyElementTheme();
-    renderAll();
+    await revealAll();
+    await updateShareCount();
   }catch(e){
-    document.getElementById("out").innerHTML=`<div class="panel"><div class="section-text" style="color:#e85d5d">排盘失败: ${e.message}</div></div>`
+    clearInterval(tipInterval);
+    out.innerHTML=`<div class="panel"><div class="section-text" style="color:#e85d5d">排盘失败: ${e.message}</div></div>`
   }
-  go.disabled=false;go.textContent="🔮 深度解读"
+  go.disabled=false;go.textContent="🔮 深度解读";
 }
 
-/* 根据元素设置CSS变量 */
+// ── 递进式揭秘 (SBIT风格) ──
+async function revealAll(){
+  const out=document.getElementById("out");
+  const rar=analysisData.rarity||{};
+  const dc=analysisData.destiny_code||{};
+
+  // Step 0: 清屏
+  out.innerHTML='';
+
+  // Step 1: 稀有度英雄卡 (0.3s delay)
+  await sleep(300);
+  out.innerHTML=renderRarityHero();
+  revealNext(out.firstElementChild);
+  if(rar.tier==='SSR')spawnParticles(rar.color||'#ffd700');
+  await sleep(800);
+
+  // Step 2: 命码卡片
+  out.innerHTML+=renderDestinyCode();
+  revealNext(out.children[out.children.length-1]);
+  await sleep(600);
+
+  // Step 3: 五维雷达
+  out.innerHTML+=renderRadar();
+  revealNext(out.children[out.children.length-1]);
+  setTimeout(()=>{
+    document.querySelectorAll('.radar-bar').forEach(b=>{const w=b.dataset.width;b.style.width=w+'%'})
+  },200);
+  await sleep(800);
+
+  // Step 4: Tab + 信息栏 + 命盘 (更快出内容)
+  out.innerHTML+=renderShareBar();
+  revealNext(out.children[out.children.length-1]);
+  out.innerHTML+=renderTabs();
+  revealNext(out.children[out.children.length-1]);
+  out.innerHTML+=renderInfoBar();
+  revealNext(out.children[out.children.length-1]);
+  out.innerHTML+=renderSihuaRow();
+  revealNext(out.children[out.children.length-1]);
+  out.innerHTML+=renderTabContent();
+  revealNext(out.children[out.children.length-1]);
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+function revealNext(el){if(!el)return;el.classList.add('reveal-step');requestAnimationFrame(()=>{el.classList.add('visible')})}
+
+// ══════════════════════════════════════
+// 粒子特效
+// ══════════════════════════════════════
+function spawnParticles(color){
+  const container=document.getElementById('particles');
+  const colors=[color,'#ffd700','#fbbf24','#f59e0b','#fff'];
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div');p.className='particle';
+    const size=Math.random()*8+4;
+    p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*40}%;width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};--dx:${(Math.random()-0.5)*400}px;--dy:${Math.random()*500+200}px;animation-delay:${Math.random()*0.6}s`;
+    container.appendChild(p);
+    setTimeout(()=>p.remove(),3600);
+  }
+}
+
+// ══════════════════════════════════════
+// 主题
+// ══════════════════════════════════════
 function applyElementTheme(){
   const theme=analysisData.element_theme||{};
   const root=document.documentElement.style;
-  if(theme.primary){root.setProperty('--primary',theme.primary);root.setProperty('--accent',theme.accent)}
+  if(theme.primary)root.setProperty('--primary',theme.primary);
+  if(theme.accent)root.setProperty('--accent',theme.accent);
   if(theme.glow)root.setProperty('--card-glow',theme.glow);
-  if(theme.card_bg)root.setProperty('--card-bg',theme.card_bg);
-  if(theme.bg)root.setProperty('--card-bg-extra','rgba(212,168,83,.08)');
 }
 
-function renderAll(){
-  const out=document.getElementById("out");
-  let h='';
-
-  /* ── 先显示稀有度卡片 ── */
-  h+=renderRarityHero();
-  /* ── 命码卡片 ── */
-  h+=renderDestinyCode();
-  /* ── 五维雷达 ── */
-  h+=renderRadar();
-  /* ── 分享按钮 ── */
-  h+=renderShareBar();
-  /* ── Tab导航 ── */
-  h+=renderTabs();
-  /* ── 基本信息栏 ── */
-  if(activeTab==="overview"||activeTab==="chart"){
-    h+=renderInfoBar();
-    h+=renderSihuaRow();
-  }
-  /* ── 命盘网格 ── */
-  if(activeTab==="chart")h+=renderChart();
-  /* ── Tab内容 ── */
-  h+=renderTabContent();
-
-  out.innerHTML=h;
-  /* 雷达条动画 */
-  setTimeout(()=>{
-    document.querySelectorAll('.radar-bar').forEach(b=>{
-      const w=b.dataset.width;b.style.width=w+'%'
-    })
-  },100);
-  /* 稀有度动画仅首次 */
-  const hero=document.querySelector('.rarity-hero');
-  if(hero)hero.style.animation='none';
-  setTimeout(()=>{if(hero)hero.style.animation='';},10);
-}
-
-/* ══════════════════════════════════════
-   🎴 稀有度英雄卡片
-   ══════════════════════════════════════ */
 function renderRarityHero(){
-  const rar=analysisData.rarity||{};
-  if(!rar.tier)return '';
+  const rar=analysisData.rarity||{};if(!rar.tier)return '';
   const tierEmoji={SSR:'🌟',SR:'💎',R:'✨',UC:'🌿',C:'🌱'};
   const tiers=['C','UC','R','SR','SSR'];
   const activeIdx=tiers.indexOf(rar.tier);
   const tierDots=tiers.map((t,i)=>`<div class="tier-dot${i<=activeIdx?' active':''}"></div>`).join('');
-  const bonuses=(rar.bonuses||[]).map(b=>`<span class="bonus-tag">${b.desc}</span>`).join('');
-  
+  const bonuses=(rar.bonuses||[]).slice(0,5).map(b=>`<span class="bonus-tag">${b.desc}</span>`).join('');
   return `<div class="rarity-hero" style="--primary:${rar.color};--card-glow:${rar.glow};--card-bg:${rar.card_bg||'radial-gradient(ellipse at 50% 0%,rgba(212,168,83,.08),transparent 70%)'};">
     <div class="rarity-badge">${tierEmoji[rar.tier]||'✨'} ${rar.tier} · ${rar.tier_label}</div>
     <div class="rarity-score">${rar.score}<span class="rarity-score-unit">/1000</span></div>
@@ -354,59 +444,43 @@ function renderRarityHero(){
   </div>`
 }
 
-/* ══════════════════════════════════════
-   🎭 命码卡片
-   ══════════════════════════════════════ */
 function renderDestinyCode(){
-  const dc=analysisData.destiny_code||{};
-  if(!dc.code)return '';
-  const keywords=(dc.keywords||[]).map(k=>`<span class="kw-tag">${k}</span>`).join('');
+  const dc=analysisData.destiny_code||{};if(!dc.code)return '';
   const theme=analysisData.element_theme||{};
   return `<div class="code-hero">
     <div class="code-emoji">${dc.emoji||'✨'}</div>
     <div class="code-name">${dc.full_name||'天命'}</div>
     <div class="code-tagline">「${dc.tagline||''}」</div>
-    <div class="code-keywords">${keywords}</div>
+    <div class="code-keywords">${(dc.keywords||[]).map(k=>`<span class="kw-tag">${k}</span>`).join('')}</div>
     ${theme.name?`<div style="margin-top:8px;font-size:.64em;color:var(--text-sub)">元素: ${theme.name} · ${theme.vibe||''}</div>`:''}
   </div>`
 }
 
-/* ══════════════════════════════════════
-   📊 五维雷达
-   ══════════════════════════════════════ */
 function renderRadar(){
   const dims=analysisData.dimensions||{};
   const order=['destiny','fortune','talent','heart','challenge'];
-  const colors={'destiny':'#c084fc','fortune':'#4ade80','talent':'#60a5fa','heart':'#f472b6','challenge':'#f97316'};
+  const colors={destiny:'#c084fc',fortune:'#4ade80',talent:'#60a5fa',heart:'#f472b6',challenge:'#f97316'};
   let rows='';
   for(const key of order){
     const d=dims[key];if(!d)continue;
     rows+=`<div class="radar-row">
-      <div class="radar-emoji">${d.emoji||''}</div>
-      <div class="radar-label">${d.name}</div>
+      <div class="radar-emoji">${d.emoji||''}</div><div class="radar-label">${d.name}</div>
       <div class="radar-bar-wrap"><div class="radar-bar" data-width="${d.score}" style="background:${colors[key]};width:0%"></div></div>
       <div class="radar-score">${d.score}</div>
-    </div>
-    <div class="radar-desc">${d.label} · ${d.description||''}</div>`;
+    </div><div class="radar-desc">${d.label} · ${d.description||''}</div>`;
   }
-  return `<div class="radar-card">
-    <div class="radar-title">✦ 命格五维雷达 ✦</div>
-    ${rows}
-  </div>`
+  return `<div class="radar-card"><div class="radar-title">✦ 命格五维雷达 ✦</div>${rows}</div>`
 }
 
-/* ══════════════════════════════════════
-   📢 分享按钮栏
-   ══════════════════════════════════════ */
 function renderShareBar(){
+  const rar=analysisData.rarity||{};
+  const tierText=rar.tier?`我是${rar.tier}·${rar.tier_label}`:'';
   return `<div class="share-bar">
     <button class="share-btn primary-btn" onclick="openShare()">📸 生成分享卡片</button>
+    <button class="share-btn secondary-btn" onclick="openShare()">📋 复制小红书文案</button>
   </div>`
 }
 
-/* ══════════════════════════════════════
-   📑 Tab导航
-   ══════════════════════════════════════ */
 function renderTabs(){
   const tabs=['overview','chart','personality','career','love','health','reading'];
   const labels={overview:'✨ 总览',chart:'🏰 命盘',personality:'🎭 性格',career:'💼 事业',love:'💕 感情',health:'💪 健康',reading:'📖 解读'};
@@ -415,133 +489,89 @@ function renderTabs(){
 
 function switchTab(tab,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');activeTab=tab;renderAll();
+  el.classList.add('active');activeTab=tab;
+  const out=document.getElementById("out");
+  const behind=out.querySelector('.tab-panel-area')||(out.appendChild(document.createElement('div')));
+  behind.className='tab-panel-area';
+  const h=renderInfoBar()+renderSihuaRow()+(activeTab==='chart'?renderChart():'')+renderTabContent();
+  behind.innerHTML=h;
+  document.querySelectorAll('.reveal-step').forEach(el=>{el.classList.add('visible')});
 }
 
-/* ══════════════════════════════════════
-   ℹ️ 基本信息
-   ══════════════════════════════════════ */
 function renderInfoBar(){
   const d=chartData;const fp=d.four_pillars||{};
   const items=[
     ['四柱八字',`${fp.year} ${fp.month} ${fp.day} ${fp.hour}`],
     ['命宫/身宫',`${d.ming_palace} / ${d.shen_palace}`],
-    ['五行局',d.wuxing_ju],
-    ['生肖',d.zodiac],
-    ['农历',d.lunar_date],
-    d.solar_correction?['真太阳时',`校正: ${d.solar_correction.corrected_hour}:${String(d.solar_correction.corrected_minute).padStart(2,'0')}`]:null,
+    ['五行局',d.wuxing_ju],['生肖',d.zodiac],['农历',d.lunar_date],
+    d.solar_correction?['真太阳时',`${d.solar_correction.corrected_hour}:${String(d.solar_correction.corrected_minute).padStart(2,'0')}`]:null,
   ].filter(Boolean);
   return `<div class="info-bar">${items.map(([l,v])=>`<div class="info-card"><div class="info-label">${l}</div><div class="info-value hl">${v}</div></div>`).join('')}</div>`
 }
 
 function renderSihuaRow(){
-  const sihua=chartData.sihua||{};
-  if(!Object.keys(sihua).length)return '';
-  const order=['化禄','化权','化科','化忌'];
+  const sihua=chartData.sihua||{};if(!Object.keys(sihua).length)return '';
   const cls={化禄:'si-lu',化权:'si-quan',化科:'si-ke',化忌:'si-ji'};
-  let tags='';
-  for(const t of order){
-    if(sihua[t])tags+=`<span class="si-tag ${cls[t]}">${t}: ${sihua[t]}</span>`;
-  }
-  return `<div class="sihua-row">${tags}</div>`
+  return `<div class="sihua-row">${['化禄','化权','化科','化忌'].filter(t=>sihua[t]).map(t=>`<span class="si-tag ${cls[t]}">${t}: ${sihua[t]}</span>`).join('')}</div>`
 }
 
-/* ══════════════════════════════════════
-   🏰 十二宫命盘
-   ══════════════════════════════════════ */
 function renderChart(){
-  const palaces=chartData.palaces||[];
+  if(!chartData.palaces)return '';
   let cells='';
-  for(const p of palaces){
-    const bodyClass=p.is_body?' body-palace':'';
-    const selClass=selectedPalace===p.name?' selected':'';
-    const stars=p.stars.map(s=>`<span class="star ${sc(s)}">${s}</span>`).join('');
-    const dx=p.daxian?`<div class="dx-tag">📅 ${p.daxian}</div>`:'';
-    const bodyDot=p.is_body?'<div class="body-dot"></div>':'';
-    cells+=`<div class="palace${bodyClass}${selClass}" onclick="selectPalace('${p.name}')">
+  for(const p of chartData.palaces){
+    cells+=`<div class="palace${p.is_body?' body-palace':''}${selectedPalace===p.name?' selected':''}" onclick="selectPalace('${p.name}')">
       <div class="ph"><span class="pn">${p.name}</span><span class="pgz">${p.ganzhi}</span></div>
-      <div class="ps">${stars||'<span style="color:var(--text-sub);font-size:.58em">空宫</span>'}</div>
-      ${bodyDot}${dx}
+      <div class="ps">${p.stars.length?p.stars.map(s=>`<span class="star ${sc(s)}">${s}</span>`).join(''):'<span style="color:var(--text-sub);font-size:.58em">空宫</span>'}</div>
+      ${p.is_body?'<div class="body-dot"></div>':''}${p.daxian?`<div class="dx-tag">📅 ${p.daxian}</div>`:''}
     </div>`;
   }
   return `<div class="chart-grid">${cells}</div>`
 }
 
 function selectPalace(name){
-  selectedPalace=selectedPalace===name?null:name;
-  renderAll();
-  if(selectedPalace){
-    const p=chartData.palaces.find(x=>x.name===selectedPalace);
-    if(p)showPalaceDetail(p);
-  }
+  selectedPalace=selectedPalace===name?null:name;switchTab(activeTab||'overview',document.querySelector('.tab.active')||document.querySelector('.tab'));
+  if(selectedPalace){const p=chartData.palaces.find(x=>x.name===selectedPalace);if(p)showPalaceDetail(p)}
 }
 
 function showPalaceDetail(p){
-  const detail=document.getElementById('palace-detail');
-  if(!detail)return;
+  let el=document.getElementById('palace-detail');if(!el){el=document.createElement('div');el.id='palace-detail';document.querySelector('.tab-panel-area')?.prepend(el)}
   let h=`<div class="panel"><h3>${p.name} (${p.ganzhi}) ${p.is_body?'🏠 身宫':''}</h3>`;
-  h+=`<div class="section-text">`;
-  if(p.stars.length)h+='星曜: '+p.stars.map(s=>`<span class="star ${sc(s)}">${s}</span>`).join(' ');
-  else h+='此宫无主星曜';
-  h+='</div>';
+  h+=`<div class="section-text">${p.stars.length?'星曜: '+p.stars.map(s=>`<span class="star ${sc(s)}">${s}</span>`).join(' '):'此宫无主星曜'}</div>`;
   if(p.sihua.length)h+=`<div style="font-size:.72em;color:var(--text-dim);margin-top:6px">四化: ${p.sihua.join(', ')}</div>`;
   const interp=analysisData.palace_interpretations||{};
   if(interp[p.name])h+=`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:.74em;line-height:1.7">${interp[p.name]}</div>`;
-  if(p.daxian)h+=`<div style="margin-top:6px;font-size:.68em;color:var(--text-sub)">大限: ${p.daxian}</div>`;
-  h+='</div>';
-  detail.innerHTML=h;
-  detail.scrollIntoView({behavior:'smooth',block:'center'});
+  h+='</div>';el.innerHTML=h;el.scrollIntoView({behavior:'smooth',block:'center'});
 }
 
-/* ══════════════════════════════════════
-   📋 Tab内容区
-   ══════════════════════════════════════ */
 function renderTabContent(){
   let h='<div id="palace-detail"></div>';
   const a=analysisData;
-  const pers=a.personality||{};
-  const cw=a.career_wealth||{};
-  const rel=a.relationship||{};
-  const hlth=a.health||{};
-  const arch=a.archetype||{};
-
   if(activeTab==='overview'){
     h+=`<div class="panel"><h3>📋 命盘总览</h3><div class="section-text">${a.overview||''}</div></div>`;
-    if(a.highlights&&a.highlights.length){
-      h+=`<div class="panel"><h3>✨ 命盘亮点</h3>`+a.highlights.map(x=>`<div class="highlight-good">${x}</div>`).join('')+'</div>';
-    }
-    if(a.cautions&&a.cautions.length){
-      h+=`<div class="panel"><h3>⚠️ 注意事项</h3>`+a.cautions.map(x=>`<div class="highlight-warn">${x}</div>`).join('')+'</div>';
-    }
+    if(a.highlights&&a.highlights.length)h+=`<div class="panel"><h3>✨ 命盘亮点</h3>`+a.highlights.map(x=>`<div class="highlight-good">${x}</div>`).join('')+'</div>';
+    if(a.cautions&&a.cautions.length)h+=`<div class="panel"><h3>⚠️ 注意事项</h3>`+a.cautions.map(x=>`<div class="highlight-warn">${x}</div>`).join('')+'</div>';
   }
   if(activeTab==='personality'){
+    const pers=a.personality||{};const arch=a.archetype||{};
     h+=`<div class="panel"><h3>🎭 性格画像</h3><div class="section-text">${pers.summary||''}</div>`;
     if(pers.detail)h+=`<div class="section-text" style="color:var(--text-dim)">${pers.detail}</div>`;
-    if(arch.description)h+=`<div class="section-text" style="margin-top:8px">🏛️ 原型: ${arch.archetype_name||''} — ${arch.tagline||''}<br>${arch.description||''}</div>`;
+    if(arch.description)h+=`<div class="section-text" style="margin-top:8px;padding:10px;background:var(--bg2);border-radius:8px">🏛️ <b>${arch.archetype_name||''}</b> — ${arch.tagline||''}<br><span style="color:var(--text-dim)">${arch.description||''}</span></div>`;
     h+='</div>';
   }
-  if(activeTab==='career'){
+  if(activeTab==='career'){const cw=a.career_wealth||{};
     h+=`<div class="panel"><h3>💼 事业财运</h3><div class="section-text">${cw.career||''}</div>`;
-    if(cw.wealth)h+=`<div class="section-text">💰 财运: ${cw.wealth}</div>`;
-    if(cw.wealth_tip)h+=`<div class="highlight-good">${cw.wealth_tip}</div>`;
-    h+='</div>';
+    if(cw.wealth)h+=`<div class="section-text">💰 ${cw.wealth}</div>`;
+    if(cw.wealth_tip)h+=`<div class="highlight-good">${cw.wealth_tip}</div>`;h+='</div>';
   }
-  if(activeTab==='love'){
-    h+=`<div class="panel"><h3>💕 感情婚姻</h3><div class="section-text">${rel.summary||'夫妻宫无主星，感情模式较受环境影响。'}</div>`;
-    if(rel.detail)h+=`<div class="section-text" style="color:var(--text-dim)">${rel.detail}</div>`;
-    h+='</div>';
+  if(activeTab==='love'){const rel=a.relationship||{};
+    h+=`<div class="panel"><h3>💕 感情婚姻</h3><div class="section-text">${rel.summary||'感情模式较受环境影响。'}</div>`;
+    if(rel.detail)h+=`<div class="section-text" style="color:var(--text-dim)">${rel.detail}</div>`;h+='</div>';
   }
-  if(activeTab==='health'){
+  if(activeTab==='health'){const hlth=a.health||{};
     h+=`<div class="panel"><h3>💪 健康分析</h3><div class="section-text">${hlth.summary||'整体健康运势平稳。'}</div>`;
-    if(hlth.warning)h+=`<div class="highlight-warn">⚠️ ${hlth.warning}</div>`;
-    h+='</div>';
+    if(hlth.warning)h+=`<div class="highlight-warn">⚠️ ${hlth.warning}</div>`;h+='</div>';
   }
-  if(activeTab==='reading'){
-    if(!document.getElementById('_rdLoaded')){
-      loadReadingTab();document.getElementById('_rdLoaded')||document.body.setAttribute('data-rd','1');
-    }
-    h+=`<div class="panel" id="reading-content" data-loaded="0"><div class="section-text">解读生成中…</div></div>`;
-  }
+  if(activeTab==='reading'){h+=`<div class="panel" id="reading-content"><div class="section-text">解读生成中…</div></div>`;loadReadingTab();}
   return h;
 }
 
@@ -554,69 +584,124 @@ async function loadReadingTab(){
     const q=new URLSearchParams(p).toString();
     const r=await fetch("/api/reading?"+q);
     if(!r.ok)throw new Error('error');
-    const data=await r.json();
-    const rd=data.reading||{};
+    const data=await r.json();const rd=data.reading||{};
     const text=rd.llm_reading||rd.local_reading||'暂无法生成解读';
     const note=rd.note?`<div style="font-size:.64em;color:var(--text-sub);margin-top:8px">${rd.note}</div>`:'';
-    const el=document.getElementById('reading-content');
-    if(el){el.innerHTML=`<div class="section-text">${text}</div>${note}`;el.dataset.loaded='1';}
-    document.body.setAttribute('data-rd','1');
-  }catch(e){
-    const el=document.getElementById('reading-content');
-    if(el)el.innerHTML=`<div style="color:#e85d5d;font-size:.78em">解读生成失败: ${e.message}</div>`;
-  }
+    const el=document.getElementById('reading-content');if(el)el.innerHTML=`<div class="section-text">${text}</div>${note}`;
+  }catch(e){const el=document.getElementById('reading-content');if(el)el.innerHTML=`<div style="color:#e85d5d;font-size:.78em">解读生成失败</div>`}
 }
 
-/* ══════════════════════════════════════
-   📸 分享卡片
-   ══════════════════════════════════════ */
+// ══════════════════════════════════════
+// 📸 分享卡片系统
+// ══════════════════════════════════════
 function openShare(){
+  renderShareCard();
+  document.getElementById('shareOverlay').classList.add('show');
+  updateShareCount();
+}
+
+function closeShare(){
+  document.getElementById('shareOverlay').classList.remove('show');
+  document.getElementById('captionArea').style.display='none';
+}
+
+function switchTemplate(idx){
+  currentTemplate=idx;
+  document.querySelectorAll('.tmpl-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  renderShareCard();
+}
+
+function renderShareCard(){
   const d=chartData;const a=analysisData;const dc=a.destiny_code||{};
   const rar=a.rarity||{};const dims=a.dimensions||{};const theme=a.element_theme||{};
-  const dimOrder=['destiny','fortune','talent','heart','challenge'];
-  const dimColors={'destiny':'#c084fc','fortune':'#4ade80','talent':'#60a5fa','heart':'#f472b6','challenge':'#f97316'};
-  
-  let statHTML='';
-  if(rar.tier){statHTML+=`<div class="sc-stat"><div class="sc-stat-val">${rar.tier}</div><div class="sc-stat-lbl">稀有度</div></div>`}
-  statHTML+=`<div class="sc-stat"><div class="sc-stat-val">${dc.element||'?'}</div><div class="sc-stat-lbl">元素属性</div></div>`;
-  statHTML+=`<div class="sc-stat"><div class="sc-stat-val">${rar.percentile||'?'}%</div><div class="sc-stat-lbl">超越人群</div></div>`;
-  
-  let dimHTML='';
-  for(const key of dimOrder){
-    const dm=dims[key];if(!dm)continue;
-    dimHTML+=`<div class="sc-dim-row">
-      <div class="sc-dim-emoji">${dm.emoji||''}</div>
-      <div class="sc-dim-name">${dm.name}</div>
-      <div class="sc-dim-bar-wrap"><div class="sc-dim-bar" style="width:${dm.score}%;background:${dimColors[key]}"></div></div>
-      <div class="sc-dim-score">${dm.score}</div>
-    </div>`;
-  }
-  
-  const cardBg=rar.card_bg||theme.bg||'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
-  const shareText=a.share||{};
-  
-  const card=`<button class="sc-close" onclick="document.getElementById('shareOverlay').classList.remove('show')">✕</button>
-  <div class="sc-header">
-    <div class="sc-badge">${rar.tier_emoji||'✨'} ${rar.tier||'?'} · ${rar.tier_label||''}</div>
-    <div class="sc-emoji">${dc.emoji||'✨'}</div>
-    <div class="sc-code">${dc.full_name||'天命'}</div>
-    <div class="sc-tagline">「${dc.tagline||'独一无二的你'}」</div>
-  </div>
-  <div class="sc-stats">${statHTML}</div>
-  <div class="sc-dims">${dimHTML}</div>
-  <div class="sc-footer"><span>🔮 紫微斗数 · 专属命盘解读 · 截屏分享</span></div>`;
+  const tpl=templates[currentTemplate];
 
-  document.getElementById('shareCard').innerHTML=card;
-  document.getElementById('shareCard').style.background=cardBg;
-  document.getElementById('shareCard').style.border='2px solid '+(theme.primary||'#d4a853');
-  document.getElementById('shareOverlay').classList.add('show');
+  let statHTML='';
+  if(rar.tier)statHTML+=`<div class="sc-stat"><div class="sc-stat-val">${rar.tier}</div><div class="sc-stat-lbl">稀有度</div></div>`;
+  statHTML+=`<div class="sc-stat"><div class="sc-stat-val">${dc.element||'?'}</div><div class="sc-stat-lbl">元素</div></div>`;
+  statHTML+=`<div class="sc-stat"><div class="sc-stat-val">${rar.percentile||'?'}%</div><div class="sc-stat-lbl">超越</div></div>`;
+
+  const dimOrder=['destiny','fortune','talent','heart','challenge'];
+  const dimColors={destiny:'#c084fc',fortune:'#4ade80',talent:'#60a5fa',heart:'#f472b6',challenge:'#f97316'};
+  let dimHTML='';
+  for(const key of dimOrder){const dm=dims[key];if(!dm)continue;
+    dimHTML+=`<div class="sc-dim-row"><div class="sc-dim-emoji">${dm.emoji||''}</div><div class="sc-dim-name">${dm.name}</div>
+    <div class="sc-dim-bar-wrap"><div class="sc-dim-bar" style="width:${dm.score}%;background:${dimColors[key]}"></div></div>
+    <div class="sc-dim-score">${dm.score}</div></div>`;
+  }
+
+  const card=`<div class="share-card-inner">
+    <div class="sc-header">
+      <div class="sc-badge" style="border-color:${rar.color||'#d4a853'};color:${rar.color||'#d4a853'}">${rar.tier_emoji||'✨'} ${rar.tier||'?'} · ${rar.tier_label||''}</div>
+      <div class="sc-emoji">${dc.emoji||'✨'}</div>
+      <div class="sc-code">${dc.full_name||'天命'}</div>
+      <div class="sc-tagline">「${dc.tagline||'独一无二的你'}」</div>
+    </div>
+    <div class="sc-stats">${statHTML}</div>
+    <div class="sc-dims">${dimHTML}</div>
+    <div class="sc-footer"><span>🔮 紫微斗数 · 专属命盘解读</span></div>
+  </div>
+  <div class="sc-watermark">#紫微斗数 #命运探索</div>`;
+
+  const cardEl=document.getElementById('shareCard');
+  cardEl.innerHTML=card;
+  cardEl.style.background=tpl.bg;
+  cardEl.style.border='2px solid '+(theme.primary||rar.color||'#d4a853');
 }
 
-/* 点击遮罩关闭 */
+async function downloadCard(){
+  const card=document.getElementById('shareCard');
+  const wrap=document.getElementById('shareCardWrap');
+  try{
+    const canvas=await html2canvas(card,{backgroundColor:null,scale:3,useCORS:true,logging:false});
+    const link=document.createElement('a');link.download='紫微斗数_我的命盘.png';link.href=canvas.toDataURL('image/png');link.click();
+  }catch(e){alert('保存失败, 请尝试截屏保存');}
+}
+
+function copyCaption(){
+  const dc=analysisData.destiny_code||{};
+  const rar=analysisData.rarity||{};
+  const theme=analysisData.element_theme||{};
+  const dims=analysisData.dimensions||{};
+
+  const tags=['#紫微斗数','#命盘解读','#性格测试','#你的专属命盘'];
+  if(dc.full_name)tags.push('#'+dc.full_name.replace(/·/g,''));
+  if(rar.tier)tags.push('#'+rar.tier+'命盘');
+
+  let text='🔮 我的紫微斗数命盘揭秘！\n\n';
+  text+=`命格: ${dc.full_name||'天命'} ${dc.emoji||''}\n`;
+  if(theme.name)text+=`元素: ${theme.name} · ${theme.vibe||''}\n`;
+  if(rar.rank_text)text+=`${rar.rank_text}\n`;
+  text+=`\n${(dc.keywords||[]).join(' ')}\n\n`;
+
+  const order=['destiny','fortune','talent','heart','challenge'];
+  for(const key of order){const dm=dims[key];if(!dm)continue;text+=`${dm.emoji} ${dm.name}: ${dm.score}分 · ${dm.label}\n`;}
+
+  text+='\n'+tags.join(' ')+'\n\n📸 截屏分享你的命盘！';
+
+  const area=document.getElementById('captionArea');
+  document.getElementById('captionText').textContent=text;
+  area.style.display='block';
+
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('copyCaptionBtn');
+    btn.textContent='✅ 已复制';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 复制文案';btn.classList.remove('copied')},1500);
+  }).catch(()=>{});
+}
+
+async function updateShareCount(){
+  const count=1284+Math.floor(Math.random()*50);
+  document.getElementById('shareCount').textContent=count.toLocaleString();
+}
+
+// ══════════════════════════════════════
+// 启动
+// ══════════════════════════════════════
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('year').value=new Date().getFullYear();
-  document.getElementById('shareOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
-  load();
+  document.getElementById('shareOverlay').addEventListener('click',function(e){if(e.target===this)closeShare()});
+  loadChart();
 })
 </script>
 </body>
