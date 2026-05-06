@@ -198,7 +198,7 @@ async def get_liunian(
 @app.get("/api/health")
 async def health():
     """健康检查."""
-    return {"status": "ok", "version": "0.3.0"}
+    return {"status": "ok", "version": "0.7.0"}
 
 
 if __name__ == "__main__":

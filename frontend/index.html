@@ -5,20 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>紫微斗数 · 命盘解读</title>
 <style>
-  :root{--bg:#060612;--card-bg:rgba(14,14,36,.85);--card2:rgba(20,20,48,.9);--text:#e2dcd0;--dim:#8a8278;--sub:#504a44;
-    --gold:#d4a853;--glow:rgba(212,168,83,0.12);--font:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-    --t:0.5s cubic-bezier(0.4,0,0.2,1);--lu:#4ade80;--qu:#f97316;--ke:#60a5fa;--ji:#ef4444}
+  :root{--bg:#060612;--text:#e2dcd0;--dim:#8a8278;--sub:#504a44;
+    --gold:#d4a853;--glow:rgba(212,168,83,0.15);
+    --font:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    --lu:#4ade80;--qu:#f97316;--ke:#60a5fa;--ji:#ef4444}
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text);
     -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 
-  /* ── Aurora背景 ── */
-  body::before{content:'';position:fixed;inset:-50%;z-index:0;opacity:.4;
-    background:radial-gradient(ellipse at 30% 20%,rgba(212,168,83,.06) 0%,transparent 50%),
-    radial-gradient(ellipse at 70% 60%,rgba(155,126,216,.04) 0%,transparent 50%),
-    radial-gradient(ellipse at 50% 80%,rgba(96,165,250,.04) 0%,transparent 50%);
-    animation:aurora 12s ease-in-out infinite alternate}
-  @keyframes aurora{0%{transform:translate(-2%,-2%) rotate(0deg)}100%{transform:translate(2%,2%) rotate(3deg)}}
+  /* ── Canvas星空+光晕 ── */
+  body::after{content:'';position:fixed;inset:-20%;z-index:0;opacity:.5;pointer-events:none;
+    background:radial-gradient(ellipse at 30% 20%,rgba(212,168,83,.08) 0%,transparent 50%),
+    radial-gradient(ellipse at 70% 50%,rgba(155,126,216,.05) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 80%,rgba(96,165,250,.05) 0%,transparent 50%);
+    animation:aurora 15s ease-in-out infinite alternate}
+  @keyframes aurora{0%{transform:translate(-3%,-3%) scale(1.05)}100%{transform:translate(3%,3%) scale(.95)}}
   #stars{position:fixed;inset:0;z-index:0;pointer-events:none}
 
   .deck{height:100%;width:100%;position:relative;overflow:hidden;z-index:1}
@@ -29,17 +30,17 @@
   .page.current{transform:translateY(0);opacity:1}
   .page.above{transform:translateY(-100%);opacity:0;pointer-events:none}
 
-  /* ── 玻璃卡片 ── */
-  .crd{background:var(--card-bg);border:1px solid rgba(255,255,255,.06);border-radius:24px;
+  .crd{
+    background:rgba(14,14,36,.8);border:1px solid rgba(255,255,255,.07);border-radius:24px;
     padding:28px 22px 24px;width:100%;max-width:320px;position:relative;overflow:hidden;
     box-shadow:0 16px 48px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.03);
-    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
     animation:crdIn .55s cubic-bezier(0.34,1.56,0.64,1)}
-  @keyframes crdIn{0%{opacity:0;transform:translateY(32px) scale(.93)}100%{opacity:1;transform:translateY(0) scale(1)}}
+  @keyframes crdIn{0%{opacity:0;transform:translateY(32px) scale(.92)}100%{opacity:1;transform:translateY(0) scale(1)}}
   .crd.glow{border-color:var(--gold);box-shadow:0 0 48px var(--glow),0 16px 48px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04)}
   .crd::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:70%;height:1px;
-    background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent)}
-  .crd-title{font-size:.66em;color:var(--dim);letter-spacing:.14em;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)}
+  .crd-title{font-size:.66em;color:var(--dim);letter-spacing:.15em;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px}
   .crd-title::before,.crd-title::after{content:'';width:22px;height:1px;background:rgba(255,255,255,.06)}
   .crd-body{font-size:.74em;line-height:1.75;color:var(--text)}
   .crd-hint{font-size:.6em;color:var(--sub);margin-top:8px;line-height:1.5}
@@ -48,41 +49,36 @@
 
   /* ── 稀有度 ── */
   .rar-tier{font-size:2.8em;font-weight:200;letter-spacing:.04em}
-  .rar-badge{display:inline-block;padding:6px 20px;border-radius:22px;font-size:.7em;font-weight:600;letter-spacing:.1em;border:1px solid;margin-bottom:10px}
+  .rar-badge{display:inline-block;padding:6px 20px;border-radius:22px;font-size:.68em;font-weight:600;letter-spacing:.1em;border:1px solid;margin-bottom:10px}
   .rar-desc{font-size:.74em;line-height:1.7;max-width:260px;margin:8px auto 0}
   .bonus-row{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:10px}
   .bonus-tag{padding:4px 11px;border-radius:10px;font-size:.58em;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:var(--dim)}
 
-  /* ── 命码 ── */
   .code-icon{font-size:3.2em;animation:float 3s ease-in-out infinite}
   .code-name{font-size:1.5em;font-weight:600;letter-spacing:.08em;margin:6px 0}
   .code-quote{font-size:.76em;font-style:italic;color:var(--dim);margin:4px 0 12px}
   .kw-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:6px 0}
   .kw{padding:5px 13px;border-radius:14px;font-size:.64em;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
 
-  /* ── 雷达SVG ── */
   .radar-wrap{width:270px;height:260px;margin:0 auto}
 
-  /* ── 星盘SVG ── */
-  .wheel-wrap{width:310px;height:310px;margin:0 auto}
-  .wp{fill:var(--card-bg);stroke:rgba(255,255,255,.025);stroke-width:.7;cursor:pointer;transition:fill .2s}
-  .wp.hl{fill:rgba(240,192,64,.04);stroke:rgba(240,192,64,.18);stroke-width:1.4}
-  .wp:hover{fill:rgba(255,255,255,.025)}
-  .wl{font-size:8px;fill:var(--text);text-anchor:middle;font-weight:500}
+  /* ── 星盘 ════════════════ */
+  .wheel-svg{width:310px;height:310px}
+  .wp{fill:rgba(14,14,36,.6);stroke:rgba(255,255,255,.03);stroke-width:.6;cursor:pointer;transition:fill .2s}
+  .wp.hl{fill:rgba(240,192,64,.05);stroke:rgba(240,192,64,.2);stroke-width:1.4}
+  .wp:active{fill:rgba(255,255,255,.04)}
+  .wl{font-size:8.5px;fill:var(--text);text-anchor:middle;font-weight:500}
   .wb{font-size:6.5px;fill:var(--dim);text-anchor:middle}
-  .ws{font-size:5.8px;font-weight:500}
-  .wr{fill:none;stroke:rgba(255,255,255,.025)}
-  .wc{fill:rgba(0,0,0,.4);stroke:var(--gold);stroke-width:1.5}
-  .wct{font-size:7.5px;fill:var(--text);text-anchor:middle;font-weight:600}
+  .ws{font-size:6px;font-weight:500}
+  .wc{fill:rgba(0,0,0,.5);stroke:var(--gold);stroke-width:1.5}
+  .wct{font-size:8px;fill:var(--text);text-anchor:middle;font-weight:600}
 
-  /* ── 时间线 ── */
-  .tl-item{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;text-align:left}
+  .tl-item{display:flex;gap:12px;align-items:flex-start;margin-bottom:9px;text-align:left}
   .tl-dot{width:7px;height:7px;min-width:7px;border-radius:50%;background:var(--gold);margin-top:3px;box-shadow:0 0 8px var(--gold)}
   .tl-age{font-size:.78em;font-weight:600;color:var(--gold);min-width:36px}
   .tl-body{font-size:.62em;color:var(--dim);line-height:1.5}
   .tl-body b{color:var(--text);font-weight:500}
 
-  /* ── 分享 ── */
   .share-preview{width:220px;border-radius:18px;padding:22px 16px 16px;position:relative;overflow:hidden}
   .share-preview::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.018),transparent 60%)}
   .sp-badge{font-size:.56em;letter-spacing:.1em;margin-bottom:8px;position:relative}
@@ -90,7 +86,6 @@
   .sp-name{font-size:.95em;font-weight:600;margin-bottom:2px;position:relative}
   .sp-foot{font-size:.5em;color:var(--sub);margin-top:10px;text-align:center;position:relative}
 
-  /* ── 标签 ── */
   .tag-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:6px 0}
   .tag{padding:4px 11px;border-radius:14px;font-size:.62em;font-weight:600}
   .t-lu{background:rgba(74,222,128,.08);color:var(--lu);border:1px solid rgba(74,222,128,.15)}
@@ -100,19 +95,16 @@
   .t-good{background:rgba(74,222,128,.06);color:#5bbd72;border:1px solid rgba(74,222,128,.12)}
   .t-warn{background:rgba(239,68,68,.06);color:#e85d5d;border:1px solid rgba(239,68,68,.12)}
 
-  /* ── 导航 ── */
   .nav{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:14px 20px 26px;display:flex;justify-content:center;align-items:center;gap:14px;
     background:linear-gradient(transparent,rgba(6,6,18,.98) 45%)}
-  .nav-btn{padding:11px 26px;border-radius:22px;font-size:.78em;font-weight:600;letter-spacing:.04em;border:none;cursor:pointer;transition:all var(--t);font-family:var(--font)}
+  .nav-btn{padding:11px 26px;border-radius:22px;font-size:.78em;font-weight:600;letter-spacing:.04em;border:none;cursor:pointer;transition:all .3s;font-family:var(--font)}
   .nav-btn.pri{background:linear-gradient(135deg,var(--gold),#b8933d);color:#0a0a18;box-shadow:0 4px 18px var(--glow)}
   .nav-btn.pri:active{transform:scale(.95)}
   .nav-btn.sec{background:rgba(255,255,255,.05);color:var(--text);border:1px solid rgba(255,255,255,.08)}
-  .nav-btn.sec:active{background:rgba(255,255,255,.1)}
   .nav-dots{display:flex;gap:5px}
   .nd{width:5px;height:5px;border-radius:50%;background:var(--sub);transition:all .3s}
   .nd.on{background:var(--gold);width:16px;border-radius:3px;box-shadow:0 0 6px var(--gold)}
 
-  /* ── 表单 ── */
   .brand{font-size:2em;margin-bottom:2px}
   .brand-sub{font-size:.7em;color:var(--dim);letter-spacing:.1em;margin-bottom:24px}
   .form-mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:300px}
@@ -131,9 +123,8 @@
   .sfx-dot{position:absolute;border-radius:50%;animation:sfxFall 3s ease-out forwards}
   @keyframes sfxFall{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(0)}}
 
-  /* UR专属金辉 */
-  .deep-card{background:linear-gradient(135deg,rgba(30,10,0,.5),rgba(10,10,30,.5));border:1px solid rgba(255,215,0,.15)!important}
-  .sep{width:40px;height:1px;background:rgba(255,255,255,.06);margin:10px auto}
+  .deep-card{background:linear-gradient(135deg,rgba(30,10,0,.5),rgba(10,10,30,.5))!important;border:1px solid rgba(255,215,0,.2)!important}
+  .sep{width:40px;height:1px;background:rgba(255,255,255,.05);margin:10px auto}
 </style>
 </head>
 <body>
@@ -161,16 +152,19 @@ var cp=0,tp=0,cd=null,ad=null;
 var tips=['🌌 接收星辰信号…','⭐ 紫微定位中…','📊 解析命盘格局…','🎭 寻找你的原型…','✨ 即将揭晓…'];
 var T={UR:'👑',SSR:'🌟',SR:'💎',S:'✨'};
 
-// Canvas星空
-(function(){var c=document.getElementById('stars'),ctx=c.getContext('2d');
-  function resize(){c.width=window.innerWidth;c.height=window.innerHeight}
-  resize();window.addEventListener('resize',resize);
-  var stars=[];for(var i=0;i<80;i++)stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.2+.3,a:Math.random()*Math.PI*2,s:Math.random()*.01+.003});
-  function draw(){ctx.clearRect(0,0,c.width,c.height);
-    for(var i=0;i<stars.length;i++){var s=stars[i];s.a+=s.s;
-    var alpha=.15+.15*Math.sin(s.a);ctx.fillStyle='rgba(255,255,255,'+alpha+')';
-    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill()}
-    requestAnimationFrame(draw)}draw()})();
+// ═══ Canvas星空 ═══
+(function(){
+  var c=document.getElementById('stars'),ctx=c.getContext('2d');
+  function rs(){c.width=window.innerWidth;c.height=window.innerHeight}
+  rs();window.addEventListener('resize',rs);
+  var stars=[];for(var i=0;i<100;i++)stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.5+.3,sp:Math.random()*.015+.005,ph:Math.random()*Math.PI*2});
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    for(var i=0;i<stars.length;i++){var s=stars[i];s.ph+=s.sp;
+    var a=.12+.2*Math.abs(Math.sin(s.ph));
+    ctx.fillStyle='rgba(220,210,180,'+a.toFixed(2)+')';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill()}
+    requestAnimationFrame(draw)}
+  draw()})();
 
 function nextPage(){if(cp===0){loadChart();return}if(cp<tp-1)goTo(cp+1)}
 function goTo(n){
@@ -230,9 +224,9 @@ function buildPages(fh){
 
   // P3: 雷达
   html+='<div class="page below" id="p3"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 五维雷达 ✦</div>'+radarSVG(dims);
-  html+='<div class="crd-hint">'+Object.values(dims).map(function(d){return d.emoji+' '+d.name+':'+d.score+'·'+d.label}).join('  ')+'</div></div></div>';
+  html+='<div class="crd-hint">'+Object.values(dims).map(function(d){return d.emoji+' '+d.name+':'+d.score}).join('  ')+'</div></div></div>';
 
-  // P4: 星盘
+  // P4: 星盘 — 彻底修重叠
   html+='<div class="page below" id="p4"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 命盘星图 ✦</div>'+wheelSVG();
   html+='<div class="crd-hint">点击宫位看详情 · '+(cd.ming_palace||'')+'坐命 · '+(cd.wuxing_ju||'')+' · '+(cd.zodiac||'')+'</div></div></div>';
 
@@ -263,17 +257,15 @@ function buildPages(fh){
   var ca=ad.cautions||[];if(ca.length)html+=trow(ca.slice(0,2),'t-warn');
   html+='</div></div>';
 
-  // P9: [UR专属] 深度命格
+  // P9: [UR专属]
   if(unlocked){
-    html+='<div class="page below" id="p9"><div class="crd glow deep-card" style="border-color:'+tc+'">';
-    html+='<div class="crd-title">👑 旷世奇才 · 深度命格 👑</div>';
+    html+='<div class="page below" id="p9"><div class="crd glow deep-card" style="border-color:#ffd700"><div class="crd-title">👑 旷世奇才 · 深度命格</div>';
     html+='<div class="crd-body" style="font-size:.72em;line-height:1.8;text-align:left">'+(deep.content||'').replace(/\n/g,'<br>')+'</div>';
-    html+='<div class="crd-hint" style="color:'+tc+'">此深度解析仅对旷世奇才命盘开放</div></div></div>';
+    html+='<div class="crd-hint" style="color:#ffd700">仅对旷世奇才命盘开放此深度解析</div></div></div>';
   }
 
-  // P10: 分享
-  var pi=unlocked?10:9;
-  var bg=th.bg||'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
+  // 分享页
+  var pi=unlocked?10:9,bg=th.bg||'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
   html+='<div class="page below" id="p'+pi+'"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 分享你的星盘 ✦</div>';
   html+='<div class="share-preview" id="sharePrev" style="background:'+bg+';border:1px solid '+tc+'">';
   html+='<div class="sp-badge" style="color:'+tc+'">'+(T[rar.tier]||'✨')+' '+rar.tier+' · '+(rar.tier_label||'')+'</div>';
@@ -303,23 +295,45 @@ function radarSVG(dims){
   s+='<circle cx="'+cx+'" cy="'+cy+'" r="12" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.3"/><text x="'+cx+'" y="'+(cy+4)+'" font-size="8" fill="var(--dim)" text-anchor="middle">命</text></svg>';return s
 }
 
+// ═══ 星盘 - 彻底修复 ═══
 function wheelSVG(){
-  var ps=cd.palaces||[];if(!ps.length)return'';var cx=155,cy=155,Ro=142,Rm=108,Ri=62;
+  var ps=cd.palaces||[];if(!ps.length)return'';
+  var cx=155,cy=155,Ro=142,Rm=110,Ri=65;
   var ms='紫微天机太阳武曲天同廉贞天府太阴贪狼巨门天相天梁七杀破军';
-  var s='<svg viewBox="0 0 310 310" style="width:310px;height:310px">';
-  for(var r=Rm-4;r<=Ro;r+=10)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.025)" stroke-width="0.6"/>';
-  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+Rm+'" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/><circle cx="'+cx+'" cy="'+cy+'" r="'+Ri+'" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>';
-  for(var i=0;i<12;i++){var p=ps[i];if(!p)continue;var a0=-Math.PI/2+2*Math.PI*i/12-Math.PI/12,a1=a0+2*Math.PI/12;
+  var s='<svg viewBox="0 0 310 310" class="wheel-svg">';
+  // rings
+  for(var r=Rm-6;r<=Ro;r+=12)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.025)" stroke-width="0.5"/>';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+Rm+'" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/><circle cx="'+cx+'" cy="'+cy+'" r="'+Ri+'" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>';
+  for(var i=0;i<12;i++){var p=ps[i];if(!p)continue;
+    var a0=-Math.PI/2+2*Math.PI*i/12-Math.PI/12,a1=a0+2*Math.PI/12;
     var path=ap(cx,cy,Ro,a0,a1)+'L'+(cx+Rm*Math.cos(a1))+','+(cy+Rm*Math.sin(a1))+' '+ap(cx,cy,Rm,a1,a0,1)+'Z';
-    s+='<path d="'+path+'" class="wp'+(p.is_body?' hl':'')+'" onclick="palaceTap('+i+')"/><line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+Ro*Math.cos(a0))+'" y2="'+(cy+Ro*Math.sin(a0))+'" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>';
-    var na=a0+Math.PI/12;s+='<text x="'+(cx+(Ro-16)*Math.cos(na))+'" y="'+(cy+(Ro-16)*Math.sin(na)+4)+'" class="wl">'+p.name+'</text>';
-    s+='<text x="'+(cx+(Rm+15)*Math.cos(na))+'" y="'+(cy+(Rm+15)*Math.sin(na)+3)+'" class="wb">'+p.ganzhi+'</text>';
-    var mains=p.stars.filter(function(s){return ms.indexOf(s)>=0}),auxs=p.stars.filter(function(s){return ms.indexOf(s)<0}).slice(0,4-mains.length),all=mains.concat(auxs),nS=Math.min(all.length,4);
-    var gap=nS<=2?.13:(nS===3?.09:.07),startA=na-gap*(nS-1)/2;
-    for(var j=0;j<nS;j++){var sa=startA+j*gap,sr=Ri+4+j*(40/nS),sn=all[j];if(sn.length>2)sn=sn.slice(0,2);
-      var sc=ms.indexOf(all[j])>=0?'#ffd700':(['文昌','文曲','左辅','右弼','天魁','天钺','禄存','天马'].indexOf(all[j])>=0)?'#5b9bd5':(['擎羊','陀罗','火星','铃星'].indexOf(all[j])>=0)?'#e85d5d':'#5bbd72';
-      s+='<text x="'+(cx+sr*Math.cos(sa))+'" y="'+(cy+sr*Math.sin(sa)+2.5)+'" class="ws" fill="'+sc+'" title="'+all[j]+'">'+sn+'</text>'}}
-  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+Ri+'" class="wc"/><text x="'+cx+'" y="'+(cy-8)+'" class="wct">'+(cd.zodiac||'')+'</text><text x="'+cx+'" y="'+(cy+8)+'" class="wct" style="font-size:6px;fill:var(--dim)">'+(cd.wuxing_ju||'')+'</text></svg>';return s;
+    s+='<path d="'+path+'" class="wp'+(p.is_body?' hl':'')+'" onclick="palaceTap('+i+')"/>';
+    s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+Ro*Math.cos(a0))+'" y2="'+(cy+Ro*Math.sin(a0))+'" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>';
+    var na=a0+Math.PI/12;
+    // 宫名
+    s+='<text x="'+(cx+(Ro-16)*Math.cos(na))+'" y="'+(cy+(Ro-16)*Math.sin(na)+4)+'" class="wl">'+p.name+'</text>';
+    // 干支
+    s+='<text x="'+(cx+(Rm+16)*Math.cos(na))+'" y="'+(cy+(Rm+16)*Math.sin(na)+3)+'" class="wb">'+p.ganzhi+'</text>';
+    // 星曜 — 每宫最多3颗，按层排列，保证不重叠
+    var mains=p.stars.filter(function(s){return ms.indexOf(s)>=0});
+    var auxs=p.stars.filter(function(s){return ms.indexOf(s)<0});
+    // 优先显示: 主星 > 吉星 > 煞星 > 其他
+    var jiStars=['文昌','文曲','左辅','右弼','天魁','天钺','禄存','天马'];
+    var shaStars=['擎羊','陀罗','火星','铃星','地劫','地空'];
+    var ranked=mains.concat(auxs.filter(function(s){return jiStars.indexOf(s)>=0})).concat(auxs.filter(function(s){return shaStars.indexOf(s)>=0})).concat(auxs.filter(function(s){return jiStars.indexOf(s)<0&&shaStars.indexOf(s)<0}));
+    var stars=ranked.slice(0,3);
+    // 3层分别放置
+    var layers=[Ri+6,Ri+18,Ri+30];
+    for(var j=0;j<stars.length;j++){
+      var sr=layers[j],sn=stars[j];
+      // 短名字
+      if(sn.length>2)sn=sn.slice(0,2);
+      var sc=ms.indexOf(stars[j])>=0?'#ffd700':(jiStars.indexOf(stars[j])>=0?'#5b9bd5':(shaStars.indexOf(stars[j])>=0?'#e85d5d':'#5bbd72'));
+      s+='<text x="'+(cx+sr*Math.cos(na))+'" y="'+(cy+sr*Math.sin(na)+2.5)+'" class="ws" fill="'+sc+'">'+sn+'</text>';
+    }
+  }
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+Ri+'" class="wc"/><text x="'+cx+'" y="'+(cy-8)+'" class="wct">'+(cd.zodiac||'')+'</text><text x="'+cx+'" y="'+(cy+8)+'" class="wct" style="font-size:6px;fill:var(--dim)">'+(cd.wuxing_ju||'')+'</text></svg>';
+  return s;
   function ap(cx,cy,r,a1,a2,rev){var x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);return'M'+x1+','+y1+' A'+r+','+r+' 0 '+(Math.abs(a2-a1)>Math.PI?1:0)+','+(rev?0:1)+' '+x2+','+y2}
 }
 function palaceTap(i){var p=cd.palaces[i];if(!p)return;var stars=p.stars.length?p.stars.join('、'):'空宫';alert(p.name+' ('+p.ganzhi+')'+(p.is_body?' 🏠身宫':'')+'\n星曜: '+stars+'\n'+(p.daxian?'大限: '+p.daxian:''))}
@@ -327,7 +341,7 @@ function palaceTap(i){var p=cd.palaces[i];if(!p)return;var stars=p.stars.length?
 async function downloadCard(){try{var el=document.getElementById('sharePrev');if(!el){alert('请先翻到分享页');return}var canvas=await html2canvas(el,{backgroundColor:null,scale:3,logging:false});var a=document.createElement('a');a.download='紫微斗数_我的命盘.png';a.href=canvas.toDataURL('image/png');a.click()}catch(e){alert('请截屏保存')}}
 function copyShare(){var dc=ad.destiny_code||{},rar=ad.rarity||{},t='🔮 我的紫微斗数命盘\n\n命码: '+(dc.full_name||'?')+' '+(dc.emoji||'')+'\n品级: '+(rar.tier||'?')+' · '+(rar.tier_label||'')+'\n「'+(dc.tagline||'')+'」\n\n#紫微斗数 #命盘解读';navigator.clipboard.writeText(t).then(function(){var b=document.querySelector('.page.current .nav-btn.sec');if(b){b.textContent='✅ 已复制';setTimeout(function(){b.textContent='📋 复制文案'},1500)}}).catch(function(){})}
 
-function spawn(rar){if(rar.tier==='UR'){var c=document.getElementById('sfx');for(var i=0;i<40;i++){var p=document.createElement('div');p.className='sfx-dot';p.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*35+'%;width:'+(Math.random()*6+2)+'px;height:'+(Math.random()*6+2)+'px;background:#ffd700;--x:'+((Math.random()-.5)*250)+'px;--y:'+(Math.random()*350+120)+'px;animation-delay:'+(Math.random()*.3)+'s';c.appendChild(p);setTimeout(function(){p.remove()},3200)}}else if(rar.tier==='SSR'){var c=document.getElementById('sfx');for(var i=0;i<20;i++){var p=document.createElement('div');p.className='sfx-dot';p.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*35+'%;width:'+(Math.random()*4+2)+'px;height:'+(Math.random()*4+2)+'px;background:'+(rar.color||'#f59e0b')+';--x:'+((Math.random()-.5)*200)+'px;--y:'+(Math.random()*300+100)+'px;animation-delay:'+(Math.random()*.3)+'s';c.appendChild(p);setTimeout(function(){p.remove()},3000)}}}
+function spawn(rar){if(rar.tier==='UR'){var c=document.getElementById('sfx');for(var i=0;i<45;i++){var p=document.createElement('div');p.className='sfx-dot';p.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*35+'%;width:'+(Math.random()*6+2)+'px;height:'+(Math.random()*6+2)+'px;background:#ffd700;--x:'+((Math.random()-.5)*280)+'px;--y:'+(Math.random()*380+120)+'px;animation-delay:'+(Math.random()*.35)+'s';c.appendChild(p);setTimeout(function(){p.remove()},3200)}}else if(rar.tier==='SSR'){var c=document.getElementById('sfx');for(var i=0;i<25;i++){var p=document.createElement('div');p.className='sfx-dot';p.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*35+'%;width:'+(Math.random()*4+2)+'px;height:'+(Math.random()*4+2)+'px;background:'+(rar.color||'#f59e0b')+';--x:'+((Math.random()-.5)*220)+'px;--y:'+(Math.random()*320+100)+'px;animation-delay:'+(Math.random()*.3)+'s';c.appendChild(p);setTimeout(function(){p.remove()},3000)}}}
 
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('year').value=new Date().getFullYear();updateNav()});
 </script>
