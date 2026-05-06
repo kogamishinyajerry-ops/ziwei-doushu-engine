@@ -10,23 +10,22 @@
     --gold:#d4a853; --gold-glow:rgba(212,168,83,0.2);
     --font:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
     --t:0.5s cubic-bezier(0.4,0,0.2,1);
+    --sihua-lu:#4ade80; --sihua-quan:#f97316; --sihua-ke:#60a5fa; --sihua-ji:#ef4444;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text);
     -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
-  
-  /* ── 卡片容器 ── */
+
   .deck{height:100%;width:100%;position:relative;overflow:hidden}
   .page{
     position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:40px 24px 100px;transition:transform .6s cubic-bezier(0.32,0.72,0,1),opacity .5s;
+    padding:40px 20px 100px;transition:transform .6s cubic-bezier(0.32,0.72,0,1),opacity .5s;
     will-change:transform;text-align:center;
   }
   .page.below{transform:translateY(100%);opacity:0;pointer-events:none}
   .page.current{transform:translateY(0);opacity:1}
   .page.above{transform:translateY(-100%);opacity:0;pointer-events:none}
 
-  /* ── 底部导航 ── */
   .nav{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:16px 24px 28px;
     display:flex;justify-content:center;gap:12px;
     background:linear-gradient(transparent,rgba(10,10,24,.95) 40%)}
@@ -40,7 +39,6 @@
   .dot{width:6px;height:6px;border-radius:50%;background:var(--sub);transition:all .3s}
   .dot.active{background:var(--gold);width:18px;border-radius:3px}
 
-  /* ── 表单页 ── */
   .brand{font-size:2.4em;margin-bottom:4px}
   .brand-sub{font-size:.76em;color:var(--dim);letter-spacing:.12em;margin-bottom:32px}
   .form-mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:300px}
@@ -51,23 +49,20 @@
     padding:10px;border-radius:8px;font-size:.82em;font-family:var(--font);width:100%}
   .fm input:focus,.fm select:focus{outline:none;border-color:var(--gold)}
 
-  /* ── 通用卡片样式 ── */
   .card-icon{font-size:4em;margin-bottom:12px;animation:float 3s ease-in-out infinite}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
   .card-title{font-size:.7em;color:var(--dim);letter-spacing:.12em;margin-bottom:8px;text-transform:uppercase}
-  .card-value{font-size:2em;font-weight:300;letter-spacing:.04em;line-height:1.3;margin-bottom:4px}
+  .card-value{font-size:1.8em;font-weight:300;letter-spacing:.04em;line-height:1.3;margin-bottom:4px}
   .card-sub{font-size:.78em;color:var(--dim);line-height:1.6;max-width:280px}
 
-  /* ── 稀有度 ── */
+  /* rarity */
   .rarity-hero{animation:popIn .7s cubic-bezier(0.34,1.56,0.64,1)}
   @keyframes popIn{0%{opacity:0;transform:scale(.8)}100%{opacity:1;transform:scale(1)}}
   .rarity-tier{font-size:3.2em;font-weight:200;margin:8px 0 4px}
   .rarity-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:20px;
     font-size:.7em;font-weight:600;letter-spacing:.1em;border:1px solid;margin-bottom:10px}
-  .rarity-label{font-size:.82em;margin-bottom:6px}
-  .rarity-pct{font-size:.64em;color:var(--dim)}
+  .rarity-label{font-size:.82em;line-height:1.5;max-width:260px}
 
-  /* ── 命码 ── */
   .code-emoji{font-size:4em;margin-bottom:8px}
   .code-name{font-size:1.5em;font-weight:600;letter-spacing:.08em;margin-bottom:6px}
   .code-quote{font-size:.8em;color:var(--dim);font-style:italic;margin-bottom:14px}
@@ -75,49 +70,44 @@
   .kw-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
   .kw{padding:4px 12px;border-radius:12px;font-size:.66em;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
 
-  /* ── 五维 ── */
-  .dim-list{width:100%;max-width:280px}
-  .dim-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-  .dim-emoji{font-size:1.1em;width:24px;text-align:center}
-  .dim-name{font-size:.64em;color:var(--dim);width:24px;text-align:right}
-  .dim-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
-  .dim-bar{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(0.34,1.56,0.64,1)}
-  .dim-score{font-size:.64em;width:24px;text-align:right;font-weight:600}
+  /* ═══════════════════════════════════
+     🕸️ 雷达图
+     ═══════════════════════════════════ */
+  .radar-svg{width:240px;height:240px}
+  .radar-label-text{font-size:9px;fill:var(--dim)}
 
-  /* ── 命盘迷你 ── */
-  .chart-mini{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:3px;width:100%;max-width:320px}
-  .cp{background:var(--card);border-radius:6px;padding:6px 4px;min-height:52px;font-size:.58em;line-height:1.3;text-align:center}
-  .cp .cpl{font-weight:600;color:var(--gold);font-size:.9em;margin-bottom:2px}
-  .cp .cps{color:var(--dim);font-size:.95em}
-  .cp .cpb{font-size:.75em;color:var(--sub)}
-  .cp.hl{border:1px solid rgba(240,192,64,.3);box-shadow:0 0 8px rgba(240,192,64,.06)}
+  /* ═══════════════════════════════════
+     🏰 星盘圆图
+     ═══════════════════════════════════ */
+  .wheel-wrap{position:relative;width:300px;height:300px}
+  .wheel-svg{width:100%;height:100%}
+  .wheel-palace{fill:var(--card);stroke:rgba(255,255,255,.06);stroke-width:1;cursor:default;transition:fill .3s}
+  .wheel-palace.hl{fill:rgba(240,192,64,.08);stroke:rgba(240,192,64,.3)}
+  .wheel-label{font-size:8px;fill:var(--text);text-anchor:middle}
+  .wheel-branch{font-size:7px;fill:var(--dim);text-anchor:middle}
+  .wheel-star{font-size:6.5px;font-weight:500}
+  .wheel-center{fill:var(--bg);stroke:var(--gold);stroke-width:1.5}
+  .wheel-center-text{font-size:8px;fill:var(--gold);text-anchor:middle}
 
-  /* ── 关键年龄时间线 ── */
+  /* timeline */
   .timeline{width:100%;max-width:280px}
   .tl-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;text-align:left}
   .tl-age{font-size:.9em;font-weight:600;color:var(--gold);min-width:44px}
   .tl-text{font-size:.64em;color:var(--dim);line-height:1.5}
   .tl-text strong{color:var(--text);font-weight:500}
 
-  /* ── 分享 ── */
-  .share-preview{width:240px;border-radius:16px;padding:20px 16px;margin-bottom:16px;
-    box-shadow:0 0 40px var(--gold-glow);position:relative}
-  .sp-tier{font-size:.62em;letter-spacing:.1em;margin-bottom:6px}
-  .sp-emoji{font-size:2em;margin-bottom:4px}
-  .sp-code{font-size:1em;font-weight:600;margin-bottom:2px}
-  .sp-dims{margin-top:10px}
-  .sp-dim{display:flex;align-items:center;gap:6px;margin-bottom:4px}
-  .sp-dim-bar{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
-  .sp-dim-fill{height:100%;border-radius:2px}
-  .sp-dim-s{font-size:.56em;width:18px;text-align:right}
-  .sp-footer{font-size:.52em;color:var(--sub);margin-top:10px;text-align:center}
+  /* share */
+  .share-preview{width:220px;border-radius:16px;padding:18px 14px;margin-bottom:14px;
+    box-shadow:0 0 40px var(--gold-glow)}
+  .sp-tier{font-size:.6em;letter-spacing:.1em;margin-bottom:6px}
+  .sp-emoji{font-size:1.8em;margin-bottom:4px}
+  .sp-code{font-size:.95em;font-weight:600;margin-bottom:2px}
+  .sp-footer{font-size:.5em;color:var(--sub);margin-top:8px;text-align:center}
 
-  /* ── 粒子 ── */
   .particles{position:fixed;inset:0;pointer-events:none;z-index:200}
   .pt{position:absolute;border-radius:50%;animation:ptFall 3s ease-out forwards}
   @keyframes ptFall{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
 
-  /* ── Loading ── */
   .spinner-wrap{text-align:center}
   .spinner{width:40px;height:40px;margin:0 auto 16px;border:2px solid rgba(255,255,255,.08);border-top-color:var(--gold);
     border-radius:50%;animation:spin .8s linear infinite}
@@ -125,16 +115,20 @@
   .load-tip{font-size:.7em;color:var(--dim);animation:pulse 2s ease-in-out infinite}
   @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 
-  .done-tag{font-size:.6em;color:var(--sub);margin-top:20px}
+  .sihua-bar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+  .sh-tag{padding:4px 12px;border-radius:14px;font-size:.64em;font-weight:600}
+  .sh-lu{background:rgba(74,222,128,.1);color:var(--sihua-lu);border:1px solid rgba(74,222,128,.2)}
+  .sh-quan{background:rgba(249,115,22,.1);color:var(--sihua-quan);border:1px solid rgba(249,115,22,.2)}
+  .sh-ke{background:rgba(96,165,250,.1);color:var(--sihua-ke);border:1px solid rgba(96,165,250,.2)}
+  .sh-ji{background:rgba(239,68,68,.1);color:var(--sihua-ji);border:1px solid rgba(239,68,68,.2)}
 </style>
 </head>
 <body>
 
 <div class="deck" id="deck">
-  <!-- Page 0: 表单 -->
   <div class="page current" id="p0">
     <div class="brand">🔮</div>
-    <div class="brand-sub">紫微斗数 · 命盘解读</div>
+    <div class="brand-sub">探索你的专属星盘</div>
     <div class="form-mini">
       <div class="fm full"><label>姓名</label><input id="name" placeholder="你的名字"></div>
       <div class="fm"><label>性别</label><select id="gender"><option value="男">男</option><option value="女">女</option></select></div>
@@ -146,29 +140,25 @@
       <div class="fm full"><label>出生城市</label><input id="city" placeholder="如:北京"></div>
     </div>
   </div>
-  <!-- Pages 1-N generated dynamically -->
 </div>
 
 <div class="nav" id="nav">
   <div class="dots" id="dots"></div>
   <button class="nav-btn primary" id="navBtn" onclick="nextPage()">🔮 开始解读</button>
 </div>
-
 <div class="particles" id="particles"></div>
 
 <script>
-// ══════════════════════════════════════
-// 状态
-// ══════════════════════════════════════
 let currentPage=0,totalPages=0;
 let chartData=null,analysisData=null;
+
 const dimColors={destiny:'#c084fc',fortune:'#4ade80',talent:'#60a5fa',heart:'#f472b6',challenge:'#f97316'};
 const dimEmoji={destiny:'🔮',fortune:'🍀',talent:'🎨',heart:'💝',challenge:'⚡'};
+const dimNames={destiny:'天命',fortune:'机遇',talent:'才华',heart:'情缘',challenge:'课题'};
+const tips=['🌌 接收星辰信号…','⭐ 紫微定位中…','📊 解析命盘格局…','🎭 寻找你的原型…','✨ 即将揭晓…'];
 
 function nextPage(){
-  if(currentPage===0){
-    loadChart();return;
-  }
+  if(currentPage===0){loadChart();return}
   if(currentPage<totalPages-1) goTo(currentPage+1);
 }
 
@@ -176,32 +166,22 @@ function goTo(n){
   const pages=document.querySelectorAll('.page');
   pages.forEach((p,i)=>{
     p.classList.remove('current','above','below');
-    if(i<n) p.classList.add('above');
-    else if(i===n) p.classList.add('current');
-    else p.classList.add('below');
+    if(i<n) p.classList.add('above');else if(i===n) p.classList.add('current');else p.classList.add('below');
   });
-  currentPage=n;
-  updateNav();
-  // 雷达 + 粒子
-  if(n===1 && analysisData) spawn(analysisData.rarity||{});
-  if(n===3) setTimeout(()=>document.querySelectorAll('.dim-bar').forEach(b=>{b.style.width=(b.dataset.w||'0')+'%'}),200);
+  currentPage=n;updateNav();
+  if(n===1&&analysisData) spawn(analysisData.rarity||{});
 }
 
 function updateNav(){
-  const btn=document.getElementById('navBtn');
-  const dots=document.getElementById('dots');
-  dots.innerHTML=Array.from({length:totalPages-1},(_,i)=>`<div class="dot${i===currentPage-1?' active':''}"></div>`).join('');
-  
+  const btn=document.getElementById('navBtn'),dots=document.getElementById('dots');
+  dots.innerHTML=Array.from({length:totalPages-1},(_,i)=>'<div class="dot'+(i===currentPage-1?' active':'')+'"></div>').join('');
   if(currentPage===0){btn.textContent='🔮 开始解读';btn.className='nav-btn primary'}
   else if(currentPage===totalPages-1){btn.textContent='🔄 重新解读';btn.className='nav-btn ghost'}
   else{btn.textContent='继续 →';btn.className='nav-btn primary'}
 }
 
-// ══════════════════════════════════════
-// Touch
-// ══════════════════════════════════════
 let touchY=0;
-document.addEventListener('touchstart',e=>{touchY=e.touches[0].clientY}, {passive:true});
+document.addEventListener('touchstart',e=>{touchY=e.touches[0].clientY},{passive:true});
 document.addEventListener('touchend',e=>{
   const dy=touchY-e.changedTouches[0].clientY;
   if(Math.abs(dy)>50&&currentPage>0){
@@ -210,177 +190,225 @@ document.addEventListener('touchend',e=>{
   }
 });
 
-// ══════════════════════════════════════
-// 加载
-// ══════════════════════════════════════
-const tips=['🌌 接收星辰信号…','⭐ 紫微定位中…','📊 解析命盘格局…','🎭 寻找你的原型…'];
-
 async function loadChart(){
   const deck=document.getElementById('deck');
   document.getElementById('navBtn').disabled=true;
-  
-  // 先读取所有表单值 (加载页会销毁DOM)
   const formHTML=document.getElementById('p0').innerHTML;
   const fv={
-    year:+document.getElementById('year').value,
-    month:+document.getElementById('month').value,
-    day:+document.getElementById('day').value,
-    hour:+document.getElementById('hour').value,
-    minute:+document.getElementById('min').value||0,
-    name:document.getElementById('name').value||'',
-    gender:document.getElementById('gender').value,
-    city:document.getElementById('city').value||''
-  };
+    year:+document.getElementById('year').value,month:+document.getElementById('month').value,
+    day:+document.getElementById('day').value,hour:+document.getElementById('hour').value,
+    minute:+document.getElementById('min').value||0,name:document.getElementById('name').value||'',
+    gender:document.getElementById('gender').value,city:document.getElementById('city').value||''};
   
-  // Loading page
-  deck.innerHTML='<div class="page current" id="pLoad"><div class="spinner-wrap"><div class="spinner"></div><div class="card-icon">🔮</div><div class="load-tip" id="ltip">正在连接星空…</div></div></div>';
+  deck.innerHTML='<div class="page current"><div class="spinner-wrap"><div class="spinner"></div><div class="card-icon">🔮</div><div class="load-tip" id="ltip">正在连接星空…</div></div></div>';
   let ti=0;
   const ti2=setInterval(()=>{const el=document.getElementById('ltip');if(el)el.textContent=tips[ti%tips.length];ti++},900);
 
   try{
-    const p=fv;
-    const r=await fetch('/api/chart/full?'+new URLSearchParams(p));
+    const r=await fetch('/api/chart/full?'+new URLSearchParams(fv));
     if(!r.ok){const e=await r.json();throw new Error(e.detail||'排盘失败')}
     chartData=await r.json();analysisData=chartData.analysis||{};
     clearInterval(ti2);
-    theme();
+    const t=analysisData.element_theme||{};
+    if(t.primary){document.documentElement.style.setProperty('--gold',t.primary)}
     buildPages(formHTML);
     totalPages=document.querySelectorAll('.page').length;
     goTo(1);
   }catch(e){
     clearInterval(ti2);
-    deck.innerHTML='<div class="page current"><div class="card-icon">😔</div><div class="card-value" style="font-size:1.2em;color:#e85d5d">'+e.message+'</div><button class="nav-btn primary" style="margin-top:24px" onclick="location.reload()">重试</button></div>';
+    var em=e.message||'未知错误';
+    deck.innerHTML='<div class="page current"><div class="card-icon">😔</div><div class="card-value" style="font-size:1.2em;color:#e85d5d">解读失败</div><div class="card-sub">'+em+'</div><button class="nav-btn primary" style="margin-top:24px" onclick="location.reload()">重试</button></div>';
   }
-  document.getElementById('navBtn').disabled=false;
-  updateNav();
+  document.getElementById('navBtn').disabled=false;updateNav();
 }
 
-function theme(){
-  const t=analysisData.element_theme||{};
-  if(t.primary) document.documentElement.style.setProperty('--gold',t.primary);
-  if(t.glow) document.documentElement.style.setProperty('--gold-glow',t.glow);
-}
-
-// ══════════════════════════════════════
-// 构建页面
-// ══════════════════════════════════════
 function buildPages(formHTML){
   const deck=document.getElementById('deck');
   let html='<div class="page above" id="p0">'+formHTML+'</div>';
-  
-  const rar=analysisData.rarity||{};
-  const dc=analysisData.destiny_code||{};
-  const dims=analysisData.dimensions||{};
-  const cp=analysisData.career_path||{};
-  const kas=analysisData.key_ages||[];
-  const pers=analysisData.personality||{};
+  const rar=analysisData.rarity||{},dc=analysisData.destiny_code||{};
+  const dims=analysisData.dimensions||{},cp=analysisData.career_path||{};
+  const kas=analysisData.key_ages||[],pers=analysisData.personality||{};
+  const tierEmoji={SSR:'🌟',SR:'💎',R:'✨',SRR:'🌿',UR:'🌱'};
 
-  // Page 1: 稀有度
-  const tierEmoji={SSR:'🌟',SR:'💎',R:'✨',UC:'🌿',C:'🌱'};
-  html+=`<div class="page below" id="p1">
-    <div class="card-title">✦ 稀有度 ✦</div>
-    <div class="rarity-hero">
-      <div class="rarity-badge" style="color:${rar.color||'#d4a853'};border-color:${rar.color||'#d4a853'}">${tierEmoji[rar.tier]||'✨'} ${rar.tier||'?'} · ${rar.tier_label||''}</div>
-      <div class="rarity-tier" style="color:${rar.color||'#d4a853'}">${rar.score||'?'}<span style="font-size:.3em;opacity:.5">/1000</span></div>
-      <div class="rarity-label">${rar.rank_text||''}</div>
-      <div class="rarity-pct">属于 ${(100-rar.percentile).toFixed(1)}% 的类型</div>
-    </div>
-  </div>`;
+  // P1: 稀有度 — 纯正面
+  html+='<div class="page below" id="p1"><div class="card-title">✦ 命盘品级 ✦</div><div class="rarity-hero">';
+  html+='<div class="rarity-badge" style="color:'+(rar.color||'#d4a853')+';border-color:'+(rar.color||'#d4a853')+'">'+(tierEmoji[rar.tier]||'✨')+' '+rar.tier+' · '+rar.tier_label+'</div>';
+  html+='<div class="rarity-tier" style="color:'+(rar.color||'#d4a853')+'">'+((rar.score||0)/10).toFixed(0)+'<span style="font-size:.3em;opacity:.5">/100</span></div>';
+  html+='<div class="rarity-label">'+(rar.rank_text||'')+'</div></div></div>';
 
-  // Page 2: 命码
-  html+=`<div class="page below" id="p2">
-    <div class="card-title">✦ 你的命码 ✦</div>
-    <div class="code-emoji">${dc.emoji||'✨'}</div>
-    <div class="code-name" style="color:${rar.color||'#d4a853'}">${dc.full_name||'天命'}</div>
-    <div class="code-quote">「${dc.tagline||''}」</div>
-    <div class="code-elem">${analysisData.element_theme?.name||''} · ${analysisData.element_theme?.vibe||''}</div>
-    <div class="kw-row">${(dc.keywords||[]).map(k=>`<span class="kw">${k}</span>`).join('')}</div>
-  </div>`;
+  // P2: 命码
+  html+='<div class="page below" id="p2"><div class="card-title">✦ 你的命码 ✦</div>';
+  html+='<div class="code-emoji">'+(dc.emoji||'✨')+'</div>';
+  html+='<div class="code-name" style="color:'+(rar.color||'#d4a853')+'">'+(dc.full_name||'天命')+'</div>';
+  html+='<div class="code-quote">「'+(dc.tagline||'')+'」</div>';
+  html+='<div class="code-elem">'+(analysisData.element_theme?.name||'')+' · '+(analysisData.element_theme?.vibe||'')+'</div>';
+  html+='<div class="kw-row">'+(dc.keywords||[]).map(k=>'<span class="kw">'+k+'</span>').join('')+'</div>';
+  html+='<div class="sihua-bar" style="margin-top:14px">'+renderSihuaTags()+'</div></div>';
 
-  // Page 3: 五维雷达
-  const order=['destiny','fortune','talent','heart','challenge'];
-  let dimRows='';
-  for(const k of order){const d=dims[k];if(!d)continue;
-    dimRows+=`<div class="dim-row"><div class="dim-emoji">${dimEmoji[k]}</div><div class="dim-name">${d.name}</div>
-      <div class="dim-bar-wrap"><div class="dim-bar" data-w="${d.score}" style="background:${dimColors[k]};width:0%"></div></div>
-      <div class="dim-score">${d.score}</div></div>`;
-  }
-  html+=`<div class="page below" id="p3">
-    <div class="card-title">✦ 五维雷达 ✦</div>
-    <div class="dim-list">${dimRows}</div>
-    <div class="card-sub" style="margin-top:8px;font-size:.6em">${Object.values(dims).map(d=>d.label).join(' · ')}</div>
-  </div>`;
+  // P3: 雷达图 (SVG)
+  html+='<div class="page below" id="p3"><div class="card-title">✦ 五维雷达 ✦</div>';
+  html+=renderRadarSVG(dims);
+  html+='<div class="card-sub" style="margin-top:8px;font-size:.6em">'+Object.values(dims).map(d=>d.label).join(' · ')+'</div></div>';
 
-  // Page 4: 命盘星座核心 (迷你)
-  let chartCells='';
-  for(const p of (chartData.palaces||[]).slice(0,12)){
-    const mainStar=p.stars.filter(s=>'紫微天机太阳武曲天同廉贞天府太阴贪狼巨门天相天梁七杀破军'.includes(s))[0]||'';
-    chartCells+=`<div class="cp${p.is_body?' hl':''}"><div class="cpl">${p.name}</div><div class="cps">${mainStar||'—'}</div><div class="cpb">${p.ganzhi}</div></div>`;
-  }
-  html+=`<div class="page below" id="p4">
-    <div class="card-title">✦ 命盘星座 ✦</div>
-    <div class="chart-mini">${chartCells}</div>
-    <div class="card-sub" style="margin-top:10px;font-size:.6em">${chartData.ming_palace} 坐命 · ${chartData.wuxing_ju} · ${chartData.zodiac}</div>
-  </div>`;
+  // P4: 星盘圆图 (SVG)
+  html+='<div class="page below" id="p4"><div class="card-title">✦ 命盘星图 ✦</div>';
+  html+=renderWheelSVG();
+  html+='<div class="card-sub" style="margin-top:4px;font-size:.6em">'+chartData.ming_palace+' 坐命 · '+chartData.wuxing_ju+' · '+chartData.zodiac+'</div></div>';
 
-  // Page 5: 职业倾向
-  html+=`<div class="page below" id="p5">
-    <div class="card-title">✦ 适合领域 ✦</div>
-    <div class="card-icon" style="font-size:2.4em">💼</div>
-    <div class="card-value" style="font-size:1.1em;font-weight:400;color:var(--gold)">${(cp.industries||['通用型']).slice(0,2).join(' / ')}</div>
-    <div class="card-sub">${(cp.work_style||[]).slice(0,2).join(' · ')}</div>
-    ${(cp.sihua_tips||[]).map(t=>`<div class="card-sub" style="font-size:.62em;margin-top:4px">${t}</div>`).join('')}
-  </div>`;
+  // P5: 四化详解
+  html+='<div class="page below" id="p5"><div class="card-title">✦ 四化之力 ✦</div><div class="card-icon" style="font-size:2.2em">⚡</div>';
+  html+='<div class="sihua-bar" style="margin:10px 0">'+renderSihuaTags()+'</div>';
+  html+='<div class="card-sub">'+(cp.sihua_tips||[]).map(t=>'<div style="margin:4px 0">'+t+'</div>').join('')+'</div></div>';
 
-  // Page 6: 关键年龄
+  // P6: 职业
+  html+='<div class="page below" id="p6"><div class="card-title">✦ 适合领域 ✦</div><div class="card-icon" style="font-size:2.4em">💼</div>';
+  html+='<div class="card-value" style="font-size:1.1em;font-weight:400;color:var(--gold)">'+(cp.industries||['通用型']).slice(0,2).join(' / ')+'</div>';
+  html+='<div class="card-sub">'+(cp.work_style||[]).slice(0,2).join(' · ')+'</div></div>';
+
+  // P7: 关键年龄
   let tlHTML='';
   for(const ka of kas.slice(0,5)){
-    tlHTML+=`<div class="tl-item"><div class="tl-age">${ka.age}岁</div><div class="tl-text"><strong>${ka.title}</strong><br>${ka.event}</div></div>`;
+    tlHTML+='<div class="tl-item"><div class="tl-age">'+ka.age+'岁</div><div class="tl-text"><strong>'+ka.title+'</strong><br>'+ka.event+'</div></div>';
   }
-  html+=`<div class="page below" id="p6">
-    <div class="card-title">✦ 关键节点 ✦</div>
-    <div class="timeline">${tlHTML}</div>
-  </div>`;
+  html+='<div class="page below" id="p7"><div class="card-title">✦ 关键节点 ✦</div><div class="timeline">'+tlHTML+'</div></div>';
 
-  // Page 7: 性格核心
-  html+=`<div class="page below" id="p7">
-    <div class="card-title">✦ 核心特质 ✦</div>
-    <div class="card-value" style="font-size:1.2em;line-height:1.6;max-width:280px">${pers.summary||'独一无二的你'}</div>
-    ${analysisData.highlights?analysisData.highlights.slice(0,3).map(h=>`<div class="card-sub" style="margin-top:6px">${h}</div>`).join(''):''}
-  </div>`;
+  // P8: 核心特质
+  html+='<div class="page below" id="p8"><div class="card-title">✦ 核心特质 ✦</div>';
+  html+='<div class="card-value" style="font-size:1.2em;line-height:1.6;max-width:280px">'+(pers.summary||'独一无二的你')+'</div>';
+  if(analysisData.highlights) html+=analysisData.highlights.slice(0,3).map(h=>'<div class="card-sub" style="margin-top:6px">'+h+'</div>').join('');
 
-  // Page 8: 分享
-  html+=`<div class="page below" id="p8">
-    <div class="card-title">✦ 分享你的命盘 ✦</div>
-    ${renderSharePreview()}
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="nav-btn primary" onclick="downloadCard()" style="font-size:.7em;padding:10px 20px">📥 保存卡片</button>
-      <button class="nav-btn ghost" onclick="copyShare()" style="font-size:.7em;padding:10px 20px">📋 复制文案</button>
-    </div>
-  </div>`;
+  // P9: 分享
+  html+='<div class="page below" id="p9"><div class="card-title">✦ 分享你的星盘 ✦</div>';
+  html+=renderSharePreview();
+  html+='<div style="display:flex;gap:8px;margin-top:8px"><button class="nav-btn primary" onclick="downloadCard()" style="font-size:.7em;padding:10px 20px">📥 保存卡片</button><button class="nav-btn ghost" onclick="copyShare()" style="font-size:.7em;padding:10px 20px">📋 复制文案</button></div></div>';
 
   deck.innerHTML=html;
 }
 
-// ── 分享预览 ──
-function renderSharePreview(){
-  const rar=analysisData.rarity||{},dc=analysisData.destiny_code||{},dims=analysisData.dimensions||{};
-  const order=['destiny','fortune','talent','heart','challenge'];
-  const tierEmoji={SSR:'🌟',SR:'💎',R:'✨',UC:'🌿',C:'🌱'};
-  let dimHTML='';
-  for(const k of order){const d=dims[k];if(!d)continue;
-    dimHTML+=`<div class="sp-dim"><span style="font-size:.6em">${dimEmoji[k]}</span><div class="sp-dim-bar"><div class="sp-dim-fill" style="width:${d.score}%;background:${dimColors[k]}"></div></div><span class="sp-dim-s">${d.score}</span></div>`;
-  }
-  return `<div class="share-preview" id="sharePrev" style="background:${analysisData.element_theme?.bg||'linear-gradient(135deg,#1a1a2e,#16213e)'};border:1px solid ${rar.color||'#d4a853'}">
-    <div class="sp-tier" style="color:${rar.color||'#d4a853'}">${tierEmoji[rar.tier]||'✨'} ${rar.tier||'?'} · ${rar.tier_label||''}</div>
-    <div class="sp-emoji">${dc.emoji||'✨'}</div>
-    <div class="sp-code" style="color:${rar.color||'#d4a853'}">${dc.full_name||'天命'}</div>
-    <div class="sp-dims">${dimHTML}</div>
-    <div class="sp-footer">🔮 紫微斗数 · 专属命盘</div>
-  </div>`;
+function renderSihuaTags(){
+  const sihua=chartData.sihua||{},cls={化禄:'sh-lu',化权:'sh-quan',化科:'sh-ke',化忌:'sh-ji'};
+  return ['化禄','化权','化科','化忌'].filter(t=>sihua[t]).map(t=>'<span class="sh-tag '+cls[t]+'">'+t+': '+sihua[t]+'</span>').join('');
 }
 
-// ── 下载 ──
+// ═══════════════════════════════════
+// 🕸️ SVG 雷达图
+// ═══════════════════════════════════
+function renderRadarSVG(dims){
+  const order=['destiny','fortune','talent','heart','challenge'];
+  const cx=130,cy=120,r=85,levels=4;
+  let svg='<svg class="radar-svg" viewBox="0 0 260 230"><defs>';
+  // gradients
+  svg+='<linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="var(--gold)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--gold)" stop-opacity="0.05"/></linearGradient>';
+  svg+='</defs>';
+  // grid
+  for(let l=1;l<=levels;l++){
+    const lr=r*l/levels;
+    let pts='';
+    for(let i=0;i<5;i++){
+      const a=-Math.PI/2+2*Math.PI*i/5;
+      pts+=(cx+lr*Math.cos(a))+','+(cy+lr*Math.sin(a))+' ';
+    }
+    svg+='<polygon points="'+pts+'" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>';
+  }
+  // axes
+  for(let i=0;i<5;i++){
+    const a=-Math.PI/2+2*Math.PI*i/5;
+    svg+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+r*Math.cos(a))+'" y2="'+(cy+r*Math.sin(a))+'" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>';
+  }
+  // data polygon
+  let dataPts='';
+  for(let i=0;i<5;i++){
+    const k=order[i],d=dims[k];
+    if(!d){dataPts+=cx+','+cy+' ';continue}
+    const v=d.score/100,a=-Math.PI/2+2*Math.PI*i/5;
+    dataPts+=(cx+v*r*Math.cos(a))+','+(cy+v*r*Math.sin(a))+' ';
+  }
+  svg+='<polygon points="'+dataPts+'" fill="url(#rg)" stroke="var(--gold)" stroke-width="2" stroke-opacity="0.6"/>';
+  // dots
+  for(let i=0;i<5;i++){
+    const k=order[i],d=dims[k];if(!d)continue;
+    const v=d.score/100,a=-Math.PI/2+2*Math.PI*i/5;
+    const dx=cx+v*r*Math.cos(a),dy=cy+v*r*Math.sin(a);
+    svg+='<circle cx="'+dx+'" cy="'+dy+'" r="4" fill="var(--gold)" opacity="0.8"/>';
+  }
+  // labels
+  for(let i=0;i<5;i++){
+    const k=order[i],d=dims[k];if(!d)continue;
+    const v=d.score/100+0.22,a=-Math.PI/2+2*Math.PI*i/5;
+    const lx=cx+v*r*Math.cos(a),ly=cy+v*r*Math.sin(a);
+    svg+='<text x="'+lx+'" y="'+ly+'" class="radar-label-text" text-anchor="middle" fill="var(--dim)">'+d.name+'</text>';
+  }
+  // scores
+  for(let i=0;i<5;i++){
+    const k=order[i],d=dims[k];if(!d)continue;
+    const v=d.score/100+0.12,a=-Math.PI/2+2*Math.PI*i/5;
+    const sx=cx+v*r*Math.cos(a),sy=cy+v*r*Math.sin(a)+3;
+    svg+='<text x="'+sx+'" y="'+sy+'" font-size="8" fill="var(--text)" text-anchor="middle" font-weight="600">'+d.score+'</text>';
+  }
+  svg+='</svg>';
+  return svg;
+}
+
+// ═══════════════════════════════════
+// 🏰 SVG 星盘圆图
+// ═══════════════════════════════════
+function renderWheelSVG(){
+  const palaces=chartData.palaces||[];
+  if(!palaces.length)return '';
+  const cx=150,cy=150,outer=140,inner=58,mid=105;
+  const mainSet='紫微天机太阳武曲天同廉贞天府太阴贪狼巨门天相天梁七杀破军';
+  let svg='<svg class="wheel-svg" viewBox="0 0 300 300">';
+  // 12 segments
+  for(let i=0;i<12;i++){
+    const p=palaces[i];if(!p)continue;
+    const a1=-Math.PI/2+2*Math.PI*i/12-Math.PI/12;
+    const a2=a1+2*Math.PI/12;
+    const path=arcPath(cx,cy,outer,a1,a2)+'L'+(cx+mid*Math.cos(a2))+','+(cy+mid*Math.sin(a2))+' '+arcPath(cx,cy,mid,a2,a1,true)+'Z';
+    const hl=p.is_body?' hl':'';
+    svg+='<path d="'+path+'" class="wheel-palace'+hl+'"/>';
+    // palace name (outer ring)
+    const na=a1+Math.PI/12;
+    svg+='<text x="'+(cx+(outer-14)*Math.cos(na))+'" y="'+(cy+(outer-14)*Math.sin(na)+3)+'" class="wheel-label">'+p.name+'</text>';
+    // branch (mid ring)
+    const ba=na;
+    svg+='<text x="'+(cx+(mid+20)*Math.cos(ba))+'" y="'+(cy+(mid+20)*Math.sin(ba)+3)+'" class="wheel-branch">'+p.ganzhi+'</text>';
+    // stars (inner ring)
+    const mainStars=p.stars.filter(s=>mainSet.includes(s));
+    const auxStars=p.stars.filter(s=>!mainSet.includes(s));
+    const allStars=mainStars.concat(auxStars).slice(0,4);
+    for(let j=0;j<allStars.length;j++){
+      const sa=na-0.15+j*0.1;
+      const sr=inner+4+j*11;
+      const sc=mainSet.includes(allStars[j])?'#ffd700':auxStars.includes(allStars[j],0)&&['文昌','文曲','左辅','右弼','天魁','天钺','禄存','天马'].includes(allStars[j])?'#5b9bd5':'#5bbd72';
+      svg+='<text x="'+(cx+sr*Math.cos(sa))+'" y="'+(cy+sr*Math.sin(sa)+3)+'" class="wheel-star" fill="'+sc+'">'+allStars[j]+'</text>';
+    }
+  }
+  // center
+  svg+='<circle cx="'+cx+'" cy="'+cy+'" r="'+inner+'" class="wheel-center"/>';
+  svg+='<text x="'+cx+'" y="'+(cy-6)+'" class="wheel-center-text">'+chartData.zodiac+'</text>';
+  svg+='<text x="'+cx+'" y="'+(cy+8)+'" class="wheel-center-text" style="font-size:6px">'+chartData.wuxing_ju+'</text>';
+  svg+='</svg>';
+  return svg;
+
+  function arcPath(cx,cy,r,a1,a2,reverse){
+    const x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+    const x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);
+    const large=Math.abs(a2-a1)>Math.PI?1:0;
+    const sweep=reverse?0:1;
+    return 'M'+x1+','+y1+' A'+r+','+r+' 0 '+large+','+sweep+' '+x2+','+y2+' ';
+  }
+}
+
+function renderSharePreview(){
+  const rar=analysisData.rarity||{},dc=analysisData.destiny_code||{};
+  const tierEmoji={SSR:'🌟',SR:'💎',R:'✨',SRR:'🌿',UR:'🌱'};
+  return '<div class="share-preview" id="sharePrev" style="background:'+(analysisData.element_theme?.bg||'linear-gradient(135deg,#1a1a2e,#16213e)')+';border:1px solid '+(rar.color||'#d4a853')+'">'+
+    '<div class="sp-tier" style="color:'+(rar.color||'#d4a853')+'">'+(tierEmoji[rar.tier]||'✨')+' '+rar.tier+' · '+rar.tier_label+'</div>'+
+    '<div class="sp-emoji">'+(dc.emoji||'✨')+'</div>'+
+    '<div class="sp-code" style="color:'+(rar.color||'#d4a853')+'">'+(dc.full_name||'天命')+'</div>'+
+    '<div class="sp-footer">🔮 紫微斗数 · 专属命盘</div></div>';
+}
+
 async function downloadCard(){
   try{
     const el=document.getElementById('sharePrev');
@@ -391,28 +419,24 @@ async function downloadCard(){
 
 function copyShare(){
   const dc=analysisData.destiny_code||{},rar=analysisData.rarity||{};
-  let t=`🔮 我的紫微斗数命盘\n\n命码: ${dc.full_name||'?'} ${dc.emoji||''}\n稀有度: ${rar.tier||'?'} · ${rar.tier_label||''}\n「${dc.tagline||''}」\n\n#紫微斗数 #命盘解读`;
-  navigator.clipboard.writeText(t).then(()=>{const b=document.querySelector('#p8 .nav-btn.ghost');b.textContent='✅ 已复制';setTimeout(()=>b.textContent='📋 复制文案',1500)}).catch(()=>{});
+  let t='🔮 我的紫微斗数命盘\n\n命码: '+(dc.full_name||'?')+' '+(dc.emoji||'')+'\n品级: '+(rar.tier||'?')+' · '+(rar.tier_label||'')+'\n「'+(dc.tagline||'')+'」\n\n#紫微斗数 #命盘解读';
+  navigator.clipboard.writeText(t).then(()=>{const b=document.querySelector('#p9 .nav-btn.ghost');if(b){b.textContent='✅ 已复制';setTimeout(()=>b.textContent='📋 复制文案',1500)}}).catch(()=>{});
 }
 
-// ── 粒子 ──
 function spawn(rar){
   if(rar.tier!=='SSR')return;
   const c=document.getElementById('particles');
   for(let i=0;i<50;i++){
     const p=document.createElement('div');p.className='pt';
-    p.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*40}%;width:${Math.random()*6+3}px;height:${Math.random()*6+3}px;background:${rar.color||'#ffd700'};--dx:${(Math.random()-.5)*300}px;--dy:${Math.random()*400+150}px;animation-delay:${Math.random()*.4}s`;
+    p.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*40+'%;width:'+(Math.random()*6+3)+'px;height:'+(Math.random()*6+3)+'px;background:'+(rar.color||'#ffd700')+';--dx:'+((Math.random()-.5)*300)+'px;--dy:'+(Math.random()*400+150)+'px;animation-delay:'+(Math.random()*.4)+'s';
     c.appendChild(p);setTimeout(()=>p.remove(),3400);
   }
 }
 
-// ── init ──
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('year').value=new Date().getFullYear();
   updateNav();
 });
-
-// Swipe on form page to skip to loading hint
 </script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>

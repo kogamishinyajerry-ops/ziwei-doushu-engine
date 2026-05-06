@@ -486,15 +486,7 @@ def generate_share_text(destiny_code: Dict, dimensions: Dict, rarity: Dict, elem
         dim_lines.append(f"{label} [{bar}] {d.score}分 · {d.label}")
     
     # 稀有度
-    rarity_text = ""
-    if rarity.get("tier") == "SSR":
-        rarity_text = "🌟 天选之命！万里挑一的绝世命盘"
-    elif rarity.get("tier") == "SR":
-        rarity_text = f"💎 凤毛麟角！超越{96 - (rarity.get('percentile', 85) // 5 * 5)}%的命盘"
-    elif rarity.get("tier") == "R":
-        rarity_text = f"✨ 人中龙凤！超越{86 - (rarity.get('percentile', 70) // 5 * 5)}%的命盘"
-    else:
-        rarity_text = f"🌿 独树一帜，做最特别的自己"
+    rarity_text = rarity.get("rank_text", "独一无二的你")
     
     body = f"""🔮 我的紫微斗数命盘揭秘！
 

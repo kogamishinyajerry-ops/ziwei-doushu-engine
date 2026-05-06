@@ -386,60 +386,42 @@ def compute_rarity(chart_data) -> Dict:
     # 映射到 0-1000 范围，保留有意义区分度
     final_score = min(1000, max(0, raw_score))
     
-    # ── 5. 定档 ──
-    # ── 5. 百分位映射 ──
-    # 将 0-1000 分数映射到合理的百分位分布
-    # 模拟真实分布: 大部分人在 200-600 之间
-    if final_score >= 900:
-        percentile = 98.0 + (final_score - 900) / 50  # 98-100%
-    elif final_score >= 750:
-        percentile = 90.0 + (final_score - 750) / 18.75  # 90-98%
-    elif final_score >= 500:
-        percentile = 70.0 + (final_score - 500) / 12.5  # 70-90%
-    elif final_score >= 300:
-        percentile = 40.0 + (final_score - 300) / 6.67  # 40-70%
-    elif final_score >= 150:
-        percentile = 15.0 + (final_score - 150) / 6.0  # 15-40%
-    else:
-        percentile = max(1.0, final_score / 150 * 14)  # 1-15%
-    
-    percentile = round(min(99.9, max(1.0, percentile)), 1)
-    
-    # ── 6. 定档 + 小红书风格 ──
+    # ── 5. 定档 (全正面命名，不排名) ──
+    # 娱乐向: 每个人都特别，没有"平庸"
     tier_config = {
-        "SSR": ("天选之子", "🌟", "#ffd700", "0 0 40px rgba(255,215,0,0.5)", 
+        "SSR": ("天选之命", "🌟", "#ffd700", "0 0 40px rgba(255,215,0,0.5)",
                 "linear-gradient(135deg, #1a0a00 0%, #2e1a00 50%, #1a0a2e 100%)",
-                f"万里挑一的天选之命！超越 {percentile}% 的人"),
+                "星辰为你而转动，此命只应天上有"),
         "SR":  ("凤毛麟角", "💎", "#c084fc", "0 0 30px rgba(192,132,252,0.4)",
                 "linear-gradient(135deg, #0a002e 0%, #1a0a3a 50%, #0a0a2e 100%)",
-                f"凤毛麟角的稀有命盘！超越 {percentile}% 的人"),
+                "世所罕见的命盘组合，注定不凡"),
         "R":   ("人中龙凤", "✨", "#60a5fa", "0 0 20px rgba(96,165,250,0.3)",
                 "linear-gradient(135deg, #0a0a2e 0%, #0d1a3a 50%, #0a102e 100%)",
-                f"人中龙凤的优质命盘！超越 {percentile}% 的人"),
-        "UC":  ("独树一帜", "🌿", "#4ade80", "0 0 15px rgba(74,222,128,0.2)",
+                "格局精妙，自成一派的非凡命盘"),
+        "SRR": ("独树一帜", "🌿", "#4ade80", "0 0 15px rgba(74,222,128,0.2)",
                 "linear-gradient(135deg, #0a1a0a 0%, #0d2010 50%, #0a1a10 100%)",
-                f"独一无二的特别命盘！超越 {percentile}% 的人"),
-        "C":   ("芸芸众生", "🌱", "#9ca3af", "0 0 10px rgba(156,163,175,0.15)",
-                "linear-gradient(135deg, #111 0%, #1a1a2e 50%, #111128 100%)",
-                f"平凡中蕴含不凡力量"),
+                "别具一格的星曜排布，写就你的独特篇章"),
+        "UR":  ("浑然天成", "🌱", "#f59e0b", "0 0 12px rgba(245,158,11,0.18)",
+                "linear-gradient(135deg, #1a0a0a 0%, #1a1a0a 50%, #0a1a10 100%)",
+                "大道至简，返璞归真。最自然的才是最好的"),
     }
     
-    if final_score >= 900:
+    # 调整阈值使分布更均匀，低分段也有体面的名字
+    if final_score >= 800:
         tier = "SSR"
-    elif final_score >= 750:
+    elif final_score >= 550:
         tier = "SR"
-    elif final_score >= 500:
+    elif final_score >= 320:
         tier = "R"
-    elif final_score >= 250:
-        tier = "UC"
+    elif final_score >= 150:
+        tier = "SRR"
     else:
-        tier = "C"
+        tier = "UR"
     
     tier_label, tier_emoji, color, glow, card_bg, rank_text = tier_config[tier]
     
     return {
         "score": final_score,
-        "percentile": percentile,
         "tier": tier,
         "tier_label": tier_label,
         "tier_emoji": tier_emoji,
