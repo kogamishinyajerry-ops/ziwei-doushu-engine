@@ -218,91 +218,93 @@ function buildPages(fh){
 
 function sihuaTags(s){var h='<div class="tag-row">';for(var i=0;i<4;i++){var t=['化禄','化权','化科','化忌'][i];if(s[t])h+='<span class="tag t-'+(i===0?'lu':i===1?'qu':i===2?'ke':'ji')+'">'+t.slice(1)+': '+s[t]+'</span>'}h+='</div>';return h}
 function radarSVG(dims){var order=['destiny','fortune','talent','heart','challenge'],names={destiny:'天命',fortune:'机遇',talent:'才华',heart:'情缘',challenge:'课题'},cols=['#c084fc','#4ade80','#60a5fa','#f472b6','#f97316'],cx=135,cy=125,R=85,s='<svg viewBox="0 0 270 260" style="width:270px;height:260px"><defs><linearGradient id="rgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="var(--gold)" stop-opacity="0.35"/><stop offset="100%" stop-color="var(--gold)" stop-opacity="0.04"/></linearGradient></defs>';for(var l=1;l<=4;l++){var lr=R*l/4,pts='';for(var i=0;i<5;i++){var a=-Math.PI/2+2*Math.PI*i/5;pts+=(cx+lr*Math.cos(a))+','+(cy+lr*Math.sin(a))+' '}s+='<polygon points="'+pts+'" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>'}for(var i=0;i<5;i++){var a=-Math.PI/2+2*Math.PI*i/5;s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+R*Math.cos(a))+'" y2="'+(cy+R*Math.sin(a))+'" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>'}var dp='';for(var i=0;i<5;i++){var d=dims[order[i]];if(!d){dp+=cx+','+cy+' ';continue}var v=d.score/100,a=-Math.PI/2+2*Math.PI*i/5;dp+=(cx+v*R*Math.cos(a))+','+(cy+v*R*Math.sin(a))+' '}s+='<polygon points="'+dp+'" fill="url(#rgrad)" stroke="var(--gold)" stroke-width="2" stroke-opacity="0.5"/>';for(var i=0;i<5;i++){var d=dims[order[i]];if(!d)continue;var v=d.score/100,a=-Math.PI/2+2*Math.PI*i/5,dx=cx+v*R*Math.cos(a),dy=cy+v*R*Math.sin(a);s+='<circle cx="'+dx+'" cy="'+dy+'" r="4.5" fill="var(--gold)" opacity="0.9"/><circle cx="'+dx+'" cy="'+dy+'" r="8" fill="none" stroke="var(--gold)" stroke-width="1.2" opacity="0.3"/>'}for(var i=0;i<5;i++){var d=dims[order[i]];if(!d)continue;var a=-Math.PI/2+2*Math.PI*i/5,lx=cx+(R+28)*Math.cos(a),ly=cy+(R+28)*Math.sin(a);s+='<text x="'+lx+'" y="'+(ly+4)+'" font-size="9" fill="var(--dim)" text-anchor="middle">'+names[order[i]]+'</text>';var v=d.score/100,sx=cx+(v*R+16)*Math.cos(a),sy=cy+(v*R+16)*Math.sin(a);s+='<text x="'+sx+'" y="'+(sy+2)+'" font-size="8" fill="'+cols[i]+'" text-anchor="middle" font-weight="700">'+d.score+'</text>'}s+='<circle cx="'+cx+'" cy="'+cy+'" r="14" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.3"/><text x="'+cx+'" y="'+(cy+5)+'" font-size="9" fill="var(--dim)" text-anchor="middle">命</text></svg>';return s}
-function wheelSVG(){var ps=cd.palaces||[];if(!ps.length)return'';var cx=150,cy=150,Ro=144,Rm=110,Ri=62,ms='紫微天机太阳武曲天同廉贞天府太阴贪狼巨门天相天梁七杀破军';var s='<svg viewBox="0 0 300 300" class="wheel-svg">';for(var r=Rm-4;r<=Ro;r+=12)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.025)" stroke-width="0.5"/>';s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+Rm+'" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.8"/><circle cx="'+cx+'" cy="'+cy+'" r="'+Ri+'" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>';for(var i=0;i<12;i++){var p=ps[i];if(!p)continue;var a0=-Math.PI/2+2*Math.PI*i/12-Math.PI/12,a1=a0+2*Math.PI/12,path=ap(cx,cy,Ro,a0,a1)+'L'+(cx+Rm*Math.cos(a1))+','+(cy+Rm*Math.sin(a1))+' '+ap(cx,cy,Rm,a1,a0,1)+'Z';s+='<path d="'+path+'" class="wp'+(p.is_body?' hl':'')+'" onclick="palaceTap('+i+')"/>';s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+Ro*Math.cos(a0))+'" y2="'+(cy+Ro*Math.sin(a0))+'" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>';var na=a0+Math.PI/12;s+='<text x="'+(cx+(Ro-16)*Math.cos(na))+'" y="'+(cy+(Ro-16)*Math.sin(na)+4)+'" class="wl">'+p.name+'</text>';s+='<text x="'+(cx+(Rm+14)*Math.cos(na))+'" y="'+(cy+(Rm+14)*Math.sin(na)+3)+'" class="wb">'+p.ganzhi+'</text>';var mains=p.stars.filter(function(s){return ms.indexOf(s)>=0});if(mains.length>0){var sn=mains[0];if(sn.length>2)sn=sn.slice(0,2);s+='<text x="'+(cx+(Ri+13)*Math.cos(na))+'" y="'+(cy+(Ri+13)*Math.sin(na)+2)+'" class="ws" fill="#ffd700">'+sn+'</text>'}if(mains.length>1){var sn2=mains[1];if(sn2.length>2)sn2=sn2.slice(0,2);var na2=na+0.25;s+='<text x="'+(cx+(Ri+6)*Math.cos(na2))+'" y="'+(cy+(Ri+6)*Math.sin(na2)+2)+'" class="ws" fill="#ffd700">'+sn2+'</text>'}}s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+Ri+'" class="wc"/><text x="'+cx+'" y="'+(cy-7)+'" class="wct">'+(cd.zodiac||'')+'</text><text x="'+cx+'" y="'+(cy+7)+'" class="wct" style="font-size:5.5px;fill:var(--dim)">'+(cd.wuxing_ju||'')+'</text></svg>';return s;function ap(cx,cy,r,a1,a2,rev){var x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);return'M'+x1+','+y1+' A'+r+','+r+' 0 '+(Math.abs(a2-a1)>Math.PI?1:0)+','+(rev?0:1)+' '+x2+','+y2}}
+function wheelSVG(){
+  var ps=cd.palaces||[];if(!ps.length)return'';
+  var cx=160,cy=160,Ro=152,Rm=108,Ri=58;
+  var ms='紫微天机太阳武曲天同廉贞天府太阴贪狼巨门天相天梁七杀破军';
+  var s='<svg viewBox="0 0 320 320" style="width:310px;height:310px">';
+  for(var r=Rm-4;r<=Ro;r+=14)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="0.4"/>';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+Rm+'" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/><circle cx="'+cx+'" cy="'+cy+'" r="'+Ri+'" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>';
+  for(var i=0;i<12;i++){var p=ps[i];if(!p)continue;
+    var a0=-Math.PI/2+2*Math.PI*i/12-Math.PI/12,a1=a0+2*Math.PI/12;
+    var path=ap(cx,cy,Ro,a0,a1)+'L'+(cx+Rm*Math.cos(a1))+','+(cy+Rm*Math.sin(a1))+' '+ap(cx,cy,Rm,a1,a0,1)+'Z';
+    s+='<path d="'+path+'" class="wp'+(p.is_body?' hl':'')+'" onclick="palaceTap('+i+')"/>';
+    s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+Ro*Math.cos(a0))+'" y2="'+(cy+Ro*Math.sin(a0))+'" stroke="rgba(255,255,255,0.025)" stroke-width="0.4"/>';
+    var na=a0+Math.PI/12;
+    // 宫名贴外环
+    s+='<text x="'+(cx+(Ro-20)*Math.cos(na))+'" y="'+(cy+(Ro-20)*Math.sin(na)+4)+'" font-size="8" fill="var(--text)" text-anchor="middle" font-weight="600">'+p.name+'</text>';
+    // 干支—中环内侧,大间距错开
+    s+='<text x="'+(cx+(Rm+8)*Math.cos(na))+'" y="'+(cy+(Rm+8)*Math.sin(na)+3)+'" font-size="6.5" fill="var(--dim)" text-anchor="middle">'+p.ganzhi+'</text>';
+    // 星曜内圈
+    var mains=p.stars.filter(function(s){return ms.indexOf(s)>=0});
+    if(mains.length>0){var sn=mains[0];if(sn.length>2)sn=sn.slice(0,2);s+='<text x="'+(cx+(Ri+12)*Math.cos(na))+'" y="'+(cy+(Ri+12)*Math.sin(na)+2)+'" font-size="6" fill="#ffd700" text-anchor="middle">'+sn+'</text>'}
+    if(mains.length>1){var sn2=mains[1];if(sn2.length>2)sn2=sn2.slice(0,2);var na2=na+0.25;s+='<text x="'+(cx+(Ri+5)*Math.cos(na2))+'" y="'+(cy+(Ri+5)*Math.sin(na2)+2)+'" font-size="5.5" fill="#ffd700" text-anchor="middle">'+sn2+'</text>'}
+  }
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+Ri+'" class="wc"/><text x="'+cx+'" y="'+(cy-6)+'" font-size="7.5" fill="var(--text)" text-anchor="middle" font-weight="600">'+(cd.zodiac||'')+'</text><text x="'+cx+'" y="'+(cy+7)+'" font-size="5.5" fill="var(--dim)" text-anchor="middle">'+(cd.wuxing_ju||'')+'</text></svg>';return s;
+  function ap(cx,cy,r,a1,a2,rev){var x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);return'M'+x1+','+y1+' A'+r+','+r+' 0 '+(Math.abs(a2-a1)>Math.PI?1:0)+','+(rev?0:1)+' '+x2+','+y2}}
 function palaceTap(i){var p=cd.palaces[i];if(!p)return;alert(p.name+' ('+p.ganzhi+')'+(p.is_body?' 🏠身宫':'')+'\n星曜: '+(p.stars.length?p.stars.join('、'):'空宫')+'\n'+(p.daxian?'大限: '+p.daxian:''))}
 
 // ═══ 128×128 可爱像素 — 大头Q版 ═══
 function drawPixel(){
   var canvas=document.getElementById('pixelAvatar');if(!canvas)return;
-  var ctx=canvas.getContext('2d'),SZ=128,SC=2;canvas.width=SZ*SC;canvas.height=SZ*SC;ctx.imageSmoothingEnabled=false;
+  var ctx=canvas.getContext('2d'),SZ=64,SC=4;canvas.width=SZ*SC;canvas.height=SZ*SC;ctx.imageSmoothingEnabled=false;
   var rar=ad.rarity||{},th=ad.element_theme||{},dc=ad.destiny_code||{},el=th.name||'土',tier=rar.tier||'S';
-  // Cute pastel palettes
-  var pals={金:['#fff5e6','#ffe0a0','#f0c060','#d4a040','#ffe8c0','#fffdf5','#e0b850','#ffd700','#c09030','#fff0d0'],
-    木:['#e8fce0','#80e8a0','#50c878','#38a050','#b8f0c8','#f0fff0','#60d888','#48b868','#309040','#d8f8d8'],
-    水:['#e8f2fc','#88c8f8','#5098e0','#3868b0','#b8e0f8','#f4faff','#68b0e8','#4888d0','#306098','#d8ecf8'],
-    火:['#fce8e0','#f89870','#e06840','#b04028','#f8c0a8','#fff5f0','#e88058','#d05838','#a03820','#fce0d0'],
-    土:['#f4eee2','#c8a8f8','#9078d0','#605098','#e0d0f8','#f8f4ff','#a088e0','#7868b8','#504880','#ece0f0']};
-  var p=pals[el]||pals['土'],sk=p[0],hr=p[2],c1=p[1],c2=p[3],ac=p[7],dk=p[8],bg=p[9],lt=p[5];
+  var pals={金:['#fff8ee','#f0d080','#d4a840','#b89030','#ffe8c0','#fffef8','#e0b848','#ffd700','#c89828'],
+    木:['#eafcea','#68d888','#40b858','#309038','#b0f0c0','#f2fff2','#58d070','#38a848','#288030'],
+    水:['#eaf4fc','#70b8f8','#4890e0','#3068a8','#b0d8f8','#f6faff','#60a8e8','#3880d0','#286098'],
+    火:['#fceaea','#f08068','#e05838','#b03820','#f8c0a8','#fff6f4','#e87050','#d04830','#a03018'],
+    土:['#f6f0e6','#c0a0f8','#8870d0','#5848a0','#d8c8f8','#faf6ff','#9888e0','#7060b8','#484080']};
+  var p=pals[el]||pals['土'],sk=p[0],hr=p[2],c1=p[1],c2=p[3],ac=p[7],dk=p[8],bg=p[5];
   function hh(s){var h=0;for(var i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i);return Math.abs(h)}
-  var h1=hh((dc.full_name||'')+(th.name||''))%1000,h2=hh((cd.ming_palace||'')+(cd.wuxing_ju||''))%1000,h3=hh((new Date().getTime())+'')%1000;
+  var h1=hh((dc.full_name||'')+(th.name||''))%1000,h2=hh((cd.ming_palace||'')+(cd.wuxing_ju||''))%1000;
   var g=[];for(var i=0;i<SZ;i++){g[i]=[];for(var j=0;j<SZ;j++)g[i][j]=0}
   function R(x,y,w,h,v){for(var i=y;i<y+h;i++)for(var j=x;j<x+w;j++)if(i>=0&&i<SZ&&j>=0&&j<SZ)g[i][j]=v}
   function S(x,y,v){if(x>=0&&x<SZ&&y>=0&&y<SZ)g[y][x]=v}
   function C(cx,cy,r,v){for(var y=cy-r;y<=cy+r;y++)for(var x=cx-r;x<=cx+r;x++)if((x-cx)*(x-cx)+(y-cy)*(y-cy)<=r*r)S(x,y,v)}
 
-  // Background — soft circle
-  C(64,72,58,9);
-  // Hair back (big round shape)
-  C(64,52,52,2);
-  // Hair top
-  R(14,14,100,44,2);
-  if(h1%4===0){R(12,20,104,36,2)}else if(h1%4===1){R(18,16,92,40,2)}else{R(10,18,108,38,2)}
-  // Hair sides
-  R(8,30,18,60,2);R(102,30,18,60,2);
-  // Bangs
-  if(h2%3===0){R(30,50,68,14,2);R(28,54,72,8,2)}
-  else if(h2%3===1){R(34,48,60,12,2);S(28,52,2);S(96,52,2)}
-  else{C(64,58,38,2);R(28,46,72,8,2)}
+  // Background
+  C(32,40,30,9);
+  // Hair — big round cute
+  C(32,30,28,2);
+  if(h1%3===0){R(6,12,52,22,2)}else if(h1%3===1){R(4,14,56,20,2)}else{R(8,10,48,24,2)}
+  R(2,20,12,36,2);R(50,20,12,36,2);
+  R(16,30,32,8,2);
+  if(h2%2===0){R(14,34,36,4,2)}
 
-  // Face — cute round
-  C(64,62,36,1);
-  // Blush circles
-  C(40,68,10,10);C(88,68,10,10);
-  // Eyes — big kawaii
-  R(32,56,16,18,4);R(80,56,16,18,4); // eye outline
-  R(34,58,12,14,1);R(82,58,12,14,1); // white
-  // Iris
-  C(42,64,7,3);C(90,64,7,3);
-  // Pupils + highlights
-  C(43,63,3,4);C(91,63,3,4);
-  S(44,61,1);S(45,60,1);S(92,61,1);S(93,60,1); // catchlights
-  // Eyebrows
-  if(h3%2===0){R(30,51,20,4,2);R(78,51,20,4,2)}else{R(31,50,18,3,2);R(79,50,18,3,2)}
-  // Nose — tiny
-  S(63,74,6);S(64,74,6);
-  // Mouth — cute small
-  if(h2%3===0){R(58,82,12,5,6)}else{S(60,82,4);S(61,82,4);S(62,82,4);S(63,82,4);S(64,82,4)}
+  // Face round
+  C(32,36,22,1);
+  // Blush
+  C(20,42,6,9);C(44,42,6,9);
+  // Big cute eyes
+  R(17,34,8,9,4);R(39,34,8,9,4);
+  R(19,36,4,5,1);R(41,36,4,5,1);
+  S(20,37,4);S(21,38,4);S(42,37,4);S(43,38,4);
+  S(20,35,1);S(21,34,1);S(42,35,1);S(43,34,1);
+  R(17,31,8,2,2);R(39,31,8,2,2);
+  // Nose
+  S(31,44,6);S(32,44,6);
+  // Mouth cute
+  R(29,49,6,3,6);
 
-  // Body — small chibi
-  R(36,88,56,30,5);
-  // Collar
-  R(56,88,16,6,6);
-  // Outfit detail
-  if(h1%3===0){R(44,98,40,4,6)}else{S(63,98,6);S(64,98,6);S(62,100,6);S(63,100,6);S(64,100,6)}
+  // Chibi body
+  R(18,52,28,12,5);
+  R(28,52,8,4,6);
 
-  // Tier accessories on head
-  if(tier==='UR'){
-    // Crown
-    R(46,6,36,8,7);for(var a=0;a<8;a++){S(48+a*4,6,7);S(48+a*4,4,7);S(48+a*4,2,7)}
-    // Halo
-    for(var a=0;a<36;a++){var ax=64+Math.cos(a/36*Math.PI*2)*20,ay=20+Math.sin(a/36*Math.PI*2)*14;S(Math.round(ax),Math.round(ay),ac)}
-  }else if(tier==='SSR'){
-    R(44,6,40,5,7);S(50,4,7);S(58,4,7);S(66,4,7);S(74,4,7)
-  }else if(tier==='SR'){
-    R(48,6,32,4,7);S(56,4,7);S(64,4,7);S(72,4,7)
-  }
+  // Tier crown
+  if(tier==='UR'){R(20,0,24,5,7);S(24,2,7);S(28,1,7);S(32,2,7);S(36,1,7);S(40,2,7);S(20,3,7);S(44,3,7)}
+  else if(tier==='SSR'){R(22,0,20,4,7);S(28,1,7);S(32,2,7);S(36,1,7)}
+  else if(tier==='SR'){R(26,0,12,3,7);S(30,1,7);S(34,1,7)}
 
-  // Hair accessory (flower/bow based on element)
-  if(el==='木'){C(28,48,6,10);C(28,48,3,1)}
-  else if(el==='火'){R(24,44,8,9,10);R(26,44,4,9,1)}
-  else if(el==='水'){C(26,50,5,1);C(26,50,2,10)}
-  else if(el==='金'){S(26,46,7);S(27,45,7);S(28,44,7);S(24,48,7);S(25,47,7);S(26,46,7)}
-  else if(el==='土'){R(24,46,8,8,10)}
+  // Element hair pin
+  if(el==='木'){C(13,28,5,9);C(13,28,2,1)}
+  else if(el==='火'){R(9,26,6,5,9);C(12,28,1,1)}
+  else if(el==='水'){C(10,30,3,1);C(10,30,1,1)}
+  else if(el==='金'){S(10,27,ac);S(11,26,ac);S(12,27,ac);S(11,28,ac)}
+  else{S(9,26,9);S(10,25,9);S(11,26,9);S(10,27,9)}
 
-  for(var y=0;y<SZ;y++){for(var x=0;x<SZ;x++){var v=g[y][x],co;if(v===0)continue;co=v===1?sk:v===2?hr:v===3?c2:v===4?dk:v===5?c1:v===6?p[4]:v===7?ac:v===8?p[5]:v===9?bg:v===10?p[8]:sk;ctx.fillStyle=co;ctx.fillRect(x*SC,y*SC,SC,SC)}}
+  for(var y=0;y<SZ;y++){for(var x=0;x<SZ;x++){var v=g[y][x];if(v===0)continue;var co=v===1?sk:v===2?hr:v===3?c2:v===4?dk:v===5?c1:v===6?p[4]:v===7?ac:v===8?p[5]:v===9?p[8]:sk;ctx.fillStyle=co;ctx.fillRect(x*SC,y*SC,SC,SC)}}
 }
-
-async function downloadCard(){try{var el=document.getElementById('sharePrev');if(!el){alert('请先翻到分享页');return}var canvas=await html2canvas(el,{backgroundColor:null,scale:3,logging:false});var a=document.createElement('a');a.download='紫微斗数_我的命盘.png';a.href=canvas.toDataURL('image/png');a.click()}catch(e){alert('请截屏保存')}}
+function downloadCard(){try{var el=document.getElementById('sharePrev');if(!el){alert('请先翻到分享页');return}var canvas=await html2canvas(el,{backgroundColor:null,scale:3,logging:false});var a=document.createElement('a');a.download='紫微斗数_我的命盘.png';a.href=canvas.toDataURL('image/png');a.click()}catch(e){alert('请截屏保存')}}
 function copyShare(){var d2=ad.destiny_code||{},r2=ad.rarity||{},t='🔮 紫微斗数命盘\n\n命码: '+(d2.full_name||'?')+' '+(d2.emoji||'')+'\n品级: '+(r2.tier||'?')+' · '+(r2.tier_label||'')+'\n「'+(d2.tagline||'')+'」\n\n#紫微斗数 #命盘解读';navigator.clipboard.writeText(t).then(function(){var b=document.querySelector('.page.current .nav-btn.sec');if(b){b.textContent='✅ 已复制';setTimeout(function(){b.textContent='📋 文案'},1500)}}).catch(function(){})}
 function spawn(rar){var c=document.getElementById('sfx'),n=rar.tier==='UR'?60:rar.tier==='SSR'?30:0;for(var i=0;i<n;i++){var p=document.createElement('div');p.className='sfx-dot';p.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*35+'%;width:'+(Math.random()*6+2)+'px;height:'+(Math.random()*6+2)+'px;background:'+(rar.color||'#ffd700')+';--x:'+((Math.random()-.5)*280)+'px;--y:'+(Math.random()*380+100)+'px;animation-delay:'+(Math.random()*.35)+'s';c.appendChild(p);setTimeout(function(){p.remove()},3200)}}
 document.addEventListener('DOMContentLoaded',function(){updateNav()});
