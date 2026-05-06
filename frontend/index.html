@@ -219,27 +219,37 @@ async function loadChart(){
   const deck=document.getElementById('deck');
   document.getElementById('navBtn').disabled=true;
   
+  // 先读取所有表单值 (加载页会销毁DOM)
+  const formHTML=document.getElementById('p0').innerHTML;
+  const fv={
+    year:+document.getElementById('year').value,
+    month:+document.getElementById('month').value,
+    day:+document.getElementById('day').value,
+    hour:+document.getElementById('hour').value,
+    minute:+document.getElementById('min').value||0,
+    name:document.getElementById('name').value||'',
+    gender:document.getElementById('gender').value,
+    city:document.getElementById('city').value||''
+  };
+  
   // Loading page
   deck.innerHTML='<div class="page current" id="pLoad"><div class="spinner-wrap"><div class="spinner"></div><div class="card-icon">🔮</div><div class="load-tip" id="ltip">正在连接星空…</div></div></div>';
   let ti=0;
-  const ti2=setInterval(()=>{document.getElementById('ltip').textContent=tips[ti%tips.length];ti++},900);
+  const ti2=setInterval(()=>{const el=document.getElementById('ltip');if(el)el.textContent=tips[ti%tips.length];ti++},900);
 
   try{
-    const p={year:+document.getElementById('year').value,month:+document.getElementById('month').value,
-      day:+document.getElementById('day').value,hour:+document.getElementById('hour').value,
-      minute:+document.getElementById('min').value||0,name:document.getElementById('name').value||'',
-      gender:document.getElementById('gender').value,city:document.getElementById('city').value||''};
+    const p=fv;
     const r=await fetch('/api/chart/full?'+new URLSearchParams(p));
     if(!r.ok){const e=await r.json();throw new Error(e.detail||'排盘失败')}
     chartData=await r.json();analysisData=chartData.analysis||{};
     clearInterval(ti2);
     theme();
-    buildPages();
+    buildPages(formHTML);
     totalPages=document.querySelectorAll('.page').length;
     goTo(1);
   }catch(e){
     clearInterval(ti2);
-    deck.innerHTML=`<div class="page current"><div class="card-icon">😔</div><div class="card-value" style="font-size:1.2em;color:#e85d5d">${e.message}</div><button class="nav-btn primary" style="margin-top:24px" onclick="location.reload()">重试</button></div>`;
+    deck.innerHTML='<div class="page current"><div class="card-icon">😔</div><div class="card-value" style="font-size:1.2em;color:#e85d5d">'+e.message+'</div><button class="nav-btn primary" style="margin-top:24px" onclick="location.reload()">重试</button></div>';
   }
   document.getElementById('navBtn').disabled=false;
   updateNav();
@@ -254,9 +264,9 @@ function theme(){
 // ══════════════════════════════════════
 // 构建页面
 // ══════════════════════════════════════
-function buildPages(){
+function buildPages(formHTML){
   const deck=document.getElementById('deck');
-  let html='<div class="page above" id="p0">'+document.getElementById('p0').innerHTML+'</div>';
+  let html='<div class="page above" id="p0">'+formHTML+'</div>';
   
   const rar=analysisData.rarity||{};
   const dc=analysisData.destiny_code||{};
