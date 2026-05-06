@@ -13,8 +13,7 @@
   html,body{height:100%;overflow:hidden;font-family:var(--font);background:var(--bg);color:var(--text);
     -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
 
-  /* ── Canvas星空+光晕 ── */
-  body::after{content:'';position:fixed;inset:-20%;z-index:0;opacity:.5;pointer-events:none;
+  body::after{content:'';position:fixed;inset:-20%;z-index:0;opacity:.45;pointer-events:none;
     background:radial-gradient(ellipse at 30% 20%,rgba(212,168,83,.08) 0%,transparent 50%),
     radial-gradient(ellipse at 70% 50%,rgba(155,126,216,.05) 0%,transparent 50%),
     radial-gradient(ellipse at 50% 80%,rgba(96,165,250,.05) 0%,transparent 50%);
@@ -24,15 +23,15 @@
 
   .deck{height:100%;width:100%;position:relative;overflow:hidden;z-index:1}
   .page{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    padding:40px 18px 100px;transition:transform .6s cubic-bezier(0.32,0.72,0,1),opacity .5s;
+    padding:36px 14px 100px;transition:transform .6s cubic-bezier(0.32,0.72,0,1),opacity .5s;
     will-change:transform;text-align:center;overflow-y:auto}
   .page.below{transform:translateY(100%);opacity:0;pointer-events:none}
   .page.current{transform:translateY(0);opacity:1}
   .page.above{transform:translateY(-100%);opacity:0;pointer-events:none}
 
   .crd{
-    background:rgba(14,14,36,.8);border:1px solid rgba(255,255,255,.07);border-radius:24px;
-    padding:28px 22px 24px;width:100%;max-width:320px;position:relative;overflow:hidden;
+    background:rgba(14,14,36,.82);border:1px solid rgba(255,255,255,.07);border-radius:24px;
+    padding:26px 20px 22px;width:100%;max-width:320px;position:relative;overflow:hidden;
     box-shadow:0 16px 48px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.03);
     backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
     animation:crdIn .55s cubic-bezier(0.34,1.56,0.64,1)}
@@ -40,54 +39,53 @@
   .crd.glow{border-color:var(--gold);box-shadow:0 0 48px var(--glow),0 16px 48px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04)}
   .crd::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:70%;height:1px;
     background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)}
-  .crd-title{font-size:.66em;color:var(--dim);letter-spacing:.15em;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px}
-  .crd-title::before,.crd-title::after{content:'';width:22px;height:1px;background:rgba(255,255,255,.06)}
-  .crd-body{font-size:.74em;line-height:1.75;color:var(--text)}
-  .crd-hint{font-size:.6em;color:var(--sub);margin-top:8px;line-height:1.5}
-  .crd-icon{font-size:2.4em;margin:4px 0;animation:float 3s ease-in-out infinite}
+  .crd-title{font-size:.64em;color:var(--dim);letter-spacing:.14em;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .crd-title::before,.crd-title::after{content:'';width:20px;height:1px;background:rgba(255,255,255,.05)}
+  .crd-body{font-size:.72em;line-height:1.7;color:var(--text)}
+  .crd-hint{font-size:.58em;color:var(--sub);margin-top:6px;line-height:1.5}
+  .crd-icon{font-size:2.2em;margin:4px 0;animation:float 3s ease-in-out infinite}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 
   /* ── 稀有度 ── */
-  .rar-tier{font-size:2.8em;font-weight:200;letter-spacing:.04em}
-  .rar-badge{display:inline-block;padding:6px 20px;border-radius:22px;font-size:.68em;font-weight:600;letter-spacing:.1em;border:1px solid;margin-bottom:10px}
-  .rar-desc{font-size:.74em;line-height:1.7;max-width:260px;margin:8px auto 0}
-  .bonus-row{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:10px}
-  .bonus-tag{padding:4px 11px;border-radius:10px;font-size:.58em;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:var(--dim)}
+  .rar-tier{font-size:2.6em;font-weight:200;letter-spacing:.04em}
+  .rar-badge{display:inline-block;padding:6px 18px;border-radius:20px;font-size:.66em;font-weight:600;letter-spacing:.1em;border:1px solid;margin-bottom:10px}
+  .rar-desc{font-size:.72em;line-height:1.6;max-width:260px;margin:6px auto 0}
+  .bonus-row{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:8px}
+  .bonus-tag{padding:4px 10px;border-radius:10px;font-size:.56em;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);color:var(--dim)}
 
-  .code-icon{font-size:3.2em;animation:float 3s ease-in-out infinite}
-  .code-name{font-size:1.5em;font-weight:600;letter-spacing:.08em;margin:6px 0}
-  .code-quote{font-size:.76em;font-style:italic;color:var(--dim);margin:4px 0 12px}
-  .kw-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:6px 0}
-  .kw{padding:5px 13px;border-radius:14px;font-size:.64em;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+  .code-icon{font-size:3em;animation:float 3s ease-in-out infinite}
+  .code-name{font-size:1.4em;font-weight:600;letter-spacing:.08em;margin:4px 0}
+  .code-quote{font-size:.74em;font-style:italic;color:var(--dim);margin:2px 0 10px}
+  .kw-row{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin:4px 0}
+  .kw{padding:4px 11px;border-radius:12px;font-size:.62em;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
 
-  .radar-wrap{width:270px;height:260px;margin:0 auto}
+  /* ── 星盘表格式(清晰) ── */
+  .chart-table{width:100%;max-width:300px;border-collapse:separate;border-spacing:2px}
+  .chart-table td{padding:7px 5px;background:rgba(255,255,255,.02);border-radius:6px;text-align:center;vertical-align:middle;border:1px solid rgba(255,255,255,.03);font-size:.58em;line-height:1.4}
+  .chart-table .ct-palace{color:var(--gold);font-weight:600;font-size:.7em}
+  .chart-table .ct-branch{color:var(--dim);font-size:.65em}
+  .chart-table .ct-star{white-space:nowrap;padding:1px 3px;border-radius:2px;font-size:.7em}
+  .chart-table .ct-body{border-color:rgba(240,192,64,.25)!important;box-shadow:inset 0 0 12px rgba(240,192,64,.04)}
+  .st-m{color:#ffd700}.st-j{color:#5b9bd5}.st-s{color:#e85d5d}.st-f{color:#5bbd72}
 
-  /* ── 星盘 ════════════════ */
-  .wheel-svg{width:310px;height:310px}
-  .wp{fill:rgba(14,14,36,.6);stroke:rgba(255,255,255,.03);stroke-width:.6;cursor:pointer;transition:fill .2s}
-  .wp.hl{fill:rgba(240,192,64,.05);stroke:rgba(240,192,64,.2);stroke-width:1.4}
-  .wp:active{fill:rgba(255,255,255,.04)}
-  .wl{font-size:8.5px;fill:var(--text);text-anchor:middle;font-weight:500}
-  .wb{font-size:6.5px;fill:var(--dim);text-anchor:middle}
-  .ws{font-size:6px;font-weight:500}
-  .wc{fill:rgba(0,0,0,.5);stroke:var(--gold);stroke-width:1.5}
-  .wct{font-size:8px;fill:var(--text);text-anchor:middle;font-weight:600}
+  /* ── 像素形象 ── */
+  .pixel-canvas{image-rendering:pixelated;border-radius:16px;box-shadow:0 0 32px var(--glow);margin:8px 0}
+  .pixel-name{font-size:.9em;font-weight:600;letter-spacing:.04em;margin-top:6px}
+  .pixel-class{font-size:.62em;color:var(--dim);margin-bottom:2px}
 
-  .tl-item{display:flex;gap:12px;align-items:flex-start;margin-bottom:9px;text-align:left}
-  .tl-dot{width:7px;height:7px;min-width:7px;border-radius:50%;background:var(--gold);margin-top:3px;box-shadow:0 0 8px var(--gold)}
-  .tl-age{font-size:.78em;font-weight:600;color:var(--gold);min-width:36px}
-  .tl-body{font-size:.62em;color:var(--dim);line-height:1.5}
-  .tl-body b{color:var(--text);font-weight:500}
+  .tl-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;text-align:left}
+  .tl-dot{width:6px;height:6px;min-width:6px;border-radius:50%;background:var(--gold);margin-top:3px;box-shadow:0 0 6px var(--gold)}
+  .tl-age{font-size:.76em;font-weight:600;color:var(--gold);min-width:34px}
+  .tl-body{font-size:.6em;color:var(--dim);line-height:1.5}.tl-body b{color:var(--text);font-weight:500}
 
-  .share-preview{width:220px;border-radius:18px;padding:22px 16px 16px;position:relative;overflow:hidden}
-  .share-preview::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.018),transparent 60%)}
-  .sp-badge{font-size:.56em;letter-spacing:.1em;margin-bottom:8px;position:relative}
-  .sp-icon{font-size:1.8em;margin-bottom:2px;position:relative}
-  .sp-name{font-size:.95em;font-weight:600;margin-bottom:2px;position:relative}
-  .sp-foot{font-size:.5em;color:var(--sub);margin-top:10px;text-align:center;position:relative}
+  .share-preview{width:200px;border-radius:16px;padding:20px 14px 14px;position:relative;overflow:hidden}
+  .sp-badge{font-size:.54em;letter-spacing:.1em;margin-bottom:6px;position:relative}
+  .sp-icon{font-size:1.6em;margin-bottom:2px;position:relative}
+  .sp-name{font-size:.9em;font-weight:600;margin-bottom:2px;position:relative}
+  .sp-foot{font-size:.48em;color:var(--sub);margin-top:8px;text-align:center;position:relative}
 
-  .tag-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:6px 0}
-  .tag{padding:4px 11px;border-radius:14px;font-size:.62em;font-weight:600}
+  .tag-row{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin:4px 0}
+  .tag{padding:3px 9px;border-radius:12px;font-size:.6em;font-weight:600}
   .t-lu{background:rgba(74,222,128,.08);color:var(--lu);border:1px solid rgba(74,222,128,.15)}
   .t-qu{background:rgba(249,115,22,.08);color:var(--qu);border:1px solid rgba(249,115,22,.15)}
   .t-ke{background:rgba(96,165,250,.08);color:var(--ke);border:1px solid rgba(96,165,250,.15)}
@@ -102,8 +100,8 @@
   .nav-btn.pri:active{transform:scale(.95)}
   .nav-btn.sec{background:rgba(255,255,255,.05);color:var(--text);border:1px solid rgba(255,255,255,.08)}
   .nav-dots{display:flex;gap:5px}
-  .nd{width:5px;height:5px;border-radius:50%;background:var(--sub);transition:all .3s}
-  .nd.on{background:var(--gold);width:16px;border-radius:3px;box-shadow:0 0 6px var(--gold)}
+  .nd{width:4px;height:4px;border-radius:50%;background:var(--sub);transition:all .3s}
+  .nd.on{background:var(--gold);width:14px;border-radius:3px;box-shadow:0 0 6px var(--gold)}
 
   .brand{font-size:2em;margin-bottom:2px}
   .brand-sub{font-size:.7em;color:var(--dim);letter-spacing:.1em;margin-bottom:24px}
@@ -124,7 +122,7 @@
   @keyframes sfxFall{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(0)}}
 
   .deep-card{background:linear-gradient(135deg,rgba(30,10,0,.5),rgba(10,10,30,.5))!important;border:1px solid rgba(255,215,0,.2)!important}
-  .sep{width:40px;height:1px;background:rgba(255,255,255,.05);margin:10px auto}
+  .sep{width:36px;height:1px;background:rgba(255,255,255,.04);margin:8px auto}
 </style>
 </head>
 <body>
@@ -152,39 +150,20 @@ var cp=0,tp=0,cd=null,ad=null;
 var tips=['🌌 接收星辰信号…','⭐ 紫微定位中…','📊 解析命盘格局…','🎭 寻找你的原型…','✨ 即将揭晓…'];
 var T={UR:'👑',SSR:'🌟',SR:'💎',S:'✨'};
 
-// ═══ Canvas星空 ═══
-(function(){
-  var c=document.getElementById('stars'),ctx=c.getContext('2d');
-  function rs(){c.width=window.innerWidth;c.height=window.innerHeight}
-  rs();window.addEventListener('resize',rs);
-  var stars=[];for(var i=0;i<100;i++)stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.5+.3,sp:Math.random()*.015+.005,ph:Math.random()*Math.PI*2});
-  function draw(){
-    ctx.clearRect(0,0,c.width,c.height);
-    for(var i=0;i<stars.length;i++){var s=stars[i];s.ph+=s.sp;
-    var a=.12+.2*Math.abs(Math.sin(s.ph));
-    ctx.fillStyle='rgba(220,210,180,'+a.toFixed(2)+')';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill()}
-    requestAnimationFrame(draw)}
-  draw()})();
+(function(){var c=document.getElementById('stars'),ctx=c.getContext('2d');function rs(){c.width=window.innerWidth;c.height=window.innerHeight}rs();window.addEventListener('resize',rs);var stars=[];for(var i=0;i<80;i++)stars.push({x:Math.random()*2000,y:Math.random()*2000,r:Math.random()*1.6+.2,sp:Math.random()*.014+.004,ph:Math.random()*Math.PI*2});function draw(){ctx.clearRect(0,0,c.width,c.height);for(var i=0;i<stars.length;i++){var s=stars[i];s.ph+=s.sp;var a=.1+.22*Math.abs(Math.sin(s.ph));ctx.fillStyle='rgba(220,210,180,'+a.toFixed(2)+')';ctx.beginPath();ctx.arc(s.x%c.width,s.y%c.height,s.r,0,Math.PI*2);ctx.fill()}requestAnimationFrame(draw)}draw()})();
 
 function nextPage(){if(cp===0){loadChart();return}if(cp<tp-1)goTo(cp+1)}
 function goTo(n){
   document.querySelectorAll('.page').forEach(function(p,i){p.classList.remove('current','above','below');if(i<n)p.classList.add('above');else if(i===n)p.classList.add('current');else p.classList.add('below')});
-  cp=n;updateNav();if(n===1&&ad)spawn(ad.rarity||{})
-}
+  cp=n;updateNav();if(n===1&&ad)spawn(ad.rarity||{})}
 function updateNav(){
   document.getElementById('navDots').innerHTML=Array.from({length:tp-1},function(_,i){return'<div class="nd'+(i===cp-1?' on':'')+'"></div>'}).join('');
-  var b=document.getElementById('navBtn');
-  if(cp===0){b.textContent='🔮 开始解读';b.className='nav-btn pri'}
-  else if(cp===tp-1){b.textContent='🔄 重新解读';b.className='nav-btn sec'}
-  else{b.textContent='继续 →';b.className='nav-btn pri'}
-}
-var ty=0;
-document.addEventListener('touchstart',function(e){ty=e.touches[0].clientY},{passive:true});
+  var b=document.getElementById('navBtn');if(cp===0){b.textContent='🔮 开始解读';b.className='nav-btn pri'}else if(cp===tp-1){b.textContent='🔄 重新解读';b.className='nav-btn sec'}else{b.textContent='继续 →';b.className='nav-btn pri'}}
+var ty=0;document.addEventListener('touchstart',function(e){ty=e.touches[0].clientY},{passive:true});
 document.addEventListener('touchend',function(e){var d=ty-e.changedTouches[0].clientY;if(Math.abs(d)>50&&cp>0){if(d>0&&cp<tp-1)goTo(cp+1);else if(d<0&&cp>1)goTo(cp-1)}});
 
 async function loadChart(){
-  var deck=document.getElementById('deck');document.getElementById('navBtn').disabled=true;
-  var fh=document.getElementById('p0').innerHTML;
+  var deck=document.getElementById('deck');document.getElementById('navBtn').disabled=true;var fh=document.getElementById('p0').innerHTML;
   var fv={year:+document.getElementById('year').value,month:+document.getElementById('month').value,day:+document.getElementById('day').value,hour:+document.getElementById('hour').value,minute:+document.getElementById('min').value||0,name:document.getElementById('name').value||'',gender:document.getElementById('gender').value,city:document.getElementById('city').value||''};
   deck.innerHTML='<div class="page current"><div class="spinner"></div><div class="crd-icon" style="font-size:3em">🔮</div><div class="load-tip" id="ltip">正在连接星空…</div></div>';
   var ti=0,ti2=setInterval(function(){var e=document.getElementById('ltip');if(e)e.textContent=tips[ti%tips.length];ti++},900);
@@ -193,8 +172,7 @@ async function loadChart(){
     var th=ad.element_theme||{};if(th.primary){var s=document.documentElement.style;s.setProperty('--gold',th.primary);s.setProperty('--glow','0 0 30px '+th.primary+'33')}
     buildPages(fh);tp=document.querySelectorAll('.page').length;goTo(1)}
   catch(e2){clearInterval(ti2);var em=e2.message||'未知错误';deck.innerHTML='<div class="page current"><div class="crd"><div class="crd-icon" style="font-size:2.5em">😔</div><div class="crd-body" style="font-size:1.1em;color:#e85d5d">解读失败</div><div class="crd-hint">'+em+'</div></div><button class="nav-btn pri" style="margin-top:14px" onclick="location.reload()">重试</button></div>'}
-  document.getElementById('navBtn').disabled=false;updateNav()
-}
+  document.getElementById('navBtn').disabled=false;updateNav()}
 
 function trow(arr,cls){return'<div class="tag-row">'+arr.map(function(x){return'<span class="tag '+cls+'">'+x+'</span>'}).join('')+'</div>'}
 
@@ -203,78 +181,71 @@ function buildPages(fh){
   var rar=ad.rarity||{},dc=ad.destiny_code||{},dims=ad.dimensions||{},cp2=ad.career_path||{},kas=ad.key_ages||[],pers=ad.personality||{},th=ad.element_theme||{},arch=ad.archetype||{},tc=rar.color||'#d4a853',deep=rar.deep_analysis||{},unlocked=deep.unlocked||false;
 
   // P1: 稀有度
-  var bs='',bss=rar.bonuses||[];
-  for(var b=0;b<Math.min(bss.length,6);b++)bs+='<span class="bonus-tag">'+bss[b].desc+'</span>';
+  var bs='',bss=rar.bonuses||[];for(var b=0;b<Math.min(bss.length,4);b++)bs+='<span class="bonus-tag">'+bss[b].desc+'</span>';
   html+='<div class="page below" id="p1"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 命盘品级 ✦</div>';
   html+='<div class="crd-icon">'+(T[rar.tier]||'✨')+'</div>';
   html+='<div class="rar-badge" style="color:'+tc+';border-color:'+tc+'">'+(rar.tier||'?')+' · '+(rar.tier_label||'')+'</div>';
-  html+='<div class="rar-tier" style="color:'+tc+'">'+((rar.score||90)).toFixed(1)+'<span style="font-size:.3em;opacity:.5">/100</span></div>';
+  html+='<div class="rar-tier" style="color:'+tc+'">'+((rar.score||90)).toFixed(1)+'</div>';
   html+='<div class="rar-desc">'+(rar.rank_text||'')+'</div>';
-  if(bs)html+='<div class="sep"></div><div class="bonus-row">'+bs+'</div>';
-  if(unlocked)html+='<div style="font-size:.62em;color:'+tc+';margin-top:8px">👑 旷世奇才 · 深度命格已解锁</div>';
-  html+='</div></div>';
+  if(bs)html+='<div class="bonus-row">'+bs+'</div>';
+  if(unlocked)html+='<div style="font-size:.6em;color:#ffd700;margin-top:6px">👑 深度命格已解锁</div></div></div>';
 
   // P2: 命码
   html+='<div class="page below" id="p2"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 你的命码 ✦</div>';
   html+='<div class="code-icon">'+(dc.emoji||'✨')+'</div><div class="code-name" style="color:'+tc+'">'+(dc.full_name||'天命')+'</div>';
-  html+='<div class="code-quote">「'+(dc.tagline||'')+'」</div>';
-  html+='<div class="kw-row">'+(dc.keywords||[]).map(function(k){return'<span class="kw">'+k+'</span>'}).join('')+'</div>';
-  html+='<div class="sep"></div><div class="crd-body" style="font-size:.66em">'+(arch.description||'')+'</div>';
-  html+='<div class="crd-hint">'+(th.name||'')+'元素 · '+(th.vibe||'')+' · 命宫:'+(cd.ming_palace||'')+'</div></div></div>';
+  html+='<div class="code-quote">「'+(dc.tagline||'')+'」</div><div class="kw-row">'+(dc.keywords||[]).map(function(k){return'<span class="kw">'+k+'</span>'}).join('')+'</div>';
+  html+='<div class="crd-hint">'+(th.name||'')+'元素 · '+(th.vibe||'')+'</div></div></div>';
 
   // P3: 雷达
   html+='<div class="page below" id="p3"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 五维雷达 ✦</div>'+radarSVG(dims);
   html+='<div class="crd-hint">'+Object.values(dims).map(function(d){return d.emoji+' '+d.name+':'+d.score}).join('  ')+'</div></div></div>';
 
-  // P4: 星盘 — 彻底修重叠
-  html+='<div class="page below" id="p4"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 命盘星图 ✦</div>'+wheelSVG();
-  html+='<div class="crd-hint">点击宫位看详情 · '+(cd.ming_palace||'')+'坐命 · '+(cd.wuxing_ju||'')+' · '+(cd.zodiac||'')+'</div></div></div>';
+  // P4: 星盘 — 表格式清晰布局
+  html+='<div class="page below" id="p4"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 命盘星图 ✦</div>'+chartTable();
+  html+='<div class="crd-hint">'+(cd.ming_palace||'')+'坐命 · '+(cd.wuxing_ju||'')+' · '+(cd.zodiac||'')+'</div></div></div>';
 
   // P5: 四化
-  var si=cd.sihua||{},st='';
-  for(var k in si){var star=si[k],type=k;var descs={化禄:'财富与资源之门打开',化权:'掌控力与执行力提升',化科:'名声与专业度得到彰显',化忌:'此领域需谨慎与反思'};
-    st+='<div style="font-size:.66em;margin:2px 0"><span style="color:var(--gold)">'+star+'</span> '+type.slice(1)+' — '+descs[type]+'</div>'}
+  var si=cd.sihua||{},st='';for(var k in si){var star=si[k],type=k;var descs={化禄:'财富与资源之门打开',化权:'掌控力与执行力提升',化科:'名声与专业度得到彰显',化忌:'此领域需谨慎与反思'};st+='<div style="font-size:.64em;margin:2px 0"><span style="color:var(--gold)">'+star+'</span> '+type.slice(1)+' — '+descs[type]+'</div>'}
   html+='<div class="page below" id="p5"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 四化之力 ✦</div>';
-  html+='<div class="crd-icon" style="font-size:2em">⚡</div>'+sihuaTags(si)+'<div class="sep"></div><div style="text-align:left;width:100%">'+st+'</div></div></div>';
+  html+='<div class="crd-icon" style="font-size:1.8em">⚡</div>'+sihuaTags(si)+'<div class="sep"></div><div style="text-align:left;width:100%">'+st+'</div></div></div>';
 
   // P6: 职业
   html+='<div class="page below" id="p6"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 天职方向 ✦</div>';
-  html+='<div class="crd-icon" style="font-size:2em">💼</div><div style="font-weight:500;color:'+tc+';margin-bottom:6px;line-height:1.5">'+(cp2.industries||['通用型']).slice(0,3).join('<br>')+'</div>';
-  html+='<div class="crd-body" style="font-size:.64em">'+(cp2.work_style||[]).slice(0,2).join(' · ')+'</div>';
-  if(cp2.sihua_tips&&cp2.sihua_tips.length)html+='<div class="sep"></div><div class="crd-hint" style="text-align:left">'+(cp2.sihua_tips||[]).map(function(t){return'<div>💡 '+t+'</div>'}).join('')+'</div>';
-  html+='</div></div>';
+  html+='<div class="crd-icon" style="font-size:1.8em">💼</div><div style="font-weight:500;color:'+tc+';margin-bottom:6px;line-height:1.4;font-size:.85em">'+(cp2.industries||['通用型']).slice(0,2).join('<br>')+'</div>';
+  html+='<div class="crd-body" style="font-size:.62em">'+(cp2.work_style||[]).slice(0,2).join(' · ')+'</div></div></div>';
 
   // P7: 人生节律
-  var tl='';
-  for(var i=0;i<Math.min(kas.length,6);i++){var ka=kas[i];tl+='<div class="tl-item"><div class="tl-dot"></div><div class="tl-age">'+ka.age+'岁</div><div class="tl-body"><b>'+ka.title+'</b><br>'+ka.event+'</div></div>'}
+  var tl='';for(var i=0;i<Math.min(kas.length,5);i++){var ka=kas[i];tl+='<div class="tl-item"><div class="tl-dot"></div><div class="tl-age">'+ka.age+'岁</div><div class="tl-body"><b>'+ka.title+'</b><br>'+ka.event+'</div></div>'}
   html+='<div class="page below" id="p7"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 人生节律 ✦</div>'+tl+'</div></div>';
 
   // P8: 特质
   html+='<div class="page below" id="p8"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 核心特质 ✦</div>';
-  html+='<div style="font-size:1.1em;line-height:1.7;margin:4px 0">'+(pers.summary||'独一无二的你')+'</div>';
-  if(pers.detail)html+='<div class="crd-body" style="font-size:.66em">'+pers.detail+'</div>';
-  var hl=ad.highlights||[];if(hl.length){html+='<div class="sep"></div>'+trow(hl.slice(0,4),'t-good')}
-  var ca=ad.cautions||[];if(ca.length)html+=trow(ca.slice(0,2),'t-warn');
-  html+='</div></div>';
+  html+='<div style="font-size:1em;line-height:1.6;margin:4px 0">'+(pers.summary||'独一无二的你')+'</div>';
+  var hl=ad.highlights||[];if(hl.length)html+=trow(hl.slice(0,3),'t-good');var ca=ad.cautions||[];if(ca.length)html+=trow(ca.slice(0,1),'t-warn');html+='</div></div>';
 
-  // P9: [UR专属]
+  // P9: 像素命格形象 — 最后一页
+  html+='<div class="page below" id="p9"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 命格形象 ✦</div>';
+  html+='<canvas class="pixel-canvas" id="pixelAvatar" width="192" height="192"></canvas>';
+  html+='<div class="pixel-name" style="color:'+tc+'">'+(dc.full_name||'天命')+'</div>';
+  html+='<div class="pixel-class">'+(rar.tier_label||'')+' · '+(th.name||'')+'元素</div>';
+  html+='<div class="crd-hint">专属于你的命格像素形象</div></div></div>';
+
+  // P10: UR深度 or 分享
   if(unlocked){
-    html+='<div class="page below" id="p9"><div class="crd glow deep-card" style="border-color:#ffd700"><div class="crd-title">👑 旷世奇才 · 深度命格</div>';
-    html+='<div class="crd-body" style="font-size:.72em;line-height:1.8;text-align:left">'+(deep.content||'').replace(/\n/g,'<br>')+'</div>';
-    html+='<div class="crd-hint" style="color:#ffd700">仅对旷世奇才命盘开放此深度解析</div></div></div>';
+    html+='<div class="page below" id="p10"><div class="crd glow deep-card" style="border-color:#ffd700"><div class="crd-title">👑 旷世奇才 · 深度命格</div>';
+    html+='<div class="crd-body" style="font-size:.7em;line-height:1.8;text-align:left">'+(deep.content||'').replace(/\n/g,'<br>')+'</div></div></div>';
   }
-
-  // 分享页
-  var pi=unlocked?10:9,bg=th.bg||'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
+  var pi=unlocked?11:10,bg=th.bg||'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)';
   html+='<div class="page below" id="p'+pi+'"><div class="crd glow" style="border-color:'+tc+'"><div class="crd-title">✦ 分享你的星盘 ✦</div>';
   html+='<div class="share-preview" id="sharePrev" style="background:'+bg+';border:1px solid '+tc+'">';
   html+='<div class="sp-badge" style="color:'+tc+'">'+(T[rar.tier]||'✨')+' '+rar.tier+' · '+(rar.tier_label||'')+'</div>';
   html+='<div class="sp-icon">'+(dc.emoji||'✨')+'</div><div class="sp-name" style="color:'+tc+'">'+(dc.full_name||'天命')+'</div>';
-  html+='<div style="font-size:.56em;color:var(--dim);margin:4px 0;position:relative">「'+(dc.tagline||'')+'」</div>';
-  html+='<div class="sp-foot">🔮 紫微斗数 · 专属命盘</div></div>';
-  html+='<div style="display:flex;gap:8px;margin-top:8px"><button class="nav-btn pri" onclick="downloadCard()" style="font-size:.68em;padding:8px 16px">📥 保存图片</button><button class="nav-btn sec" onclick="copyShare()" style="font-size:.68em;padding:8px 16px">📋 复制文案</button></div></div></div>';
+  html+='<div style="font-size:.52em;color:var(--dim);margin:2px 0;position:relative">「'+(dc.tagline||'')+'」</div><div class="sp-foot">🔮 紫微斗数 · 专属命盘</div></div>';
+  html+='<div style="display:flex;gap:6px;margin-top:6px"><button class="nav-btn pri" onclick="downloadCard()" style="font-size:.64em;padding:7px 14px">📥 保存</button><button class="nav-btn sec" onclick="copyShare()" style="font-size:.64em;padding:7px 14px">📋 文案</button></div></div></div>';
 
-  deck.innerHTML=html
+  deck.innerHTML=html;
+  // 渲染像素形象
+  setTimeout(function(){drawPixelAvatar()},100)
 }
 
 function sihuaTags(s){var o=['化禄','化权','化科','化忌'],cls={化禄:'t-lu',化权:'t-qu',化科:'t-ke',化忌:'t-ji'},h='<div class="tag-row">';for(var i=0;i<4;i++){var t=o[i];if(s[t])h+='<span class="tag '+cls[t]+'">'+t.slice(1)+': '+s[t]+'</span>'}h+='</div>';return h}
@@ -292,57 +263,136 @@ function radarSVG(dims){
   for(var i=0;i<5;i++){var d=dims[order[i]];if(!d)continue;var a=-Math.PI/2+2*Math.PI*i/5;
     var lx=cx+(R+28)*Math.cos(a),ly=cy+(R+28)*Math.sin(a);s+='<text x="'+lx+'" y="'+(ly+3.5)+'" font-size="8.5" fill="var(--dim)" text-anchor="middle">'+names[order[i]]+'</text>';
     var v=d.score/100,sx=cx+(v*R+16)*Math.cos(a),sy=cy+(v*R+16)*Math.sin(a);s+='<text x="'+sx+'" y="'+(sy+2)+'" font-size="7.5" fill="'+cols[i]+'" text-anchor="middle" font-weight="700">'+d.score+'</text>'}
-  s+='<circle cx="'+cx+'" cy="'+cy+'" r="12" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.3"/><text x="'+cx+'" y="'+(cy+4)+'" font-size="8" fill="var(--dim)" text-anchor="middle">命</text></svg>';return s
-}
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="12" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.3"/><text x="'+cx+'" y="'+(cy+4)+'" font-size="8" fill="var(--dim)" text-anchor="middle">命</text></svg>';return s}
 
-// ═══ 星盘 - 彻底修复 ═══
-function wheelSVG(){
+// ═══ 星盘表格 ═══
+function chartTable(){
   var ps=cd.palaces||[];if(!ps.length)return'';
-  var cx=155,cy=155,Ro=142,Rm=110,Ri=65;
   var ms='紫微天机太阳武曲天同廉贞天府太阴贪狼巨门天相天梁七杀破军';
-  var s='<svg viewBox="0 0 310 310" class="wheel-svg">';
-  // rings
-  for(var r=Rm-6;r<=Ro;r+=12)s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(255,255,255,0.025)" stroke-width="0.5"/>';
-  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+Rm+'" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/><circle cx="'+cx+'" cy="'+cy+'" r="'+Ri+'" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>';
-  for(var i=0;i<12;i++){var p=ps[i];if(!p)continue;
-    var a0=-Math.PI/2+2*Math.PI*i/12-Math.PI/12,a1=a0+2*Math.PI/12;
-    var path=ap(cx,cy,Ro,a0,a1)+'L'+(cx+Rm*Math.cos(a1))+','+(cy+Rm*Math.sin(a1))+' '+ap(cx,cy,Rm,a1,a0,1)+'Z';
-    s+='<path d="'+path+'" class="wp'+(p.is_body?' hl':'')+'" onclick="palaceTap('+i+')"/>';
-    s+='<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+Ro*Math.cos(a0))+'" y2="'+(cy+Ro*Math.sin(a0))+'" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>';
-    var na=a0+Math.PI/12;
-    // 宫名
-    s+='<text x="'+(cx+(Ro-16)*Math.cos(na))+'" y="'+(cy+(Ro-16)*Math.sin(na)+4)+'" class="wl">'+p.name+'</text>';
-    // 干支
-    s+='<text x="'+(cx+(Rm+16)*Math.cos(na))+'" y="'+(cy+(Rm+16)*Math.sin(na)+3)+'" class="wb">'+p.ganzhi+'</text>';
-    // 星曜 — 每宫最多3颗，按层排列，保证不重叠
-    var mains=p.stars.filter(function(s){return ms.indexOf(s)>=0});
-    var auxs=p.stars.filter(function(s){return ms.indexOf(s)<0});
-    // 优先显示: 主星 > 吉星 > 煞星 > 其他
-    var jiStars=['文昌','文曲','左辅','右弼','天魁','天钺','禄存','天马'];
-    var shaStars=['擎羊','陀罗','火星','铃星','地劫','地空'];
-    var ranked=mains.concat(auxs.filter(function(s){return jiStars.indexOf(s)>=0})).concat(auxs.filter(function(s){return shaStars.indexOf(s)>=0})).concat(auxs.filter(function(s){return jiStars.indexOf(s)<0&&shaStars.indexOf(s)<0}));
-    var stars=ranked.slice(0,3);
-    // 3层分别放置
-    var layers=[Ri+6,Ri+18,Ri+30];
-    for(var j=0;j<stars.length;j++){
-      var sr=layers[j],sn=stars[j];
-      // 短名字
-      if(sn.length>2)sn=sn.slice(0,2);
-      var sc=ms.indexOf(stars[j])>=0?'#ffd700':(jiStars.indexOf(stars[j])>=0?'#5b9bd5':(shaStars.indexOf(stars[j])>=0?'#e85d5d':'#5bbd72'));
-      s+='<text x="'+(cx+sr*Math.cos(na))+'" y="'+(cy+sr*Math.sin(na)+2.5)+'" class="ws" fill="'+sc+'">'+sn+'</text>';
+  var rows='';for(var r=0;r<3;r++){rows+='<tr>';
+    for(var c=0;c<4;c++){var i=r*4+c,p=ps[i];if(!p)continue;
+      var body=p.is_body?' ct-body':'',stars='';
+      var mains=p.stars.filter(function(s){return ms.indexOf(s)>=0});
+      var auxs=p.stars.filter(function(s){return ms.indexOf(s)<0});
+      var sc=function(s){return ms.indexOf(s)>=0?'st-m':(['文昌','文曲','左辅','右弼','天魁','天钺','禄存','天马'].indexOf(s)>=0)?'st-j':(['擎羊','陀罗','火星','铃星','地劫','地空'].indexOf(s)>=0)?'st-s':'st-f'};
+      if(mains.length)stars+='<span class="ct-star '+sc(mains[0])+'">'+mains[0]+'</span> ';
+      if(mains.length>1)stars+='<span class="ct-star '+sc(mains[1])+'">'+mains[1]+'</span>';
+      if(!stars)stars='<span style="color:var(--sub)">—</span>';
+      rows+='<td class="'+body+'"><div class="ct-palace">'+p.name+(p.is_body?'🏠':'')+'</div><div class="ct-branch">'+p.ganzhi+'</div>'+stars+'</td>'}
+    rows+='</tr>'}
+  return'<table class="chart-table">'+rows+'</table>'}
+
+// ═══ 像素命格形象 ═══
+function drawPixelAvatar(){
+  var canvas=document.getElementById('pixelAvatar');if(!canvas)return;
+  var ctx=canvas.getContext('2d'),size=24,scale=8;
+  canvas.width=size*scale;canvas.height=size*scale;
+  ctx.imageSmoothingEnabled=false;
+
+  var rar=ad.rarity||{},dc=ad.destiny_code||{},th=ad.element_theme||{};
+  var element=(th.name||'土'),tier=(rar.tier||'S');
+
+  // 调色板 — 基于元素
+  var palettes={金:['#f0e6c8','#d4a853','#b8933d','#8a6d2b','#e8d5a0','#fff8e8','#c4944a','#ffd700'],
+    木:['#c8e6c0','#4ade80','#3ab868','#2a7a3a','#a0e8a0','#e0ffe0','#60e090','#3a9060'],
+    水:['#d0e0f0','#60a5fa','#3a80d0','#2a4a8a','#a0c8f8','#e0f0ff','#5090e0','#3060b0'],
+    火:['#f0d0c0','#f97316','#d05020','#8a3010','#f8a060','#fff0e0','#e06030','#c04020'],
+    土:['#e0d8c0','#a78bfa','#7858c0','#4a3080','#c8b8f0','#f0e8ff','#8868d0','#6850a0']};
+  var pal=palettes[element]||palettes['土'];
+
+  // 皮肤色
+  var skin=pal[0],hair=pal[2],cloth1=pal[1],cloth2=pal[3],accent=pal[7],dark=pal[5];
+
+  // 哈希确定特征
+  var seed=function(s){var h=0;for(var i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i);return Math.abs(h)};
+  var h1=seed((dc.full_name||'')+(ad.element_theme?.name||''))%1000;
+  var h2=seed((cd.ming_palace||'')+(cd.wuxing_ju||''))%1000;
+
+  // 画24x24网格
+  var grid=[];for(var i=0;i<size;i++){grid[i]=[];for(var j=0;j<size;j++)grid[i][j]=0}
+
+  // 身体 (11-23行 x 7-16列)
+  function rect(x,y,w,h,v){for(var i=y;i<y+h;i++)for(var j=x;j<x+w;j++)if(i>=0&&i<size&&j>=0&&j<size)grid[i][j]=v}
+  function set(x,y,v){if(x>=0&&x<size&&y>=0&&y<size)grid[y][x]=v}
+
+  // 头发 (0-6行)
+  rect(6,0,12,7,2);
+  if(h1%3===0)set(5,6,2);else set(18,6,2); // 刘海方向
+  if(h2%2===0){set(4,4,2);set(4,5,2)}else{set(19,4,2);set(19,5,2)}
+
+  // 脸 (6-11行)
+  rect(7,6,10,6,1);
+  // 眼睛
+  set(9,8,4);set(13,8,4);
+  if(h1%4===0){set(10,8,4);set(14,8,4)} // 大眼睛
+  // 嘴
+  if(h2%3===0){set(11,10,3);set(12,10,3)}else{set(10,10,3);set(11,10,3);set(12,10,3);set(13,10,3)}
+
+  // 身体/衣服 (12-19行)
+  rect(7,12,10,8,5);
+  // 领口
+  set(11,12,6);set(12,12,6);
+  // 衣服装饰
+  if(h1%2===0){set(11,14,7);set(12,14,7)} // 腰带
+  if(h2%4===1){rect(8,15,3,2,7);rect(13,15,3,2,7)} // 口袋
+
+  // 手臂 (左右)
+  rect(4,12,3,4,5);rect(17,12,3,4,5);
+
+  // 腿 (20-23行)
+  rect(8,20,4,4,3);rect(13,20,4,4,3);
+
+  // 脚
+  rect(7,22,6,2,3);
+
+  // 饰品 — 基于稀有度
+  if(tier==='UR'){
+    // 皇冠
+    set(9,0,7);set(10,0,7);set(11,0,7);set(12,0,7);set(13,0,7);set(14,0,7);
+    set(9,1,7);set(14,1,7);set(11,-1,7);set(12,-1,7);
+    // 披风
+    rect(10,6,2,16,7);rect(14,6,2,16,7);
+    // 光环
+    for(var a=0;a<24;a++){var ax=12+Math.cos(a/24*Math.PI*2)*3,ay=3+Math.sin(a/24*Math.PI*2)*2;set(Math.round(ax),Math.round(ay),7)}
+  }else if(tier==='SSR'){
+    set(9,0,7);set(10,0,7);set(11,0,7);set(12,0,7);set(13,0,7);set(14,0,7);
+    set(10,-1,7);set(13,-1,7);
+  }else if(tier==='SR'){
+    set(10,0,7);set(13,0,7);
+  }
+
+  // 武器/道具 — 基于主星
+  var ps=ad.destiny_code?.primary_stars||['紫微'];var star=(ps[0]||'紫微');
+  var weaponMap={紫微:'sword',天机:'book',太阳:'staff',武曲:'axe',天同:'flower',廉贞:'wand',
+    天府:'shield',太阴:'bow',贪狼:'dagger',巨门:'horn',天相:'scroll',天梁:'cane',七杀:'spear',破军:'hammer'};
+  var weapon=weaponMap[star]||'sword';
+
+  if(weapon==='sword'){rect(2,10,2,10,6);set(3,10,7)}
+  else if(weapon==='staff'){rect(2,8,2,12,6);set(3,7,7);set(3,8,7)}
+  else if(weapon==='book'){rect(20,9,3,4,6);set(20,9,7)}
+  else if(weapon==='axe'){rect(1,9,3,3,6);set(2,8,7);set(1,11,7);set(3,11,7)}
+  else if(weapon==='shield'){rect(19,10,4,4,6);set(20,9,7)}
+  else if(weapon==='wand'){rect(2,9,2,8,6);set(3,8,7)}
+
+  // 渲染
+  for(var y=0;y<size;y++){
+    for(var x=0;x<size;x++){
+      var v=grid[y][x];if(v===0)continue;
+      var color;switch(v){
+        case 1:color=skin;break;case 2:color=hair;break;
+        case 3:color=cloth2;break;case 4:color=dark;break;
+        case 5:color=cloth1;break;case 6:color=cloth2;break;
+        case 7:color=accent;break;default:color=skin;
+      }
+      ctx.fillStyle=color;ctx.fillRect(x*scale,y*scale,scale,scale);
     }
   }
-  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+Ri+'" class="wc"/><text x="'+cx+'" y="'+(cy-8)+'" class="wct">'+(cd.zodiac||'')+'</text><text x="'+cx+'" y="'+(cy+8)+'" class="wct" style="font-size:6px;fill:var(--dim)">'+(cd.wuxing_ju||'')+'</text></svg>';
-  return s;
-  function ap(cx,cy,r,a1,a2,rev){var x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);return'M'+x1+','+y1+' A'+r+','+r+' 0 '+(Math.abs(a2-a1)>Math.PI?1:0)+','+(rev?0:1)+' '+x2+','+y2}
 }
-function palaceTap(i){var p=cd.palaces[i];if(!p)return;var stars=p.stars.length?p.stars.join('、'):'空宫';alert(p.name+' ('+p.ganzhi+')'+(p.is_body?' 🏠身宫':'')+'\n星曜: '+stars+'\n'+(p.daxian?'大限: '+p.daxian:''))}
 
+// ═══ 其他 ═══
 async function downloadCard(){try{var el=document.getElementById('sharePrev');if(!el){alert('请先翻到分享页');return}var canvas=await html2canvas(el,{backgroundColor:null,scale:3,logging:false});var a=document.createElement('a');a.download='紫微斗数_我的命盘.png';a.href=canvas.toDataURL('image/png');a.click()}catch(e){alert('请截屏保存')}}
-function copyShare(){var dc=ad.destiny_code||{},rar=ad.rarity||{},t='🔮 我的紫微斗数命盘\n\n命码: '+(dc.full_name||'?')+' '+(dc.emoji||'')+'\n品级: '+(rar.tier||'?')+' · '+(rar.tier_label||'')+'\n「'+(dc.tagline||'')+'」\n\n#紫微斗数 #命盘解读';navigator.clipboard.writeText(t).then(function(){var b=document.querySelector('.page.current .nav-btn.sec');if(b){b.textContent='✅ 已复制';setTimeout(function(){b.textContent='📋 复制文案'},1500)}}).catch(function(){})}
-
-function spawn(rar){if(rar.tier==='UR'){var c=document.getElementById('sfx');for(var i=0;i<45;i++){var p=document.createElement('div');p.className='sfx-dot';p.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*35+'%;width:'+(Math.random()*6+2)+'px;height:'+(Math.random()*6+2)+'px;background:#ffd700;--x:'+((Math.random()-.5)*280)+'px;--y:'+(Math.random()*380+120)+'px;animation-delay:'+(Math.random()*.35)+'s';c.appendChild(p);setTimeout(function(){p.remove()},3200)}}else if(rar.tier==='SSR'){var c=document.getElementById('sfx');for(var i=0;i<25;i++){var p=document.createElement('div');p.className='sfx-dot';p.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*35+'%;width:'+(Math.random()*4+2)+'px;height:'+(Math.random()*4+2)+'px;background:'+(rar.color||'#f59e0b')+';--x:'+((Math.random()-.5)*220)+'px;--y:'+(Math.random()*320+100)+'px;animation-delay:'+(Math.random()*.3)+'s';c.appendChild(p);setTimeout(function(){p.remove()},3000)}}}
-
+function copyShare(){var dc=ad.destiny_code||{},rar=ad.rarity||{},t='🔮 我的紫微斗数命盘\n\n命码: '+(dc.full_name||'?')+' '+(dc.emoji||'')+'\n品级: '+(rar.tier||'?')+' · '+(rar.tier_label||'')+'\n「'+(dc.tagline||'')+'」\n\n#紫微斗数 #命盘解读';navigator.clipboard.writeText(t).then(function(){var b=document.querySelector('.page.current .nav-btn.sec');if(b){b.textContent='✅ 已复制';setTimeout(function(){b.textContent='📋 文案'},1500)}}).catch(function(){})}
+function spawn(rar){var c=document.getElementById('sfx'),n=rar.tier==='UR'?50:rar.tier==='SSR'?25:0;for(var i=0;i<n;i++){var p=document.createElement('div');p.className='sfx-dot';p.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*35+'%;width:'+(Math.random()*5+2)+'px;height:'+(Math.random()*5+2)+'px;background:'+(rar.color||'#ffd700')+';--x:'+((Math.random()-.5)*250)+'px;--y:'+(Math.random()*350+100)+'px;animation-delay:'+(Math.random()*.3)+'s';c.appendChild(p);setTimeout(function(){p.remove()},3200)}}
 document.addEventListener('DOMContentLoaded',function(){document.getElementById('year').value=new Date().getFullYear();updateNav()});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
