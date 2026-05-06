@@ -247,106 +247,133 @@ function palaceTap(i){var p=cd.palaces[i];if(!p)return;alert(p.name+' ('+p.ganzh
 // ═══ 128×128 可爱像素 — 大头Q版 ═══
 function drawPixel(){
   var canvas=document.getElementById('pixelAvatar');if(!canvas)return;
-  var ctx=canvas.getContext('2d'),SZ=48,SC=5;canvas.width=SZ*SC;canvas.height=SZ*SC;ctx.imageSmoothingEnabled=false;
+  var ctx=canvas.getContext('2d'),SZ=64,SC=4;canvas.width=SZ*SC;canvas.height=SZ*SC;ctx.imageSmoothingEnabled=false;
   var rar=ad.rarity||{},th=ad.element_theme||{},el=th.name||'土',tier=rar.tier||'S',tc=rar.color||'#d4a853';
 
-  // 五元素神兽调色板 (MonHun风格)
+  // 五神兽侧脸调色板
   var palettes={
-    金:{bg:'#1a1410',sk:'#e8d8a0',d1:'#c89840',d2:'#a07020',d3:'#805010',hl:'#ffe8b0',ac:'#ffd700',eye:'#ff4444'},
-    木:{bg:'#101a10',sk:'#a0e8a0',d1:'#50a850',d2:'#307830',d3:'#205020',hl:'#c8ffc8',ac:'#80ff80',eye:'#44ccff'},
-    水:{bg:'#101420',sk:'#88c0f0',d1:'#4888c0',d2:'#285890',d3:'#183860',hl:'#b8e0ff',ac:'#60c0ff',eye:'#ffcc44'},
-    火:{bg:'#1a1010',sk:'#f09860',d1:'#c05028',d2:'#903018',d3:'#602010',hl:'#ffc0a0',ac:'#ff8040',eye:'#ffff44'},
-    土:{bg:'#181410',sk:'#c8b090',d1:'#887048',d2:'#584828',d3:'#383020',hl:'#e8d8b8',ac:'#c8a870',eye:'#44ff44'}};
+    金:{bg:'#1a1610',sk:'#e8d4a0',d1:'#c09040',d2:'#986820',d3:'#684010',hl:'#ffe8b8',ac:'#ffd040',eye:'#ff3333',sc:'#f0d890'},
+    木:{bg:'#0e1a10',sk:'#98e098',d1:'#489848',d2:'#286828',d3:'#184818',hl:'#c0ffc0',ac:'#70e870',eye:'#33bbff',sc:'#b0e8b0'},
+    水:{bg:'#0e141e',sk:'#80b8f0',d1:'#4078b8',d2:'#204878',d3:'#103058',hl:'#b0d8ff',ac:'#5098f0',eye:'#ffbb33',sc:'#98c8f0'},
+    火:{bg:'#1a0e0e',sk:'#f09058',d1:'#b84020',d2:'#882010',d3:'#581010',hl:'#ffc098',ac:'#ff6030',eye:'#ffee33',sc:'#f0a880'},
+    土:{bg:'#16120e',sk:'#c0a880',d1:'#806040',d2:'#503820',d3:'#302818',hl:'#e0d0b0',ac:'#b89868',eye:'#33ee33',sc:'#d0b890'}};
   var p=palettes[el]||palettes['土'];
-
   function hh(s){var h=0;for(var i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i);return Math.abs(h)}
-  var h1=hh((ad.destiny_code||{}).full_name||'')%1000,h2=hh((cd||{}).ming_palace||'')%1000;
+  var h1=hh((ad.destiny_code||{}).full_name||'')%1000;
 
   var g=[];for(var i=0;i<SZ;i++){g[i]=[];for(var j=0;j<SZ;j++)g[i][j]=0}
   function R(x,y,w,h,v){for(var i=y;i<y+h;i++)for(var j=x;j<x+w;j++)if(i>=0&&i<SZ&&j>=0&&j<SZ)g[i][j]=v}
   function S(x,y,v){if(x>=0&&x<SZ&&y>=0&&y<SZ)g[y][x]=v}
-  // Fill background
-  R(0,0,SZ,SZ,9);
+  R(0,0,SZ,SZ,9); // bg
 
-  // ═══ DRAGON HEAD (正面神兽头像) ═══
-  // Horns — majestic curved
-  if(el==='金'||el==='火'){
-    // Large curved horns (龙角)
-    for(var a=0;a<10;a++){S(8+a,16-a,2);S(39-a,16-a,2)}
-    for(var a=0;a<8;a++){S(10+a,8-a,2);S(37-a,8-a,2)}
-  }else if(el==='水'){
-    // Serpent frills (蛇龙鳍)
-    for(var a=0;a<6;a++){S(5+a,20-a*2,2);S(42-a,20-a*2,2)}
-    for(var a=0;a<5;a++){S(7+a,10-a*2,2);S(40-a,10-a*2,2)}
-  }else if(el==='木'){
-    // Antler-style (麒麟角)
-    R(6,14,4,10,2);R(38,14,4,10,2);
-    S(7,12,2);S(8,10,2);S(39,12,2);S(40,10,2)
-  }else{
-    // Guardian horns (玄武角)
-    R(4,18,6,6,2);R(38,18,6,6,2);
-    S(6,16,2);S(7,14,2);S(40,16,2);S(41,14,2)
-  }
+  // ═══ 侧脸龙兽头像 (面向右) ═══
+  // Neck — thick, curved down
+  R(14,36,24,28,3);
+  R(16,40,20,24,2);
+  // Neck curve highlight
+  R(18,36,4,28,6);
 
-  // Head shape — broad, imposing
-  R(10,18,28,24,1);
-  // Snout
-  R(14,36,20,8,1);
-  // Jaw line
-  R(12,30,24,2,2);R(10,32,28,2,2);
+  // Head base — elongated dragon shape
+  R(22,12,28,30,1);
+  // Upper head / cranium
+  R(18,8,22,18,2);
+  R(20,10,18,14,6);
 
-  // Eyes — fierce, glowing
-  var eyeY=26;
-  R(15,eyeY,6,5,5);R(27,eyeY,6,5,5); // eye sockets
-  S(16,eyeY+1,7);S(17,eyeY+1,7);S(28,eyeY+1,7);S(29,eyeY+1,7); // glow
-  // Pupils — slit
-  if(h1%2===0){R(17,eyeY+1,2,3,4);R(29,eyeY+1,2,3,4)}
-  else{R(16,eyeY+1,2,3,4);R(28,eyeY+1,2,3,4)}
+  // Snout — extending right
+  R(42,26,20,14,1);
+  R(40,28,22,10,6);
+  // Snout tip
+  R(58,24,6,16,3);
 
+  // Lower jaw
+  R(36,38,26,6,2);
+  R(34,40,28,4,3);
+
+  // ═══ EYE — fierce side view ═══
+  R(34,20,8,8,5); // eye socket
+  S(35,22,7);S(36,21,7);S(37,22,7); // eye glow
+  R(37,22,2,4,4); // slit pupil
   // Brow ridge
-  R(14,22,8,3,3);R(26,22,8,3,3);
-  // Nose bridge
-  R(21,30,6,6,2);
-  // Nostrils
-  if(h2%3===0){S(19,36,4);S(27,36,4)}else{S(18,35,4);S(28,35,4);S(19,36,4);S(27,36,4)}
+  R(32,16,12,4,3);
+  R(30,18,14,2,6);
 
-  // Mouth / fangs
-  R(18,40,12,3,4);
-  S(16,39,1);S(17,38,1);S(30,39,1);S(31,38,1); // outer fangs
-  // Inner teeth
-  for(var t=0;t<3;t++){S(20+t*3,40,1);S(21+t*3,40,1)}
-
-  // Scales / markings on cheeks
-  if(h1%3===0){
-    R(12,28,3,4,6);R(33,28,3,4,6)
+  // ═══ HORNS / CREST ═══
+  if(el==='金'||el==='火'){
+    // Sweeping back dragon horns
+    for(var a=0;a<16;a++){S(24+a,8-Math.floor(a*.7),2);S(25+a,9-Math.floor(a*.7),2)}
+    for(var a=0;a<12;a++){S(26+a,5-Math.floor(a*.6),2)}
+  }else if(el==='木'){
+    // Antler branching
+    R(20,10,14,4,2);
+    for(var a=0;a<10;a++){S(22+a,6-a,2);S(22+a,7-a,2)}
+    // Branch antlers
+    for(var a=0;a<6;a++){S(18+a*2,2+a,2);S(28+a*2,2+a,2)}
+  }else if(el==='水'){
+    // Flowing frills/crest
+    for(var a=0;a<14;a++){S(20+a,4+Math.floor(a*.3),2);S(20+a,5+Math.floor(a*.3),2)}
+    for(var a=0;a<10;a++){S(22+a,2+Math.floor(a*.4),2)}
   }else{
-    S(11,26,8);S(12,25,8);S(13,26,8);S(35,26,8);S(36,25,8);S(37,26,8)
+    // Broad guardian horns
+    for(var a=0;a<12;a++){S(22+a,8-Math.floor(a*.5),2);S(22+a,9-Math.floor(a*.5),2)}
+    R(24,6,8,3,3)
   }
 
-  // Mane / crest along top
-  if(el==='火'){for(var a=0;a<14;a++){S(20+a,14+Math.abs(a-6)*.5,7)}}
-  else if(el==='金'){R(18,10,12,4,7)}
-  else{R(16,12,16,4,7)}
+  // ═══ JAW / TEETH ═══
+  // Upper fangs
+  S(52,26,1);S(53,26,1);S(54,27,1);
+  S(56,24,1);S(57,23,1); // canine
+  // Lower jaw teeth
+  S(50,38,1);S(51,38,1);S(52,39,1);
+  S(55,36,1);S(56,35,1); // lower canine
+  // Tongue (slightly visible)
+  R(46,42,8,3,8);
 
-  // Element ornament in forehead
-  if(el==='金'){S(23,20,6);S(24,19,6);S(24,21,6);S(25,20,6)} // diamond
-  else if(el==='木'){S(23,22,9);S(24,21,9);S(24,23,9)} // leaf
-  else if(el==='水'){S(23,21,6);S(24,20,6);S(23,22,6)} // droplet
-  else if(el==='火'){S(22,19,7);S(23,18,7);S(24,19,7);S(22,20,7);S(24,20,7)} // flame
-  else{S(23,21,6);R(22,20,4,4,6)} // square
+  // ═══ SCALES / MARKINGS ═══
+  if(h1%3===0){
+    // Scale pattern on neck/cheek
+    for(var s=0;s<6;s++){S(24,30+s*3,5);S(26,31+s*3,5);S(25,32+s*3,5)}
+  }else{
+    // Stripe markings  
+    for(var s=0;s<4;s++){R(20,30+s*4,8,2,4)}
+    for(var s=0;s<3;s++){R(18,35+s*4,6,2,5)}
+  }
 
-  // Rarity effects
+  // ═══ CREST / MANE ═══
+  if(el==='火'){
+    // Flame mane along neck
+    for(var a=0;a<12;a++){S(14,38+a*2,7);S(13,39+a*2,7);S(15,39+a*2,7)}
+    for(var a=0;a<8;a++){S(16,36+a*3,7)}
+  }else if(el==='金'){
+    // Spiky ridge
+    for(var a=0;a<8;a++){S(12,36+a*3,7);S(13,37+a*3,7)}
+  }else if(el==='水'){
+    // Fin ridge
+    for(var a=0;a<6;a++){S(10+a*2,36+a*3,8);S(11+a*2,37+a*3,8)}
+  }
+
+  // ═══ ELEMENT GEM ═══
+  var gx=30,gy=14;
+  if(el==='金'){S(gx,gy,5);S(gx+1,gy-1,5);S(gx-1,gy+1,5);S(gx,gy+2,5);S(gx+1,gy+1,7)} // diamond
+  else if(el==='木'){S(gx,gy+1,9);S(gx,gy,9);S(gx+1,gy,9);S(gx,gy+2,9)} // leaf
+  else if(el==='水'){S(gx,gy,9);S(gx,gy+1,9);S(gx,gy+2,9)} // tear
+  else if(el==='火'){S(gx-1,gy+1,7);S(gx,gy,7);S(gx+1,gy+1,7);S(gx,gy+2,7);S(gx-1,gy,7);S(gx+1,gy,7)} // flame
+  else{S(gx,gy,10);S(gx+1,gy,10);S(gx,gy+1,10);S(gx+1,gy+1,10)}
+
+  // ═══ RARITY EFFECTS ═══
   if(tier==='UR'){
-    // Golden halo behind
-    for(var a=0;a<32;a++){var ax=24+Math.cos(a/32*Math.PI*2)*22,ay=24+Math.sin(a/32*Math.PI*2)*20;S(Math.round(ax),Math.round(ay),8)}
+    for(var a=0;a<28;a++){var ax=32+Math.cos(a/28*Math.PI*2)*24,ay=32+Math.sin(a/28*Math.PI*2)*22;S(Math.round(ax),Math.round(ay),8)}
   }else if(tier==='SSR'){
-    for(var a=0;a<20;a++){var ax=24+Math.cos(a/20*Math.PI*2)*21,ay=24+Math.sin(a/20*Math.PI*2)*19;S(Math.round(ax),Math.round(ay),8)}
+    for(var a=0;a<16;a++){var ax=32+Math.cos(a/16*Math.PI*2)*23,ay=32+Math.sin(a/16*Math.PI*2)*21;S(Math.round(ax),Math.round(ay),8)}
   }
 
-  // Render
+  // Breath/glow from mouth
+  if(tier==='UR'||tier==='SSR'){
+    for(var a=0;a<5;a++){S(62+a,30+a*2,7);S(63+a,31+a*2,7)}
+  }
+
   for(var y=0;y<SZ;y++){for(var x=0;x<SZ;x++){
     var v=g[y][x],co;if(v===0)continue;
-    co=v===1?p.sk:v===2?p.d1:v===3?p.d2:v===4?p.d3:v===5?p.eye:v===6?p.hl:v===7?p.ac:v===8?p.bg:v===9?p.bg:p.sk;
+    co=v===1?p.sk:v===2?p.d1:v===3?p.d2:v===4?p.d3:v===5?p.eye:v===6?p.hl:v===7?p.ac:v===8?p.sc:v===9?p.bg:p.sk;
     ctx.fillStyle=co;ctx.fillRect(x*SC,y*SC,SC,SC);
   }}
 }
