@@ -247,170 +247,180 @@ function palaceTap(i){var p=cd.palaces[i];if(!p)return;alert(p.name+' ('+p.ganzh
 // ═══ 128×128 可爱像素 — 大头Q版 ═══
 function drawPixel(){
   var canvas=document.getElementById('pixelAvatar');if(!canvas)return;
-  var ctx=canvas.getContext('2d'),SZ=64,SC=4;canvas.width=SZ*SC;canvas.height=SZ*SC;ctx.imageSmoothingEnabled=false;
+  var ctx=canvas.getContext('2d'),SZ=72,SC=4;canvas.width=SZ*SC;canvas.height=SZ*SC;ctx.imageSmoothingEnabled=false;
   var rar=ad.rarity||{},th=ad.element_theme||{},el=th.name||'土',tier=rar.tier||'S';
 
-  // 五元素 × 4种神兽 = 20种组合
+  // ═══ MH-Style 5层色阶定义 ═══
+  // L4=高光 L3=主色 L2=暗面 L1=极暗 L5=元素 accent
   var beastsByElement={
     金:[
-      {name:'金龙',colors:{bg:'#1a1612',sk:'#e8d4a0',d1:'#c09040',d2:'#986820',d3:'#684010',hl:'#ffe8b8',ac:'#ffd040',eye:'#ff3333'}},
-      {name:'金麒麟',colors:{bg:'#1a1610',sk:'#f0e0b0',d1:'#d4a850',d2:'#a07830',d3:'#705020',hl:'#fff8d0',ac:'#ffc840',eye:'#ff4444'}},
-      {name:'金翅鹏',colors:{bg:'#141812',sk:'#e8d898',d1:'#c8b040',d2:'#907828',d3:'#685018',hl:'#ffe8a0',ac:'#e0c030',eye:'#ff6633'}},
-      {name:'金甲犀',colors:{bg:'#181610',sk:'#e0cc98',d1:'#b89038',d2:'#886828',d3:'#584818',hl:'#f8e8b8',ac:'#d8b840',eye:'#cc3333'}}
+      {name:'金鳞龙',L4:'#ffe8b0',L3:'#d4a850',L2:'#987028',L1:'#584018',L5:'#ffd030',eye:'#ff4444',elem:'spike'},
+      {name:'金煌龙',L4:'#fff0c0',L3:'#e0b860',L2:'#a88030',L1:'#685020',L5:'#ffc820',eye:'#ff5533',elem:'spike'},
+      {name:'金雷龙',L4:'#ffe8a8',L3:'#d8b050',L2:'#987830',L1:'#584820',L5:'#ffe040',eye:'#ff6633',elem:'spark'},
+      {name:'金钢龙',L4:'#f8e8c0',L3:'#c8a048',L2:'#886828',L1:'#504018',L5:'#ffd848',eye:'#cc3333',elem:'scale'}
     ],
     木:[
-      {name:'青龙',colors:{bg:'#0e1a10',sk:'#90e090',d1:'#48a048',d2:'#287030',d3:'#185020',hl:'#b8ffb8',ac:'#60e860',eye:'#33bbff'}},
-      {name:'木麒麟',colors:{bg:'#0e1a12',sk:'#a0e8a0',d1:'#50b050',d2:'#308040',d3:'#205828',hl:'#c8ffc8',ac:'#70f070',eye:'#44ccff'}},
-      {name:'木藤龙',colors:{bg:'#101810',sk:'#88d888',d1:'#409040',d2:'#286828',d3:'#184820',hl:'#a8f8a8',ac:'#58d858',eye:'#22aadd'}},
-      {name:'木灵鹿',colors:{bg:'#0c180e',sk:'#98e898',d1:'#50b850',d2:'#308838',d3:'#206028',hl:'#c0ffc0',ac:'#68e868',eye:'#55ddff'}}
+      {name:'苍翠龙',L4:'#b8ffb8',L3:'#50b050',L2:'#287030',L1:'#184820',L5:'#70e870',eye:'#44ddff',elem:'vine'},
+      {name:'绿麟龙',L4:'#c8ffc8',L3:'#58c058',L2:'#308038',L1:'#205828',L5:'#80f080',eye:'#33ccff',elem:'leaf'},
+      {name:'碧木龙',L4:'#a8f8a8',L3:'#48a848',L2:'#286830',L1:'#184020',L5:'#68e068',eye:'#55eeff',elem:'vine'},
+      {name:'翠牙龙',L4:'#b0ffb0',L3:'#50b848',L2:'#307838',L1:'#205028',L5:'#78e878',eye:'#22bbee',elem:'leaf'}
     ],
     水:[
-      {name:'水龙',colors:{bg:'#0e141e',sk:'#80b8f0',d1:'#4078b8',d2:'#204878',d3:'#103058',hl:'#b0d8ff',ac:'#5098f0',eye:'#ffbb33'}},
-      {name:'水蛇龙',colors:{bg:'#0e1620',sk:'#88c0f8',d1:'#4888c8',d2:'#285898',d3:'#184068',hl:'#b8e0ff',ac:'#58a8f8',eye:'#ffcc44'}},
-      {name:'水玄武',colors:{bg:'#101820',sk:'#78b0e8',d1:'#3870b0',d2:'#204870',d3:'#103050',hl:'#a8d0f8',ac:'#4890e8',eye:'#ffaa22'}},
-      {name:'水鲲鹏',colors:{bg:'#0c121c',sk:'#90c8f8',d1:'#5090d0',d2:'#3060a0',d3:'#204070',hl:'#c0e0ff',ac:'#60a8f8',eye:'#ffdd55'}}
+      {name:'沧溟龙',L4:'#b8e0ff',L3:'#5098e0',L2:'#285898',L1:'#183860',L5:'#70c0ff',eye:'#ffcc33',elem:'ice'},
+      {name:'深海龙',L4:'#c8e8ff',L3:'#58a8f0',L2:'#3068a8',L1:'#204870',L5:'#80d0ff',eye:'#ffdd44',elem:'ice'},
+      {name:'极冰龙',L4:'#a8d8f8',L3:'#4890d8',L2:'#285890',L1:'#183858',L5:'#68b8f8',eye:'#ffbb22',elem:'wave'},
+      {name:'潮涌龙',L4:'#b0d8f8',L3:'#5098e8',L2:'#3068a0',L1:'#204868',L5:'#78c8f8',eye:'#ffcc44',elem:'wave'}
     ],
     火:[
-      {name:'火龙',colors:{bg:'#1a0e0e',sk:'#f09058',d1:'#b84020',d2:'#882010',d3:'#581010',hl:'#ffc098',ac:'#ff6030',eye:'#ffee33'}},
-      {name:'火凤凰',colors:{bg:'#1a0e0c',sk:'#f8a068',d1:'#c05028',d2:'#903018',d3:'#601810',hl:'#ffc8a8',ac:'#ff7038',eye:'#ffdd22'}},
-      {name:'火麒麟',colors:{bg:'#1a100e',sk:'#f09860',d1:'#b84828',d2:'#882818',d3:'#581810',hl:'#ffc0a0',ac:'#ff6840',eye:'#ffcc33'}},
-      {name:'火毕方',colors:{bg:'#1a0c0c',sk:'#f08850',d1:'#b83820',d2:'#802010',d3:'#501010',hl:'#ffb890',ac:'#ff5830',eye:'#ffee44'}}
+      {name:'赤焰龙',L4:'#ffc098',L3:'#e06030',L2:'#a03018',L1:'#602010',L5:'#ff8830',eye:'#ffee33',elem:'fire'},
+      {name:'焚天龙',L4:'#ffc8a8',L3:'#e87038',L2:'#a83820',L1:'#682818',L5:'#ff9040',eye:'#ffdd22',elem:'fire'},
+      {name:'熔岩龙',L4:'#ffb888',L3:'#d85828',L2:'#983018',L1:'#582010',L5:'#ff7828',eye:'#ffee44',elem:'fire'},
+      {name:'炼狱龙',L4:'#ffc0a0',L3:'#e06838',L2:'#a83820',L1:'#682818',L5:'#ff8840',eye:'#ffcc33',elem:'fire'}
     ],
     土:[
-      {name:'土龙',colors:{bg:'#16120e',sk:'#c0a880',d1:'#806040',d2:'#503820',d3:'#302818',hl:'#e0d0b0',ac:'#b89868',eye:'#33ee33'}},
-      {name:'土玄武',colors:{bg:'#14100c',sk:'#b8a078',d1:'#785838',d2:'#483020',d3:'#282018',hl:'#d8c8a8',ac:'#b09060',eye:'#44ff44'}},
-      {name:'土麒麟',colors:{bg:'#181410',sk:'#c8b090',d1:'#886848',d2:'#584028',d3:'#383020',hl:'#e8d8b8',ac:'#c0a870',eye:'#55ff55'}},
-      {name:'土山神',colors:{bg:'#12100e',sk:'#c0a888',d1:'#806848',d2:'#504028',d3:'#302820',hl:'#e0d0b8',ac:'#b8a068',eye:'#22dd22'}}
+      {name:'山岳龙',L4:'#e0d0b0',L3:'#a08858',L2:'#685038',L1:'#383020',L5:'#c8b070',eye:'#44ff44',elem:'rock'},
+      {name:'地裂龙',L4:'#e8d8b8',L3:'#a89060',L2:'#705840',L1:'#403828',L5:'#d0b878',eye:'#33ee33',elem:'rock'},
+      {name:'岩铠龙',L4:'#d8c8a8',L3:'#988050',L2:'#604830',L1:'#302818',L5:'#c0a868',eye:'#55ff55',elem:'scale'},
+      {name:'太古龙',L4:'#e0d0a8',L3:'#a08850',L2:'#685030',L1:'#383020',L5:'#c8b068',eye:'#22dd22',elem:'rock'}
     ]
   };
 
   var beasts=beastsByElement[el]||beastsByElement['土'];
   function hh(s){var h=0;for(var i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i);return Math.abs(h)}
-  var h1=hh((ad.destiny_code||{}).full_name||'')%1000,h2=hh((cd||{}).ming_palace||'')%1000,h3=hh(cd?cd.shen_palace||'':'')%1000;
-  // Pick beast based on hash
-  var beastIdx=h1%beasts.length;
-  var beast=beasts[beastIdx];
-  var p=beast.colors;
-  var facingRight=(h2%2===0); // 50% face left, 50% face right
+  var h1=hh((ad.destiny_code||{}).full_name||'')%1000,h2=hh((cd||{}).ming_palace||'')%1000;
+  var beast=beasts[h1%beasts.length];
+  var L4=beast.L4,L3=beast.L3,L2=beast.L2,L1=beast.L1,L5=beast.L5,EYE=beast.eye,ELEM=beast.elem;
+  var facingRight=(h2%2===0);
+  var colorMap={10:L4,11:L3,12:L2,13:L1,14:L5,15:EYE,16:'#000',20:'rgba(0,0,0,0)'};
 
   var g=[];for(var i=0;i<SZ;i++){g[i]=[];for(var j=0;j<SZ;j++)g[i][j]=0}
   function R(x,y,w,h,v){for(var i=y;i<y+h;i++)for(var j=x;j<x+w;j++)if(i>=0&&i<SZ&&j>=0&&j<SZ)g[i][j]=v}
   function S(x,y,v){if(x>=0&&x<SZ&&y>=0&&y<SZ)g[y][x]=v}
-  function mirror(){if(facingRight)return;
-    var ng=[];for(var i=0;i<SZ;i++){ng[i]=[];for(var j=0;j<SZ;j++)ng[i][j]=0}
-    for(var y=0;y<SZ;y++)for(var x=0;x<SZ;x++)if(g[y][x]!==0)ng[y][SZ-1-x]=g[y][x];
-    for(var y=0;y<SZ;y++)for(var x=0;x<SZ;x++)g[y][x]=ng[y][x];
-  }
+  function mir(){if(facingRight)return;var ng=[];for(var y=0;y<SZ;y++){ng[y]=[];for(var x=0;x<SZ;x++)ng[y][x]=0}for(var y=0;y<SZ;y++)for(var x=0;x<SZ;x++)if(g[y][x]!==0)ng[y][SZ-1-x]=g[y][x];for(var y=0;y<SZ;y++)for(var x=0;x<SZ;x++)g[y][x]=ng[y][x]}
 
-  R(0,0,SZ,SZ,9); // bg
+  // ═══ BG ═══
+  R(0,0,SZ,SZ,16);
+  // Background glow circle
+  for(var a=0;a<32;a++){var ax=36+Math.cos(a/32*Math.PI*2)*30,ay=36+Math.sin(a/32*Math.PI*2)*28;S(Math.round(ax),Math.round(ay),20)}
 
-  // ═══ BODY TYPE VARIATION ═══
-  var bodyType=beastIdx%4; // 0=dragon, 1=qilin, 2=serpent, 3=beast
+  // ═══ HEAD BASE — solid blocks (MH style) ═══
+  // Back of head / cranium
+  R(12,10,30,22,12);
+  R(14,12,26,18,11);
+  // Top of head highlight
+  R(16,10,22,6,14);
 
-  // Neck — varies by type
-  if(bodyType===0||bodyType===3){
-    // Thick dragon/beast neck
-    R(14,38,24,26,3);R(16,42,20,22,2);R(18,38,4,26,6);
-  }else if(bodyType===1){
-    // Elegant qilin neck
-    R(18,36,20,28,3);R(20,38,16,26,2);R(20,36,2,28,6);
-  }else{
-    // Serpent neck — longer, thinner
-    R(20,34,18,30,3);R(22,36,14,28,6);
-  }
+  // Snout — extended forward, MH doesn't use circles for this
+  R(34,22,36,16,12); // upper jaw main
+  R(36,24,32,12,11); // upper jaw mid
+  R(38,18,28,8,14);  // snout top highlight
+  // Snout tip (dark)
+  R(62,26,10,12,13);
 
-  // Head shape varies
-  if(bodyType===0){
-    // Dragon — elongated
-    R(22,12,28,28,1);R(18,8,22,16,2);R(20,10,18,12,6);
-    R(42,26,20,12,1);R(40,28,22,8,6);R(56,24,8,14,3);
-  }else if(bodyType===1){
-    // Qilin — rounder, shorter snout
-    R(24,14,24,24,1);R(20,10,20,14,2);R(22,12,16,10,6);
-    R(40,26,18,10,1);R(38,28,20,6,6);R(52,26,8,10,3);
-  }else if(bodyType===2){
-    // Serpent — very elongated
-    R(20,14,30,26,1);R(16,10,24,14,2);R(18,12,20,10,6);
-    R(44,24,20,14,1);R(42,26,22,10,6);R(58,22,6,16,3);
-  }else{
-    // Beast — broad, stocky
-    R(20,12,26,28,1);R(16,8,22,14,2);R(18,10,18,10,6);
-    R(40,28,22,10,1);R(38,30,24,6,6);R(54,26,8,12,3);
-  }
+  // Lower jaw — wide open (roaring!)
+  R(28,36,38,10,12);
+  R(30,38,34,8,13);
+  R(26,40,40,6,14);  // jaw highlight
+  // Jaw tip
+  R(58,38,14,8,13);
 
-  // Lower jaw
-  R(34,36,28,8,2);R(32,38,30,6,3);
+  // ═══ NECK — muscular blocks ═══
+  R(16,42,26,30,12);
+  R(18,44,22,28,13);
+  R(14,46,28,26,11);
+  // Neck muscles (MH style geometric planes)
+  R(20,42,6,30,14);   // highlight plane
+  R(28,44,6,22,13);   // shadow plane
 
-  // ═══ EYE ═══
-  var eyeX=bodyType===2?38:34;
-  R(eyeX,20,8,8,5);
-  S(eyeX+1,22,7);S(eyeX+2,21,7);S(eyeX+3,22,7);
-  R(eyeX+3,22,2,4,4);
-  // Brow
-  R(eyeX-2,16,12,4,3);R(eyeX-4,18,14,2,6);
+  // ═══ EYE — sharp triangle, MH signature ═══
+  R(40,12,10,10,15);  // eye socket (red/orange)
+  // Triangle eye shape
+  S(41,14,16);S(42,13,16);S(43,13,16);S(44,13,16); // top edge
+  S(40,16,16);S(41,17,16); // bottom
+  S(42,15,16);S(43,15,16); // fill
+  // Pupil slit
+  S(43,14,20);S(43,15,20);
+  // Eye highlight (critical MH detail)
+  S(41,13,14); // single white pixel highlight
 
-  // ═══ HORNS — 4 styles per type ═══
-  var hornStyle=(h1+h2)%4;
-  if(hornStyle===0){
-    // Sweeping back
-    for(var a=0;a<16;a++){S(24+a,8-Math.floor(a*.7),2);S(25+a,9-Math.floor(a*.7),2)}
-  }else if(hornStyle===1){
-    // Curved ram-like
-    for(var a=0;a<12;a++){S(24+a,10-a,2);S(24+a,11-a,2)}
-    for(var a=0;a<8;a++){S(18+a,4+a,2)}
-  }else if(hornStyle===2){
-    // Spiky crown
-    for(var a=0;a<8;a++){S(24+a*2,6+Math.abs(a-3.5)*1.5,2);S(25+a*2,7+Math.abs(a-3.5)*1.5,2)}
-  }else{
-    // Forward-thrust
-    for(var a=0;a<10;a++){S(38+a,10-Math.floor(a*.5),2);S(38+a,11-Math.floor(a*.5),2)}
-    for(var a=0;a<6;a++){S(44+a,6-Math.floor(a*.4),2)}
-  }
+  // Brow ridge
+  R(36,8,16,5,13);
+  R(38,6,12,3,14);
 
-  // ═══ JAW DETAIL ═══
+  // ═══ FANGS — MH iconic ═══
   // Upper fangs
-  var snoutEnd=bodyType===2?58:bodyType===3?54:52;
-  S(snoutEnd-4,24,1);S(snoutEnd-3,23,1);S(snoutEnd-2,24,1);
-  // Lower teeth
-  S(snoutEnd-6,38,1);S(snoutEnd-5,37,1);S(snoutEnd-4,38,1);
+  S(56,22,14);S(57,22,14);S(58,23,14); // back teeth
+  S(60,20,14);S(61,19,14);S(61,20,14);S(62,21,14); // canine
+  S(52,22,14);S(53,21,14); // mid teeth
+  // Lower fangs
+  S(56,36,14);S(57,35,14); // back lower
+  S(60,34,14);S(61,33,14);S(62,34,14); // canine lower
+  S(52,36,14);S(53,35,14); // mid lower
 
-  // ═══ MARKINGS ═══
-  var markStyle=h3%3;
-  if(markStyle===0){
-    for(var s=0;s<6;s++){S(24,30+s*3,5);S(26,31+s*3,5)}
-  }else if(markStyle===1){
-    for(var s=0;s<5;s++){R(20,28+s*5,10,2,4)}
-  }else{
-    for(var s=0;s<4;s++){S(22,32+s*4,8);S(23,33+s*4,8);S(24,32+s*4,8)}
+  // ═══ HORNS — MH style sweeping ═══
+  // Main horn (massive, sweeping back)
+  for(var a=0;a<20;a++){S(18+a,10-Math.floor(a*.6),12);S(19+a,11-Math.floor(a*.6),12)}
+  for(var a=0;a<18;a++){S(20+a,8-Math.floor(a*.55),13);S(21+a,9-Math.floor(a*.55),13)}
+  // Horn highlight ridge
+  for(var a=0;a<14;a++){S(22+a,6-Math.floor(a*.5),14)}
+  for(var a=0;a<12;a++){S(24+a,4-Math.floor(a*.45),14)}
+  // Second horn
+  for(var a=0;a<14;a++){S(16+a,12-Math.floor(a*.45),12);S(17+a,13-Math.floor(a*.45),13)}
+  for(var a=0;a<10;a++){S(20+a,8-Math.floor(a*.4),14)}
+
+  // ═══ SCALES — MH grid pattern ═══
+  for(var sy=30;sy<56;sy+=6){
+    for(var sx=20;sx<50;sx+=6){
+      if(g[sy]&&g[sy][sx]===11){S(sx+2,sy+2,13);S(sx+4,sy+2,14);S(sx+2,sy+4,14)}
+    }
   }
 
-  // ═══ MANE / CREST ═══
-  if(el==='火'){
-    for(var a=0;a<14;a++){S(14,36+a*2,7);S(13,37+a*2,7);S(15,37+a*2,7)}
-  }else if(el==='金'){
-    for(var a=0;a<10;a++){S(10,34+a*3,7);S(11,35+a*3,7)}
-  }else if(el==='水'){
-    for(var a=0;a<8;a++){S(8+a*2,36+a*3,8);S(9+a*2,37+a*3,8)}
-  }else if(el==='木'){
-    R(12,36,6,24,9);R(13,38,4,20,glowColor());
+  // ═══ ELEMENT EFFECTS — geometric, not organic ═══
+  if(ELEM==='fire'){
+    // Fire =锯齿形亮色块 (MH Rathalos style)
+    for(var a=0;a<14;a++){var fy=14+Math.floor(a*2.8);S(62+a%3,fy,14);S(63+a%3,fy+1,14)}
+    for(var a=0;a<8;a++){S(64,22+a*3,14);S(65,23+a*3,14);S(66,22+a*3,14)}
+    // Fire particles (small squares)  
+    for(var a=0;a<6;a++){S(60+Math.floor(Math.random()*10),18+Math.floor(Math.random()*20),14)}
+  }else if(ELEM==='spark'){
+    // Lightning = Z-shaped bolts
+    for(var a=0;a<6;a++){S(62+a,24-a,14);S(63+a,24-a,14);S(62+a,25-a,14)}
+    S(64,18,14);S(65,17,14);S(66,16,14);S(65,18,14); // bolt head
+  }else if(ELEM==='ice'){
+    // Ice = hexagonal crystals
+    for(var a=0;a<5;a++){S(62+a*3,24,14);S(63+a*3,23,14);S(63+a*3,25,14);S(64+a*3,24,14)}
+  }else if(ELEM==='vine'){
+    // Vines = curved block lines
+    for(var a=0;a<8;a++){S(60+a*2,22+Math.floor(a*1.5),14);S(61+a*2,23+Math.floor(a*1.5),14)}
+  }else if(ELEM==='leaf'){
+    // Leaves = triangular blocks
+    for(var a=0;a<6;a++){S(60+a*2,22,14);S(61+a*2,21,14);S(61+a*2,23,14)}
+  }else if(ELEM==='wave'){
+    // Waves = horizontal stutter blocks
+    for(var a=0;a<6;a++){S(62,24+a*3,14);S(64,25+a*3,14);S(66,24+a*3,14)}
+  }else if(ELEM==='scale'){
+    // Metallic scales = repeating diamond
+    for(var a=0;a<5;a++){S(62+a*2,24,14);S(63+a*2,23,14);S(63+a*2,25,14)}
+  }else if(ELEM==='rock'){
+    // Rock shards = irregular blocks
+    for(var a=0;a<5;a++){S(60+a*2,24-a,13);S(61+a*2,25-a,12);S(62+a*2,23-a,14)}
   }
 
-  // ═══ RARITY ═══
+  // ═══ RARITY EFFECT ═══
   if(tier==='UR'){
-    for(var a=0;a<28;a++){var ax=32+Math.cos(a/28*Math.PI*2)*24,ay=32+Math.sin(a/28*Math.PI*2)*22;S(Math.round(ax),Math.round(ay),8)}
-    for(var a=0;a<5;a++){S(snoutEnd+2+a,28+a*2,7);S(snoutEnd+3+a,29+a*2,7)} // breath
+    for(var a=0;a<32;a++){var ax=36+Math.cos(a/32*Math.PI*2)*33,ay=36+Math.sin(a/32*Math.PI*2)*32;S(Math.round(ax),Math.round(ay),11)}
+    // Mouth beam
+    for(var a=0;a<8;a++){S(68+a,30,14);S(69+a,31,14);S(68+a,32,14)}
   }else if(tier==='SSR'){
-    for(var a=0;a<16;a++){var ax=32+Math.cos(a/16*Math.PI*2)*23,ay=32+Math.sin(a/16*Math.PI*2)*21;S(Math.round(ax),Math.round(ay),8)}
-    for(var a=0;a<3;a++){S(snoutEnd+2+a,29+a*2,7)} // small breath
+    for(var a=0;a<20;a++){var ax=36+Math.cos(a/20*Math.PI*2)*31,ay=36+Math.sin(a/20*Math.PI*2)*30;S(Math.round(ax),Math.round(ay),11)}
+    for(var a=0;a<4;a++){S(67+a,30,14);S(68+a,31,14)}
   }
 
-  function glowColor(){return parseInt(hh('glow'+el)%2===0)?p.hl:p.ac}
-
-  mirror();
+  mir();
 
   for(var y=0;y<SZ;y++){for(var x=0;x<SZ;x++){
-    var v=g[y][x],co;if(v===0)continue;
-    co=v===1?p.sk:v===2?p.d1:v===3?p.d2:v===4?p.d3:v===5?p.eye:v===6?p.hl:v===7?p.ac:v===8?p.bg:v===9?p.bg:p.sk;
+    var v=g[y][x];if(v===0||v===20)continue;var co=colorMap[v]||L3;
+    if(typeof co==='string'&&co.startsWith('rgba'))continue;
     ctx.fillStyle=co;ctx.fillRect(x*SC,y*SC,SC,SC);
   }}
 }
