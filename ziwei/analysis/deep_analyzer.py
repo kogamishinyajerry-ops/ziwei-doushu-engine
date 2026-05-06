@@ -609,50 +609,199 @@ def _generate_health_warning(jier_stars):
 
 
 def _derive_key_ages(chart_data) -> List[dict]:
-    """推导关键年龄节点."""
+    """推导关键年龄节点 — 详细版."""
     ages = []
+    
     # 基于大限推导
+    daxian_events = {
+        "命宫": ("大限始起命宫", "人生进入自主阶段，自我意识觉醒。", "milestone"),
+        "兄弟": ("兄弟大限开启", "手足关系、合作运势成为这十年的主题。", "relationship"),
+        "夫妻": ("感情大限到来", "婚姻和亲密关系进入新阶段，桃花运旺。", "relationship"),
+        "子女": ("子女大限", "创造力爆发期，也可能涉及子女相关事务。", "family"),
+        "财帛": ("财运大限", "财富积累的关键十年，理财能力凸显。", "wealth"),
+        "疾厄": ("健康大限", "需关注身体健康，也是沉淀和反思的时期。", "health"),
+        "迁移": ("迁移大限", "外出发展、远行、环境变动的十年。", "career"),
+        "交友": ("交友大限", "人际关系和社会网络快速扩展。", "social"),
+        "官禄": ("事业大限", "职业生涯的黄金十年，事业发展关键期。", "career"),
+        "田宅": ("田宅大限", "房产、家庭和不动产运势旺盛。", "property"),
+        "福德": ("福德大限", "精神追求和内心成长的重要时期。", "spiritual"),
+        "父母": ("父母大限", "与长辈关系、学业进修的重要阶段。", "family"),
+    }
+    
     for palace, dx_range in chart_data.daxian.items():
         if "-" in dx_range:
-            start, end = dx_range.split("-")
+            parts = dx_range.split("-")
             try:
-                start_age = int(start)
-                if palace == "命宫":
-                    ages.append({"age": start_age, "event": "大限始起命宫, 人生进入自主阶段。", "type": "milestone"})
-                elif palace == "官禄":
-                    ages.append({"age": start_age, "event": "事业大限开启, 职业生涯的重要十年。", "type": "career"})
-                elif palace == "夫妻":
-                    ages.append({"age": start_age, "event": "感情大限开启, 婚姻和人际关系进入新阶段。", "type": "relationship"})
-                elif palace == "财帛":
-                    ages.append({"age": start_age, "event": "财运大限开启, 财富积累的关键期。", "type": "wealth"})
+                start_age = int(parts[0])
+                end_age = int(parts[1].replace("岁", ""))
+                evt = daxian_events.get(palace, (f"{palace}大限", f"{palace}成为生活重心。", "other"))
+                ages.append({
+                    "age": start_age,
+                    "age_range": f"{start_age}-{end_age}岁",
+                    "palace": palace,
+                    "title": evt[0],
+                    "event": evt[1],
+                    "type": evt[2],
+                })
             except: pass
-    return sorted(ages, key=lambda x: x['age'])[:6]
+    
+    # 添加四化触发节点 (关键年龄)
+    sihua = {}
+    if hasattr(chart_data, 'sihua_map'):
+        sihua = chart_data.sihua_map
+    for star, stype in sihua.items():
+        # 找四化星在大限中的位置
+        for palace, dx_range in chart_data.daxian.items():
+            if "-" in dx_range and star in [p for p in chart_data.palaces if p.name == palace]:
+                # 简化: 四化触发期
+                pass
+    
+    # 按年龄排序, 取最重要6-8个
+    ages.sort(key=lambda x: x['age'])
+    return ages[:8]
+
+
+def _derive_career_path(
+    palace_stars: Dict[str, List[str]],
+    sihua_map: Dict[str, str],
+    wuxing_ju: int,
+) -> Dict:
+    """
+    推导职业倾向和适合领域.
+    
+    基于官禄宫、财帛宫、命宫星曜和四化综合分析.
+    """
+    main_stars_set = {"紫微","天机","太阳","武曲","天同","廉贞",
+                      "天府","太阴","贪狼","巨门","天相","天梁","七杀","破军"}
+    
+    guanlu_mains = [s for s in palace_stars.get("官禄", []) if s in main_stars_set]
+    caibo_mains = [s for s in palace_stars.get("财帛", []) if s in main_stars_set]
+    ming_mains = [s for s in palace_stars.get("命宫", []) if s in main_stars_set]
+    
+    # 适合的行业领域
+    suitable_industries = []
+    work_style = []
+    
+    career_map = {
+        "紫微": ("管理/领导/政府/创业", "独立决策型"),
+        "天机": ("策划/咨询/科研/IT", "分析思考型"),
+        "太阳": ("教育/传媒/公益/公共事务", "外向传播型"),
+        "武曲": ("金融/技术/工程/制造", "实干执行型"),
+        "天同": ("服务/协调/文化/福利", "和谐服务型"),
+        "廉贞": ("艺术/设计/文职/创意", "创造表现型"),
+        "天府": ("管理/金融/地产/贸易", "稳健经营型"),
+        "太阴": ("艺术/设计/护理/美容", "细腻审美型"),
+        "贪狼": ("演艺/公关/贸易/社交", "灵活多变型"),
+        "巨门": ("法律/教育/传媒/咨询", "思辨表达型"),
+        "天相": ("行政/管理/公关/法律", "协调服务型"),
+        "天梁": ("教育/医疗/公益/法律", "长者指导型"),
+        "七杀": ("军警/工程/外科/创业", "开拓展业型"),
+        "破军": ("创新/科技/创业/改造", "破旧创新型"),
+    }
+    
+    for star in (guanlu_mains[:2] + ming_mains[:1]):
+        if star in career_map:
+            industry, style = career_map[star]
+            if industry not in suitable_industries:
+                suitable_industries.append(industry)
+            if style not in work_style:
+                work_style.append(style)
+    
+    # 没有官禄宫主星则看财帛和迁移
+    if not guanlu_mains:
+        qianyi_mains = [s for s in palace_stars.get("迁移", []) if s in main_stars_set]
+        for star in (caibo_mains[:1] + qianyi_mains[:1]):
+            if star in career_map:
+                industry, style = career_map[star]
+                if industry not in suitable_industries:
+                    suitable_industries.append(industry)
+    
+    # 四化影响
+    sihua_tips = []
+    for star, stype in sihua_map.items():
+        if stype == "化禄":
+            sihua_tips.append(f"{star}化禄主资源丰富, 此星曜相关领域有先天优势")
+        elif stype == "化权":
+            sihua_tips.append(f"{star}化权主掌控力, 适合担任管理职务")
+        elif stype == "化科":
+            sihua_tips.append(f"{star}化科主名声, 以专业能力立身是正道")
+    
+    return {
+        "industries": suitable_industries[:4] if suitable_industries else ["综合型"],
+        "work_style": work_style[:3] if work_style else ["灵活应变型"],
+        "sihua_tips": sihua_tips[:3],
+        "guanlu_stars": guanlu_mains,
+        "caibo_stars": caibo_mains,
+    }
 
 
 def _generate_advice(chart_data, interactions) -> str:
-    """生成个性化建议."""
+    """生成个性化建议 — 增强版."""
     parts = []
     
-    # 基于命盘特点
-    if chart_data.wuxing_ju <= 2:
-        parts.append("局数较低, 早年运势起步较缓。但厚积薄发, 中年后可有大成。建议打好基础, 不急于求成。")
-    elif chart_data.wuxing_ju >= 5:
-        parts.append("局数较高, 先天条件优越。但需防志得意满, 应保持谦逊和持续学习的心态。")
+    # 看命宫主星给核心建议
+    ming_stars = chart_data.palaces[0].stars if chart_data.palaces else []
+    main_set = {"紫微","天机","太阳","武曲","天同","廉贞",
+                "天府","太阴","贪狼","巨门","天相","天梁","七杀","破军"}
+    ming_mains = [s for s in ming_stars if s in main_set]
     
-    # 基于星曜互涉
+    star_advice = {
+        "紫微": "领导力是核心优势, 学会授权与包容, 方能成大事。",
+        "天机": "智慧是最大武器, 选择一个领域深耕, 胜过遍地开花。",
+        "太阳": "你的光芒能照亮他人, 但也别忘了照顾自己的内心。",
+        "武曲": "执行力超群, 但记得刚柔并济, 有时柔软比刚硬更有力量。",
+        "天同": "知足常乐是福, 但适时为自己争取也是必要的。",
+        "廉贞": "才华需要舞台, 也需要自律。将情感升华为创造力。",
+        "天府": "稳扎稳打是好品质, 但机会来临时也需要果断出手。",
+        "太阴": "细腻是天赋, 别让敏感成为负担。学会保护自己的边界。",
+        "贪狼": "多才多艺是福也是考验。聚焦一两个领域, 方能大成。",
+        "巨门": "口才能成就你, 也能伤害你。善用言辞, 多听少说。",
+        "天相": "服务他人是美德, 但也请记得善待自己。",
+        "天梁": "帮助他人之前先照顾好自己。你的智慧值得被更多人听到。",
+        "七杀": "勇气可嘉, 但战略比蛮力更重要。学会以柔克刚。",
+        "破军": "破旧立新是你的使命, 但变革也需要策略和时机。",
+    }
+    
+    if ming_mains:
+        s = ming_mains[0]
+        if s in star_advice:
+            parts.append(star_advice[s])
+    
+    # 基于格局给进阶建议
     good_interactions = [i for i in interactions if i.rating >= 3]
     bad_interactions = [i for i in interactions if i.rating <= -2]
     
     if good_interactions:
-        parts.append(f"命盘有{len(good_interactions)}个吉利组合, 利用好这些优势可事半功倍。")
+        parts.append(f"你有{len(good_interactions)}个优势组合, 这些是你的超能力。善用它们。")
     if bad_interactions:
-        parts.append(f"命盘有{len(bad_interactions)}个需注意的组合, 在这些领域多加谨慎即可化解。")
+        parts.append(f"{len(bad_interactions)}个挑战配置不代表命运不可改变。认识和接纳是转化的第一步。")
+    
+    # 五行局建议
+    ju_advice = {
+        2: "水二局: 如水流般灵活是你的天性。顺势而为, 不逆流而动。",
+        3: "木三局: 成长需要耐心。十年树木, 百年树人, 给自己时间。",
+        4: "金四局: 如金般珍贵。磨砺方能成器, 苦难是你最好的老师。",
+        5: "土五局: 厚德载物。稳健是你的优势, 但偶尔冒险也是必要的。",
+        6: "火六局: 热情似火。但要小心, 火焰既能照亮前路也能灼伤自己。掌握火候。",
+    }
+    if chart_data.wuxing_ju in ju_advice:
+        parts.append(ju_advice[chart_data.wuxing_ju])
     
     return "\n".join(parts)
 
 
 def generate_enhanced_output(chart_data, interactions, deep_report) -> Dict:
     """生成完整增强输出 (整合所有分析)."""
+    # 构建 palace_stars
+    palace_stars = {}
+    for p in chart_data.palaces:
+        palace_stars[p.name] = p.stars
+    
+    sihua_map = chart_data.sihua_map if hasattr(chart_data, 'sihua_map') else {}
+    
+    # 职业倾向分析
+    career_path = _derive_career_path(palace_stars, sihua_map, chart_data.wuxing_ju)
+    
     return {
         "personality": {
             "summary": deep_report.personality,
@@ -664,6 +813,7 @@ def generate_enhanced_output(chart_data, interactions, deep_report) -> Dict:
             "wealth": deep_report.wealth,
             "wealth_tip": deep_report.wealth_tip,
         },
+        "career_path": career_path,
         "relationship": {
             "summary": deep_report.relationship,
             "detail": deep_report.relationship_detail,
@@ -679,6 +829,6 @@ def generate_enhanced_output(chart_data, interactions, deep_report) -> Dict:
         "interactions": [
             {"type": i.type, "stars": i.stars, "palaces": i.palaces,
              "effect": i.effect, "rating": i.rating, "detail": i.detail}
-            for i in interactions[:10]  # Top 10
+            for i in interactions[:10]
         ],
     }

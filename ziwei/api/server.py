@@ -145,10 +145,60 @@ async def get_reading(
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@app.get("/api/liunian")
+async def get_liunian(
+    year: int = Query(..., ge=1900, le=2100),
+    month: int = Query(..., ge=1, le=12),
+    day: int = Query(..., ge=1, le=31),
+    hour: int = Query(..., ge=0, le=23),
+    minute: int = Query(0, ge=0, le=59),
+    name: str = Query(""),
+    gender: str = Query("男"),
+    city: str = Query(""),
+    target_year: int = Query(2026, description="目标流年年份"),
+    count: int = Query(3, ge=1, le=10, description="分析年数"),
+):
+    """生成流年运势分析."""
+    try:
+        from ziwei.chart.engine import generate_chart, chart_to_dict
+        from ziwei.analysis.liunian import (
+            calculate_liunian_info, analyze_liunian, analyze_multi_years, liunian_to_dict
+        )
+        from ziwei.calendar.constants import EARTHLY_BRANCHES
+        
+        chart = generate_chart(year, month, day, hour, minute, name, gender, city)
+        chart_dict = chart_to_dict(chart, include_analysis=True)
+        
+        # 构建 auxiliary data
+        palace_stars = {}
+        palace_branch_map = {}
+        for p in chart.palaces:
+            palace_stars[p.name] = p.stars
+            palace_branch_map[p.name] = EARTHLY_BRANCHES.index(p.branch)
+        
+        ming_branch = chart.palaces[0].branch if chart.palaces else "子"
+        ming_index = EARTHLY_BRANCHES.index(ming_branch)
+        
+        sihua_map = chart.sihua_map
+        
+        # 流年分析
+        analyses = analyze_multi_years(
+            chart, palace_stars, palace_branch_map,
+            ming_index, target_year, count
+        )
+        
+        return JSONResponse({
+            "chart": chart_dict,
+            "liunian": [liunian_to_dict(a) for a in analyses],
+        })
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @app.get("/api/health")
 async def health():
     """健康检查."""
-    return {"status": "ok", "version": "0.2.0"}
+    return {"status": "ok", "version": "0.3.0"}
 
 
 if __name__ == "__main__":
