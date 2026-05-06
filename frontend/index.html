@@ -247,63 +247,110 @@ function palaceTap(i){var p=cd.palaces[i];if(!p)return;alert(p.name+' ('+p.ganzh
 // ═══ 128×128 可爱像素 — 大头Q版 ═══
 function drawPixel(){
   var canvas=document.getElementById('pixelAvatar');if(!canvas)return;
-  var ctx=canvas.getContext('2d'),SZ=64,SC=4;canvas.width=SZ*SC;canvas.height=SZ*SC;ctx.imageSmoothingEnabled=false;
-  var rar=ad.rarity||{},th=ad.element_theme||{},dc=ad.destiny_code||{},el=th.name||'土',tier=rar.tier||'S';
-  var pals={金:['#fff8ee','#f0d080','#d4a840','#b89030','#ffe8c0','#fffef8','#e0b848','#ffd700','#c89828'],
-    木:['#eafcea','#68d888','#40b858','#309038','#b0f0c0','#f2fff2','#58d070','#38a848','#288030'],
-    水:['#eaf4fc','#70b8f8','#4890e0','#3068a8','#b0d8f8','#f6faff','#60a8e8','#3880d0','#286098'],
-    火:['#fceaea','#f08068','#e05838','#b03820','#f8c0a8','#fff6f4','#e87050','#d04830','#a03018'],
-    土:['#f6f0e6','#c0a0f8','#8870d0','#5848a0','#d8c8f8','#faf6ff','#9888e0','#7060b8','#484080']};
-  var p=pals[el]||pals['土'],sk=p[0],hr=p[2],c1=p[1],c2=p[3],ac=p[7],dk=p[8],bg=p[5];
+  var ctx=canvas.getContext('2d'),SZ=48,SC=5;canvas.width=SZ*SC;canvas.height=SZ*SC;ctx.imageSmoothingEnabled=false;
+  var rar=ad.rarity||{},th=ad.element_theme||{},el=th.name||'土',tier=rar.tier||'S',tc=rar.color||'#d4a853';
+
+  // 五元素神兽调色板 (MonHun风格)
+  var palettes={
+    金:{bg:'#1a1410',sk:'#e8d8a0',d1:'#c89840',d2:'#a07020',d3:'#805010',hl:'#ffe8b0',ac:'#ffd700',eye:'#ff4444'},
+    木:{bg:'#101a10',sk:'#a0e8a0',d1:'#50a850',d2:'#307830',d3:'#205020',hl:'#c8ffc8',ac:'#80ff80',eye:'#44ccff'},
+    水:{bg:'#101420',sk:'#88c0f0',d1:'#4888c0',d2:'#285890',d3:'#183860',hl:'#b8e0ff',ac:'#60c0ff',eye:'#ffcc44'},
+    火:{bg:'#1a1010',sk:'#f09860',d1:'#c05028',d2:'#903018',d3:'#602010',hl:'#ffc0a0',ac:'#ff8040',eye:'#ffff44'},
+    土:{bg:'#181410',sk:'#c8b090',d1:'#887048',d2:'#584828',d3:'#383020',hl:'#e8d8b8',ac:'#c8a870',eye:'#44ff44'}};
+  var p=palettes[el]||palettes['土'];
+
   function hh(s){var h=0;for(var i=0;i<s.length;i++)h=((h<<5)-h)+s.charCodeAt(i);return Math.abs(h)}
-  var h1=hh((dc.full_name||'')+(th.name||''))%1000,h2=hh((cd.ming_palace||'')+(cd.wuxing_ju||''))%1000;
+  var h1=hh((ad.destiny_code||{}).full_name||'')%1000,h2=hh((cd||{}).ming_palace||'')%1000;
+
   var g=[];for(var i=0;i<SZ;i++){g[i]=[];for(var j=0;j<SZ;j++)g[i][j]=0}
   function R(x,y,w,h,v){for(var i=y;i<y+h;i++)for(var j=x;j<x+w;j++)if(i>=0&&i<SZ&&j>=0&&j<SZ)g[i][j]=v}
   function S(x,y,v){if(x>=0&&x<SZ&&y>=0&&y<SZ)g[y][x]=v}
-  function C(cx,cy,r,v){for(var y=cy-r;y<=cy+r;y++)for(var x=cx-r;x<=cx+r;x++)if((x-cx)*(x-cx)+(y-cy)*(y-cy)<=r*r)S(x,y,v)}
+  // Fill background
+  R(0,0,SZ,SZ,9);
 
-  // Background
-  C(32,40,30,9);
-  // Hair — big round cute
-  C(32,30,28,2);
-  if(h1%3===0){R(6,12,52,22,2)}else if(h1%3===1){R(4,14,56,20,2)}else{R(8,10,48,24,2)}
-  R(2,20,12,36,2);R(50,20,12,36,2);
-  R(16,30,32,8,2);
-  if(h2%2===0){R(14,34,36,4,2)}
+  // ═══ DRAGON HEAD (正面神兽头像) ═══
+  // Horns — majestic curved
+  if(el==='金'||el==='火'){
+    // Large curved horns (龙角)
+    for(var a=0;a<10;a++){S(8+a,16-a,2);S(39-a,16-a,2)}
+    for(var a=0;a<8;a++){S(10+a,8-a,2);S(37-a,8-a,2)}
+  }else if(el==='水'){
+    // Serpent frills (蛇龙鳍)
+    for(var a=0;a<6;a++){S(5+a,20-a*2,2);S(42-a,20-a*2,2)}
+    for(var a=0;a<5;a++){S(7+a,10-a*2,2);S(40-a,10-a*2,2)}
+  }else if(el==='木'){
+    // Antler-style (麒麟角)
+    R(6,14,4,10,2);R(38,14,4,10,2);
+    S(7,12,2);S(8,10,2);S(39,12,2);S(40,10,2)
+  }else{
+    // Guardian horns (玄武角)
+    R(4,18,6,6,2);R(38,18,6,6,2);
+    S(6,16,2);S(7,14,2);S(40,16,2);S(41,14,2)
+  }
 
-  // Face round
-  C(32,36,22,1);
-  // Blush
-  C(20,42,6,9);C(44,42,6,9);
-  // Big cute eyes
-  R(17,34,8,9,4);R(39,34,8,9,4);
-  R(19,36,4,5,1);R(41,36,4,5,1);
-  S(20,37,4);S(21,38,4);S(42,37,4);S(43,38,4);
-  S(20,35,1);S(21,34,1);S(42,35,1);S(43,34,1);
-  R(17,31,8,2,2);R(39,31,8,2,2);
-  // Nose
-  S(31,44,6);S(32,44,6);
-  // Mouth cute
-  R(29,49,6,3,6);
+  // Head shape — broad, imposing
+  R(10,18,28,24,1);
+  // Snout
+  R(14,36,20,8,1);
+  // Jaw line
+  R(12,30,24,2,2);R(10,32,28,2,2);
 
-  // Chibi body
-  R(18,52,28,12,5);
-  R(28,52,8,4,6);
+  // Eyes — fierce, glowing
+  var eyeY=26;
+  R(15,eyeY,6,5,5);R(27,eyeY,6,5,5); // eye sockets
+  S(16,eyeY+1,7);S(17,eyeY+1,7);S(28,eyeY+1,7);S(29,eyeY+1,7); // glow
+  // Pupils — slit
+  if(h1%2===0){R(17,eyeY+1,2,3,4);R(29,eyeY+1,2,3,4)}
+  else{R(16,eyeY+1,2,3,4);R(28,eyeY+1,2,3,4)}
 
-  // Tier crown
-  if(tier==='UR'){R(20,0,24,5,7);S(24,2,7);S(28,1,7);S(32,2,7);S(36,1,7);S(40,2,7);S(20,3,7);S(44,3,7)}
-  else if(tier==='SSR'){R(22,0,20,4,7);S(28,1,7);S(32,2,7);S(36,1,7)}
-  else if(tier==='SR'){R(26,0,12,3,7);S(30,1,7);S(34,1,7)}
+  // Brow ridge
+  R(14,22,8,3,3);R(26,22,8,3,3);
+  // Nose bridge
+  R(21,30,6,6,2);
+  // Nostrils
+  if(h2%3===0){S(19,36,4);S(27,36,4)}else{S(18,35,4);S(28,35,4);S(19,36,4);S(27,36,4)}
 
-  // Element hair pin
-  if(el==='木'){C(13,28,5,9);C(13,28,2,1)}
-  else if(el==='火'){R(9,26,6,5,9);C(12,28,1,1)}
-  else if(el==='水'){C(10,30,3,1);C(10,30,1,1)}
-  else if(el==='金'){S(10,27,ac);S(11,26,ac);S(12,27,ac);S(11,28,ac)}
-  else{S(9,26,9);S(10,25,9);S(11,26,9);S(10,27,9)}
+  // Mouth / fangs
+  R(18,40,12,3,4);
+  S(16,39,1);S(17,38,1);S(30,39,1);S(31,38,1); // outer fangs
+  // Inner teeth
+  for(var t=0;t<3;t++){S(20+t*3,40,1);S(21+t*3,40,1)}
 
-  for(var y=0;y<SZ;y++){for(var x=0;x<SZ;x++){var v=g[y][x];if(v===0)continue;var co=v===1?sk:v===2?hr:v===3?c2:v===4?dk:v===5?c1:v===6?p[4]:v===7?ac:v===8?p[5]:v===9?p[8]:sk;ctx.fillStyle=co;ctx.fillRect(x*SC,y*SC,SC,SC)}}
+  // Scales / markings on cheeks
+  if(h1%3===0){
+    R(12,28,3,4,6);R(33,28,3,4,6)
+  }else{
+    S(11,26,8);S(12,25,8);S(13,26,8);S(35,26,8);S(36,25,8);S(37,26,8)
+  }
+
+  // Mane / crest along top
+  if(el==='火'){for(var a=0;a<14;a++){S(20+a,14+Math.abs(a-6)*.5,7)}}
+  else if(el==='金'){R(18,10,12,4,7)}
+  else{R(16,12,16,4,7)}
+
+  // Element ornament in forehead
+  if(el==='金'){S(23,20,6);S(24,19,6);S(24,21,6);S(25,20,6)} // diamond
+  else if(el==='木'){S(23,22,9);S(24,21,9);S(24,23,9)} // leaf
+  else if(el==='水'){S(23,21,6);S(24,20,6);S(23,22,6)} // droplet
+  else if(el==='火'){S(22,19,7);S(23,18,7);S(24,19,7);S(22,20,7);S(24,20,7)} // flame
+  else{S(23,21,6);R(22,20,4,4,6)} // square
+
+  // Rarity effects
+  if(tier==='UR'){
+    // Golden halo behind
+    for(var a=0;a<32;a++){var ax=24+Math.cos(a/32*Math.PI*2)*22,ay=24+Math.sin(a/32*Math.PI*2)*20;S(Math.round(ax),Math.round(ay),8)}
+  }else if(tier==='SSR'){
+    for(var a=0;a<20;a++){var ax=24+Math.cos(a/20*Math.PI*2)*21,ay=24+Math.sin(a/20*Math.PI*2)*19;S(Math.round(ax),Math.round(ay),8)}
+  }
+
+  // Render
+  for(var y=0;y<SZ;y++){for(var x=0;x<SZ;x++){
+    var v=g[y][x],co;if(v===0)continue;
+    co=v===1?p.sk:v===2?p.d1:v===3?p.d2:v===4?p.d3:v===5?p.eye:v===6?p.hl:v===7?p.ac:v===8?p.bg:v===9?p.bg:p.sk;
+    ctx.fillStyle=co;ctx.fillRect(x*SC,y*SC,SC,SC);
+  }}
 }
+
 async function downloadCard(){try{var el=document.getElementById('sharePrev');if(!el){alert('请先翻到分享页');return}var canvas=await html2canvas(el,{backgroundColor:null,scale:3,logging:false});var a=document.createElement('a');a.download='紫微斗数_我的命盘.png';a.href=canvas.toDataURL('image/png');a.click()}catch(e){alert('请截屏保存')}}
 function copyShare(){var d2=ad.destiny_code||{},r2=ad.rarity||{},t='🔮 紫微斗数命盘\n\n命码: '+(d2.full_name||'?')+' '+(d2.emoji||'')+'\n品级: '+(r2.tier||'?')+' · '+(r2.tier_label||'')+'\n「'+(d2.tagline||'')+'」\n\n#紫微斗数 #命盘解读';navigator.clipboard.writeText(t).then(function(){var b=document.querySelector('.page.current .nav-btn.sec');if(b){b.textContent='✅ 已复制';setTimeout(function(){b.textContent='📋 文案'},1500)}}).catch(function(){})}
 function spawn(rar){var c=document.getElementById('sfx'),n=rar.tier==='UR'?60:rar.tier==='SSR'?30:0;for(var i=0;i<n;i++){var p=document.createElement('div');p.className='sfx-dot';p.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*35+'%;width:'+(Math.random()*6+2)+'px;height:'+(Math.random()*6+2)+'px;background:'+(rar.color||'#ffd700')+';--x:'+((Math.random()-.5)*280)+'px;--y:'+(Math.random()*380+100)+'px;animation-delay:'+(Math.random()*.35)+'s';c.appendChild(p);setTimeout(function(){p.remove()},3200)}}
