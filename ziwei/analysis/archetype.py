@@ -267,39 +267,35 @@ def compute_archetype(
 # 稀有度分数系统
 # ══════════════════════════════════════════════════════════════
 
-# 稀有星曜配置 (地支索引)
+# 稀有星曜配置 (points scaled for 90-100 range)
 RARITY_TIERS = {
-    # S级: 极稀有
-    ("紫微","午"): ("S", "紫微在午 — 极星入垣，帝王居正位", 200),
-    ("天机","午"): ("S", "天机在午 — 智者在正午，日光普照智慧", 180),
-    ("太阴","亥"): ("S", "太阴在亥 — 月朗天门，最明亮的月光", 200),
-    ("太阳","卯"): ("S", "太阳在卯 — 日照雷门，旭日东升", 200),
-    # A级: 稀少
-    ("廉贞","寅"): ("A", "廉贞在寅 — 雄宿乾元，才华横溢", 140),
-    ("廉贞","申"): ("A", "廉贞在申 — 雄宿乾元，逆境崛起", 140),
-    ("七杀","寅"): ("A", "七杀在寅 — 七杀朝斗，大将之才", 130),
-    ("七杀","申"): ("A", "七杀在申 — 七杀朝斗，权威显赫", 130),
-    # B级: 不常见
-    ("天府","子"): ("B", "天府在子 — 财库临旺地", 90),
-    ("紫微","子"): ("B", "紫微在子 — 极星得地", 80),
-    ("紫微","辰"): ("B", "紫微在辰 — 极星入墓，厚积薄发", 70),
-    ("紫微","戌"): ("B", "紫微在戌 — 极星入墓，厚积薄发", 70),
-    ("太阴","酉"): ("B", "太阴在酉 — 月到中天", 80),
-    ("太阳","午"): ("B", "太阳在午 — 日丽中天", 80),
-    # C级以下默认加分
+    ("紫微","午"): ("S", "紫微在午 — 极星入垣，帝王居正位", 1.8),
+    ("天机","午"): ("S", "天机在午 — 智者在正午，日光普照智慧", 1.5),
+    ("太阴","亥"): ("S", "太阴在亥 — 月朗天门，最明亮的月光", 1.8),
+    ("太阳","卯"): ("S", "太阳在卯 — 日照雷门，旭日东升", 1.8),
+    ("廉贞","寅"): ("A", "廉贞在寅 — 雄宿乾元，才华横溢", 1.2),
+    ("廉贞","申"): ("A", "廉贞在申 — 雄宿乾元，逆境崛起", 1.2),
+    ("七杀","寅"): ("A", "七杀在寅 — 七杀朝斗，大将之才", 1.0),
+    ("七杀","申"): ("A", "七杀在申 — 七杀朝斗，权威显赫", 1.0),
+    ("天府","子"): ("B", "天府在子 — 财库临旺地", 0.7),
+    ("紫微","子"): ("B", "紫微在子 — 极星得地", 0.6),
+    ("紫微","辰"): ("B", "紫微在辰 — 极星入墓，厚积薄发", 0.5),
+    ("紫微","戌"): ("B", "紫微在戌 — 极星入墓，厚积薄发", 0.5),
+    ("太阴","酉"): ("B", "太阴在酉 — 月到中天", 0.7),
+    ("太阳","午"): ("B", "太阳在午 — 日丽中天", 0.7),
 }
 
 # 同宫稀有组合
 RARITY_COMBOS = {
-    ("紫微","天府"): ("S", "紫府同宫 — 至尊至贵", 220),
-    ("紫微","天相"): ("A", "紫相同宫 — 权威辅佐", 150),
-    ("武曲","天府"): ("A", "武府同宫 — 财星汇聚", 140),
-    ("廉贞","贪狼"): ("A", "廉贪同宫 — 绝代双骄", 130),
-    ("七杀","破军"): ("A", "杀破同宫 — 破阵先锋", 130),
-    ("太阳","巨门"): ("B", "巨日同宫 — 光芒之舌", 90),
-    ("武曲","天相"): ("B", "武相同宫 — 刚柔并济", 80),
-    ("天机","天梁"): ("B", "机梁同宫 — 神机妙算", 80),
-    ("天同","太阴"): ("B", "同阴同宫 — 温水映月", 70),
+    ("紫微","天府"): ("S", "紫府同宫 — 至尊至贵", 2.0),
+    ("紫微","天相"): ("A", "紫相同宫 — 权威辅佐", 1.4),
+    ("武曲","天府"): ("A", "武府同宫 — 财星汇聚", 1.3),
+    ("廉贞","贪狼"): ("A", "廉贪同宫 — 绝代双骄", 1.2),
+    ("七杀","破军"): ("A", "杀破同宫 — 破阵先锋", 1.2),
+    ("太阳","巨门"): ("B", "巨日同宫 — 光芒之舌", 0.8),
+    ("武曲","天相"): ("B", "武相同宫 — 刚柔并济", 0.7),
+    ("天机","天梁"): ("B", "机梁同宫 — 神机妙算", 0.7),
+    ("天同","太阴"): ("B", "同阴同宫 — 温水映月", 0.6),
 }
 
 
@@ -331,13 +327,14 @@ def compute_rarity(chart_data) -> Dict:
         f"{d.year_pillar}|{d.month_pillar}|{d.day_pillar}|{d.hour_pillar}|"
         f"{d.lunar_month}|{d.lunar_day}|{d.ming_palace}|{d.wuxing_ju_name}"
     )
-    # 使用 SHA256 获得稳定的哈希
+    # 使用 SHA256 获得稳定但看似随机的哈希
     hash_hex = hashlib.sha256(seed_str.encode()).hexdigest()
-    base_score = int(hash_hex[:8], 16) % 500  # 0-499 的基础分
+    # 基础分: 90-96 范围 (保证每个人都不低)
+    base_score = 90 + (int(hash_hex[:8], 16) % 60) / 10.0  # 90.0 - 96.0
     
     # ── 2. 星曜稀有加成 ──
     bonuses = []
-    bonus_total = 0
+    bonus_total = 0.0
     
     # 建立星→地支映射
     star_to_branch = {}
@@ -372,55 +369,45 @@ def compute_rarity(chart_data) -> Dict:
                     bonus_total += pts
     
     # ── 3. 四化加分 ──
-    # 有三化以上加一些小分
     sihua_count = len(chart_data.sihua_map)
     if sihua_count >= 4:
-        bonus_total += 30
-        bonuses.append({"type": "sihua", "tier": "A", "desc": "四化俱全，命局动力充沛", "points": 30})
+        bonus_total += 0.8
+        bonuses.append({"type": "sihua", "tier": "S", "desc": "四化俱全，命局动力充沛", "points": 0.8})
     elif sihua_count >= 3:
-        bonus_total += 15
-        bonuses.append({"type": "sihua", "tier": "B", "desc": "三化聚气，命局有明确方向", "points": 15})
+        bonus_total += 0.4
+        bonuses.append({"type": "sihua", "tier": "S", "desc": "三化聚气，命局有明确方向", "points": 0.4})
     
-    # ── 4. 计算总分 ──
-    raw_score = base_score + bonus_total
-    # 映射到 0-1000 范围，保留有意义区分度
-    final_score = min(1000, max(0, raw_score))
+    # ── 4. 总分 (90-100 范围, 保证每个人都不低) ──
+    final_score = round(min(100.0, max(90.0, base_score + bonus_total)), 1)
     
-    # ── 5. 定档 (全正面命名，不排名) ──
-    # 娱乐向: 每个人都特别，没有"平庸"
+    # ── 5. 定档 — 所有人至少 S 级 ──
     tier_config = {
-        "SSR": ("天选之命", "🌟", "#ffd700", "0 0 40px rgba(255,215,0,0.5)",
-                "linear-gradient(135deg, #1a0a00 0%, #2e1a00 50%, #1a0a2e 100%)",
-                "星辰为你而转动，此命只应天上有"),
+        "UR":  ("旷世奇才", "👑", "#ffd700", "0 0 50px rgba(255,215,0,0.6)",
+                "linear-gradient(135deg, #1a0800 0%, #2e1000 50%, #1a0a18 100%)",
+                "万中无一的绝世命盘。星辰为你重排阵列，此生命格已非凡品", True),
+        "SSR": ("天选之命", "🌟", "#f59e0b", "0 0 40px rgba(245,158,11,0.5)",
+                "linear-gradient(135deg, #1a0e00 0%, #2e1800 50%, #1a0e2e 100%)",
+                "星宿垂青的稀有命盘。命运的齿轮为你转动，注定书写不凡篇章", False),
         "SR":  ("凤毛麟角", "💎", "#c084fc", "0 0 30px rgba(192,132,252,0.4)",
                 "linear-gradient(135deg, #0a002e 0%, #1a0a3a 50%, #0a0a2e 100%)",
-                "世所罕见的命盘组合，注定不凡"),
-        "R":   ("人中龙凤", "✨", "#60a5fa", "0 0 20px rgba(96,165,250,0.3)",
-                "linear-gradient(135deg, #0a0a2e 0%, #0d1a3a 50%, #0a102e 100%)",
-                "格局精妙，自成一派的非凡命盘"),
-        "SRR": ("独树一帜", "🌿", "#4ade80", "0 0 15px rgba(74,222,128,0.2)",
-                "linear-gradient(135deg, #0a1a0a 0%, #0d2010 50%, #0a1a10 100%)",
-                "别具一格的星曜排布，写就你的独特篇章"),
-        "UR":  ("浑然天成", "🌱", "#f59e0b", "0 0 12px rgba(245,158,11,0.18)",
-                "linear-gradient(135deg, #1a0a0a 0%, #1a1a0a 50%, #0a1a10 100%)",
-                "大道至简，返璞归真。最自然的才是最好的"),
+                "万里挑一的精妙格局。群星以罕见的和谐为你编织命运之网", False),
+        "S":   ("独具一格", "✨", "#60a5fa", "0 0 24px rgba(96,165,250,0.35)",
+                "linear-gradient(135deg, #0a0a2e 0%, #0d1a3a 50%, #0a1030 100%)",
+                "独特的星曜排布映照出独一无二的你。每个人都是一颗独特的星辰", False),
     }
     
-    # 调整阈值使分布更均匀，低分段也有体面的名字
-    if final_score >= 800:
-        tier = "SSR"
-    elif final_score >= 550:
-        tier = "SR"
-    elif final_score >= 320:
-        tier = "R"
-    elif final_score >= 150:
-        tier = "SRR"
-    else:
+    if final_score >= 98.5:
         tier = "UR"
+    elif final_score >= 96.0:
+        tier = "SSR"
+    elif final_score >= 93.0:
+        tier = "SR"
+    else:
+        tier = "S"
     
-    tier_label, tier_emoji, color, glow, card_bg, rank_text = tier_config[tier]
+    tier_label, tier_emoji, color, glow, card_bg, rank_text, unlock_deep = tier_config[tier]
     
-    return {
+    result = {
         "score": final_score,
         "tier": tier,
         "tier_label": tier_label,
@@ -431,3 +418,37 @@ def compute_rarity(chart_data) -> Dict:
         "rank_text": rank_text,
         "bonuses": bonuses[:8],
     }
+    
+    # UR 解锁深度命格解析
+    if unlock_deep:
+        result["deep_unlocked"] = True
+        result["deep_analysis"] = _generate_deep_destiny_analysis(chart_data, star_to_branch)
+    
+    return result
+
+
+def _generate_deep_destiny_analysis(chart_data, star_to_branch: dict) -> Dict:
+    """UR 旷世奇才专属: 深度命格解析."""
+    main_set = {"紫微","天机","太阳","武曲","天同","廉贞",
+                "天府","太阴","贪狼","巨门","天相","天梁","七杀","破军"}
+    ming_stars = chart_data.palaces[0].stars if chart_data.palaces else []
+    ming_mains = [s for s in ming_stars if s in main_set]
+    shen_stars = []
+    for p in chart_data.palaces:
+        if p.is_body: shen_stars = [s for s in p.stars if s in main_set]; break
+    from .analyzer import detect_patterns
+    patterns = detect_patterns(star_to_branch,
+        {p.name: p.stars for p in chart_data.palaces},
+        chart_data.palaces[0].branch,
+        chart_data.year_pillar[0] if chart_data.year_pillar else "甲")
+    good_patterns = [p for p in patterns if p.quality == "吉"]
+    deep_lines = []
+    if ming_mains: deep_lines.append(f"命宫{'、'.join(ming_mains)}坐守，奠定性格核心基调。")
+    if shen_stars: deep_lines.append(f"身宫{'、'.join(shen_stars)}的能量在后半生逐渐显现。")
+    if good_patterns: deep_lines.append("格局"+"、".join(p.name for p in good_patterns[:3])+"交相辉映，天赋异禀。")
+    if chart_data.sihua_map:
+        for star, stype in chart_data.sihua_map.items():
+            m={"化禄":star+"化禄：财富福泽之源","化权":star+"化权：力量支点","化科":star+"化科：智慧灯塔","化忌":star+"化忌：人生课题，磨砺即成就"}
+            if stype in m: deep_lines.append(m[stype])
+    deep_lines.append("星曜排布精妙高远。顺势而为，借力而行。")
+    return {"title": "👑 旷世奇才 · 深度命格", "content": "\n".join(deep_lines), "pattern_count": len(good_patterns), "unlocked": True}
