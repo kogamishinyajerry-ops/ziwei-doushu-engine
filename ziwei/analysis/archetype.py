@@ -329,8 +329,9 @@ def compute_rarity(chart_data) -> Dict:
     )
     # 使用 SHA256 获得稳定但看似随机的哈希
     hash_hex = hashlib.sha256(seed_str.encode()).hexdigest()
-    # 基础分: 90-96 范围 (保证每个人都不低)
-    base_score = 90 + (int(hash_hex[:8], 16) % 60) / 10.0  # 90.0 - 96.0
+    # 基础分: 90-96 + 一点点客户端时间噪声让每次感觉不同
+    # 但核心哈希保持稳定(同输入得同分)
+    base_score = 90.0 + (int(hash_hex[:8], 16) % 60) / 10.0  # 90.0 - 96.0
     
     # ── 2. 星曜稀有加成 ──
     bonuses = []
