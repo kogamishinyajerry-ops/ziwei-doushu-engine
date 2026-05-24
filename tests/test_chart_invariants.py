@@ -161,3 +161,29 @@ def test_shen_palace_falls_in_valid_palace():
         shen_idx = _branch_idx(chart.shen_palace[-1])
         names = {p.name for p in chart.palaces if _branch_idx(p.branch) == shen_idx}
         assert names & SHEN_PALACES, f"{params}: 身宫落在非法宫位 {names}"
+
+
+def _star_positions(chart):
+    return {s: _branch_idx(p.branch) for p in chart.palaces for s in p.stars}
+
+
+def test_qingyang_tuoluo_flank_luncun():
+    """禄前羊刃后陀罗: 擎羊 = 禄存+1, 陀罗 = 禄存-1。"""
+    for params in GRID:
+        pos = _star_positions(generate_chart(*params[:4], 0, "T", params[4]))
+        assert pos["擎羊"] == (pos["禄存"] + 1) % 12, f"{params}: 擎羊非禄存前一位"
+        assert pos["陀罗"] == (pos["禄存"] - 1) % 12, f"{params}: 陀罗非禄存后一位"
+
+
+def test_zuofu_youbi_symmetric_about_chen_xu():
+    """左辅右弼关于辰戌轴对称: idx 之和 ≡ 2 (mod 12)。"""
+    for params in GRID:
+        pos = _star_positions(generate_chart(*params[:4], 0, "T", params[4]))
+        assert (pos["左辅"] + pos["右弼"]) % 12 == 2, f"{params}: 左辅右弼未对称"
+
+
+def test_wenchang_wenqu_symmetric_about_chen_xu():
+    """文昌文曲关于辰戌轴对称: idx 之和 ≡ 2 (mod 12)。"""
+    for params in GRID:
+        pos = _star_positions(generate_chart(*params[:4], 0, "T", params[4]))
+        assert (pos["文昌"] + pos["文曲"]) % 12 == 2, f"{params}: 文昌文曲未对称"
