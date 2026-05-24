@@ -6,3 +6,4 @@ uvicorn>=0.24.0
 pydantic>=2.5.0
 jinja2>=3.1.0
 requests>=2.31.0
+segno>=1.6.0        # 纯 Python 零依赖 QR 生成 (指纹校验页二维码, 离线可用)

@@ -9,9 +9,9 @@ from pathlib import Path
 # 确保项目路径
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from typing import Optional
@@ -608,6 +608,68 @@ def _build_advisor_quality_flags(result: dict, chart_dict: dict = None) -> dict:
             "source": "advisor_rules",
         }
     return flags
+
+
+# ═══════════════════════════════════════════════════
+# 指纹校验 + 可分享二维码 (② 把指纹做成可分享/可独立复算的校验闭环)
+# ═══════════════════════════════════════════════════
+
+@app.get("/api/verify")
+async def verify_get(
+    year: int = Query(..., ge=1900, le=2100),
+    month: int = Query(..., ge=1, le=12),
+    day: int = Query(..., ge=1, le=31),
+    hour: int = Query(..., ge=0, le=23),
+    minute: int = Query(0, ge=0, le=59),
+    city: str = Query(""),
+    huoling: str = Query("mainstream"),
+    fp: str = Query("", description="声称的指纹 (ZW1-xxxx 或完整 sha256), 留空仅复算"),
+):
+    """用同一出生输入独立复算命盘指纹并与声称值比对 (任何人可自行验证)。"""
+    try:
+        from ziwei.chart.verify import verify_fingerprint
+        result = verify_fingerprint(
+            year, month, day, hour, minute,
+            city=city, huoling=huoling, claimed_fingerprint=fp,
+        )
+        return JSONResponse(result)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/fingerprint/qr")
+async def fingerprint_qr(
+    request: Request,
+    year: int = Query(..., ge=1900, le=2100),
+    month: int = Query(..., ge=1, le=12),
+    day: int = Query(..., ge=1, le=31),
+    hour: int = Query(..., ge=0, le=23),
+    minute: int = Query(0, ge=0, le=59),
+    city: str = Query(""),
+    huoling: str = Query("mainstream"),
+    fp: str = Query(""),
+    base: str = Query("", description="覆盖二维码内链接的 origin, 默认取请求来源"),
+):
+    """返回内联 SVG 二维码, 扫码打开自动复算的校验链接 (离线生成, 无 CDN)。"""
+    try:
+        from ziwei.chart.verify import build_verify_url, make_verify_qr_svg
+        origin = base or str(request.base_url).rstrip("/")
+        url = build_verify_url(
+            year, month, day, hour, minute,
+            city=city, huoling=huoling, fingerprint=fp, base_url=origin,
+        )
+        svg = make_verify_qr_svg(url)
+        return Response(
+            content=svg,
+            media_type="image/svg+xml",
+            headers={"Cache-Control": "no-store", "X-Verify-Url": url},
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 if __name__ == "__main__":

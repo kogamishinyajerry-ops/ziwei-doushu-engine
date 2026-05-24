@@ -257,6 +257,54 @@ body {
   font-family: ui-monospace, monospace; cursor: help;
 }
 .pc-hint { font-size: 10px; color: var(--text3); margin-top: 6px; }
+.pc-fp-click { cursor: pointer; transition: color .15s; }
+.pc-fp-click:hover { color: #c4b5fd; }
+.pc-fp-share { font-size: 10px; opacity: .8; }
+
+/* 指纹分享/校验弹层 */
+.verify-overlay {
+  display: none; position: fixed; inset: 0; z-index: 1000;
+  background: rgba(5,5,12,.72); backdrop-filter: blur(3px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.verify-overlay.show { display: flex; }
+.verify-modal {
+  width: 420px; max-width: 100%; max-height: 90vh; overflow-y: auto;
+  background: var(--bg-card, #151530); border: 1px solid var(--accent, #a78bfa);
+  border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+.vm-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  color: var(--accent); font-weight: 600;
+}
+.vm-close { cursor: pointer; color: var(--text3); font-size: 16px; }
+.vm-close:hover { color: var(--text); }
+.vm-body { padding: 18px; color: var(--text2); line-height: 1.6; font-size: 13px; }
+.vm-qr { background: #fff; border-radius: 10px; padding: 12px; width: max-content;
+  margin: 4px auto 14px; }
+.vm-qr svg { display: block; width: 180px; height: 180px; }
+.vm-fp { font-family: ui-monospace, monospace; color: var(--accent);
+  word-break: break-all; }
+.vm-urlbox { display: flex; gap: 6px; margin-top: 6px; }
+.vm-url { flex: 1; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 8px; color: var(--text2); font-size: 11px;
+  word-break: break-all; max-height: 60px; overflow-y: auto; }
+.vm-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--accent);
+  background: var(--accent); color: #fff; cursor: pointer; font-size: 12px; white-space: nowrap; }
+.vm-btn.ghost { background: transparent; color: var(--accent); }
+.vm-note { font-size: 11px; color: var(--text3); margin-top: 12px; line-height: 1.5; }
+.vm-verdict { padding: 10px 12px; border-radius: 8px; margin-bottom: 14px; font-size: 13px; }
+.vm-verdict.ok { background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.4); color: #6ee7b7; }
+.vm-verdict.bad { background: rgba(244,63,94,.12); border: 1px solid rgba(244,63,94,.4); color: #fda4af; }
+/* 顶部校验横幅 (?verify=1 扫码进入) */
+.verify-banner {
+  margin: 0 0 14px; padding: 12px 16px; border-radius: 10px; font-size: 13px;
+  display: flex; align-items: center; gap: 10px;
+}
+.verify-banner.ok { background: rgba(52,211,153,.12); border: 1px solid rgba(52,211,153,.4); color: #6ee7b7; }
+.verify-banner.bad { background: rgba(244,63,94,.12); border: 1px solid rgba(244,63,94,.4); color: #fda4af; }
+.verify-banner.info { background: rgba(96,165,250,.1); border: 1px solid rgba(96,165,250,.35); color: #93c5fd; }
 
 /* 宫位底部: 干支 + 大限 */
 .palace-foot {
@@ -1126,6 +1174,17 @@ body {
 
 </main>
 
+<!-- 指纹分享/校验弹层 (② 可分享二维码 + 独立复算校验) -->
+<div id="verify-overlay" class="verify-overlay" onclick="if(event.target===this)closeVerifyShare()">
+  <div class="verify-modal">
+    <div class="vm-head">
+      <span id="vm-title">🔖 命盘指纹 · 分享校验</span>
+      <span class="vm-close" onclick="closeVerifyShare()">✕</span>
+    </div>
+    <div class="vm-body" id="vm-body"></div>
+  </div>
+</div>
+
 <script>
 /* ═══════════════ NAVIGATION ═══════════════ */
 document.querySelectorAll('.nav-item').forEach(item => {
@@ -1150,6 +1209,7 @@ async function doPaipan() {
     city: val('p-city') || '',
     huoling: (document.getElementById('p-huoling') || {}).value || 'mainstream',
   };
+  window._birthInputs = params;  // 供指纹分享/校验复算 URL 用
 
   try {
     const qs = new URLSearchParams(params);
@@ -1283,7 +1343,7 @@ function renderPaipanResult(data) {
       <div class="pc-pillars">${cfp.year||''} ${cfp.month||''} ${cfp.day||''} ${cfp.hour||''}</div>
       <div class="pc-sub">五行局：${data.wuxing_ju||''}</div>
       <div class="pc-sub">命宫 ${data.ming_palace||''}　身宫 ${data.shen_palace||''}</div>
-      ${(data.fingerprint&&data.fingerprint.fingerprint)?`<div class="pc-fp" title="可验证指纹: 用同一生辰重排可复算此值, 证明此盘未被编造/篡改">🔖 ${data.fingerprint.fingerprint}</div>`:''}
+      ${(data.fingerprint&&data.fingerprint.fingerprint)?`<div class="pc-fp pc-fp-click" onclick="openVerifyShare()" title="点击: 生成可分享的二维码/校验链接。任何人可用同一生辰独立复算比对此指纹">🔖 ${data.fingerprint.fingerprint} <span class="pc-fp-share">分享校验 ›</span></div>`:''}
       <div class="pc-hint">点宫位看三方四正 · 点星曜看为什么</div>
     </div>`;
   document.getElementById('palace-grid').innerHTML = pg;
@@ -1950,6 +2010,98 @@ function qualityStatusText(key, status) {
   };
   return (labels[key] && labels[key][status]) || status || '已记录';
 }
+
+/* ═══════════════ 指纹分享 / 校验 (② 可分享二维码 + 独立复算) ═══════════════ */
+function _verifyParams() {
+  const b = window._birthInputs || {};
+  return {
+    year: b.year, month: b.month, day: b.day, hour: b.hour,
+    minute: b.minute || 0, city: b.city || '', huoling: b.huoling || 'mainstream',
+  };
+}
+
+function openVerifyShare() {
+  const data = window._chartData || {};
+  const fp = (data.fingerprint && data.fingerprint.fingerprint) || '';
+  if (!fp) { alert('请先排盘'); return; }
+  const p = _verifyParams();
+  const qs = new URLSearchParams({ ...p, fp });
+  const shareUrl = location.origin + '/?verify=1&' + qs.toString();
+  const qrSrc = '/api/fingerprint/qr?' + qs.toString();
+  const sha = (data.fingerprint && data.fingerprint.sha256) || '';
+
+  document.getElementById('vm-title').textContent = '🔖 命盘指纹 · 分享校验';
+  document.getElementById('vm-body').innerHTML = `
+    <div class="vm-qr"><img src="${qrSrc}" alt="校验二维码" width="180" height="180"></div>
+    <div>短指纹：<span class="vm-fp">${escapeHtml(fp)}</span></div>
+    ${sha ? `<div style="margin-top:4px;font-size:11px;color:var(--text3);">SHA-256：<span class="vm-fp" style="font-size:10px;">${escapeHtml(sha)}</span></div>` : ''}
+    <div style="margin-top:12px;">校验链接（发给任何人，他能独立复算比对）：</div>
+    <div class="vm-urlbox">
+      <div class="vm-url" id="vm-url">${escapeHtml(shareUrl)}</div>
+      <button class="vm-btn" onclick="copyVerifyUrl()">复制</button>
+    </div>
+    <div class="vm-note">扫码或打开链接 → 用同一生辰（含火铃流派）在本工具重排命盘 →
+      复算指纹并与此值比对。一致即证明这张盘是用此生辰真实排出、未被编造或事后篡改，
+      <b>不依赖你信任我，你可以自己验</b>。链接只含排盘所需出生数据，不含姓名/性别。</div>`;
+  document.getElementById('verify-overlay').classList.add('show');
+}
+
+function closeVerifyShare() {
+  document.getElementById('verify-overlay').classList.remove('show');
+}
+
+function copyVerifyUrl() {
+  const t = (document.getElementById('vm-url') || {}).textContent || '';
+  const btn = event.target;
+  navigator.clipboard.writeText(t).then(
+    () => { const o = btn.textContent; btn.textContent = '已复制'; setTimeout(() => btn.textContent = o, 1500); },
+    () => alert('复制失败，请手动选择链接')
+  );
+}
+
+// 扫码/打开 ?verify=1 链接 → 自动独立复算并显示校验结果
+async function runVerifyFromUrl() {
+  const q = new URLSearchParams(location.search);
+  if (q.get('verify') !== '1') return;
+  const fp = q.get('fp') || '';
+  const params = {
+    year: q.get('year'), month: q.get('month'), day: q.get('day'), hour: q.get('hour'),
+    minute: q.get('minute') || 0, city: q.get('city') || '',
+    huoling: q.get('huoling') || 'mainstream',
+  };
+  if (!params.year || !params.month || !params.day || q.get('hour') === null) return;
+
+  const host = document.getElementById('page-paipan');
+  const banner = document.createElement('div');
+  banner.className = 'verify-banner info';
+  banner.innerHTML = '<span class="loading"></span> 正在独立复算指纹…';
+  host.insertBefore(banner, host.firstChild);
+
+  try {
+    const resp = await fetch('/api/verify?' + new URLSearchParams({ ...params, fp }).toString());
+    const data = await readJsonOrThrow(resp);
+    const computed = (data.computed && data.computed.fingerprint) || '?';
+    if (data.match === true) {
+      banner.className = 'verify-banner ok';
+      banner.innerHTML = `✅ 指纹校验通过：复算结果 <b>${escapeHtml(computed)}</b> 与声称值一致。这张盘是用此生辰真实排出的，未被编造或篡改。`;
+    } else if (data.match === false) {
+      banner.className = 'verify-banner bad';
+      banner.innerHTML = `⚠️ 指纹不一致：声称 <b>${escapeHtml(fp)}</b>，本工具复算得 <b>${escapeHtml(computed)}</b>。可能生辰/流派不同，或该指纹非本算法产出。`;
+    } else {
+      banner.className = 'verify-banner info';
+      banner.innerHTML = `ℹ️ 该生辰复算指纹为 <b>${escapeHtml(computed)}</b>（未提供待校验指纹）。`;
+    }
+    // 回填表单, 方便一键排出完整盘
+    const setv = (id, v) => { const el = document.getElementById(id); if (el != null && v != null) el.value = v; };
+    setv('p-year', params.year); setv('p-month', params.month); setv('p-day', params.day);
+    setv('p-hour', params.hour); setv('p-minute', params.minute); setv('p-city', params.city);
+    setv('p-huoling', params.huoling);
+  } catch (e) {
+    banner.className = 'verify-banner bad';
+    banner.textContent = '校验失败：' + e.message;
+  }
+}
+document.addEventListener('DOMContentLoaded', runVerifyFromUrl);
 
 function escapeHtml(value) {
   return String(value ?? '')

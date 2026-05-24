@@ -85,7 +85,8 @@ def test_desktop_shows_verifiable_fingerprint():
     html = read_frontend("desktop/index.html")
     assert "fingerprint" in html
     assert "pc-fp" in html
-    assert "可验证指纹" in html
+    # 指纹仍展示且强调"可复算/可校验"语义
+    assert "复算" in html
 
 
 def test_desktop_renders_honest_advisor_layer():
@@ -105,6 +106,18 @@ def test_desktop_has_llm_toggle_and_source_badge():
     assert "answer_source" in html
     assert "真实AI润色" in html
     assert "规则引擎" in html
+
+
+def test_desktop_has_fingerprint_share_verify():
+    html = read_frontend("desktop/index.html")
+    # 指纹可点击分享 + QR + 校验闭环
+    assert "openVerifyShare" in html
+    assert "/api/fingerprint/qr" in html
+    assert "/api/verify" in html
+    # 扫码进入自动复算
+    assert "runVerifyFromUrl" in html
+    assert "verify=1" in html
+    assert "独立复算" in html
 
 
 def test_desktop_wheel_draws_flying_sihua_lines():
