@@ -48,6 +48,7 @@ def generate_destiny_code(
     shen_stars: List[str],
     sihua_stars: List[str],
     star_to_branch: Dict[str, str],
+    ming_branch: str = "",
 ) -> Dict:
     """
     生成个性化命码.
@@ -67,19 +68,24 @@ def generate_destiny_code(
     ming_mains = [s for s in ming_stars if s in MAIN_STARS]
     shen_mains = [s for s in shen_stars if s in MAIN_STARS]
     
-    # 命宫无主星 → 借迁移宫
+    # 命宫无主星 → 借对宫 (空宫借对宫: 迁移宫即命宫地支对宫, idx+6)
     if not ming_mains:
-        from ..calendar.constants import OPPOSITE_PALACE
-        qianyi_name = OPPOSITE_PALACE.get("命宫", "迁移")
-        # 尝试从 star_to_branch 反向找迁移宫星曜
-        qianyi_stars = []
-        for star, branch in star_to_branch.items():
-            if star in MAIN_STARS:
-                # 查找迁移宫对应的branch (命宫对宫)
-                qianyi_stars.append(star)
-        # 简化: 取所有主星中不在命宫的作为候补
-        all_main_stars = [s for s, b in star_to_branch.items() if s in MAIN_STARS]
-        ming_mains = all_main_stars[:2]  # 取前2个作为借星
+        borrowed: List[str] = []
+        if ming_branch:
+            from ..calendar.constants import EARTHLY_BRANCHES
+            try:
+                opp_idx = (EARTHLY_BRANCHES.index(ming_branch) + 6) % 12
+                opp_branch = EARTHLY_BRANCHES[opp_idx]
+                borrowed = [
+                    s for s, b in star_to_branch.items()
+                    if s in MAIN_STARS and b == opp_branch
+                ]
+            except ValueError:
+                borrowed = []
+        if not borrowed:
+            # 回退: 未提供命宫地支或对宫亦空时, 取盘面主星作候补 (向后兼容)
+            borrowed = [s for s, b in star_to_branch.items() if s in MAIN_STARS][:2]
+        ming_mains = borrowed[:2]
     
     primary_stars = ming_mains[:2]
     if len(primary_stars) < 2 and shen_mains:

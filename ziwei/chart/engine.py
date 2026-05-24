@@ -391,10 +391,14 @@ def chart_to_dict(chart: ChartData, include_analysis: bool = False) -> dict:
                         break
                 shen_stars_for_code = palace_stars_map.get(shen_palace_name, []) if shen_palace_name else []
                 sihua_stars_list = list(chart.sihua_map.keys())
-                
+                ming_branch_for_code = next(
+                    (p.branch for p in chart.palaces if p.name == "命宫"), ""
+                )
+
                 destiny_code = generate_destiny_code(
                     ming_stars_for_code, shen_stars_for_code,
-                    sihua_stars_list, star_to_branch
+                    sihua_stars_list, star_to_branch,
+                    ming_branch=ming_branch_for_code,
                 )
                 dimensions = calculate_dimensions(
                     chart, palace_stars_map, star_to_branch,

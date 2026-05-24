@@ -648,17 +648,9 @@ def _derive_key_ages(chart_data) -> List[dict]:
                 # 但不再用裸 except 吞掉 KeyboardInterrupt/SystemExit。
                 continue
     
-    # 添加四化触发节点 (关键年龄)
-    sihua = {}
-    if hasattr(chart_data, 'sihua_map'):
-        sihua = chart_data.sihua_map
-    for star, stype in sihua.items():
-        # 找四化星在大限中的位置
-        for palace, dx_range in chart_data.daxian.items():
-            if "-" in dx_range and star in [p for p in chart_data.palaces if p.name == palace]:
-                # 简化: 四化触发期
-                pass
-    
+    # 注: 原"四化触发节点"循环为无效占位 (条件恒为 False 且循环体为 pass),
+    # 对 ages 无任何影响, 已移除以避免误读为已实现功能。
+
     # 按年龄排序, 取最重要6-8个
     ages.sort(key=lambda x: x['age'])
     return ages[:8]
