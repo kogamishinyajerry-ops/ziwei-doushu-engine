@@ -90,35 +90,21 @@ def place_ziwei(wuxing_ju: int, lunar_day: int) -> StarLayout:
 # 安天府系八星
 # ──────────────────────────────────────
 
-# 天府系星序 (从天府开始逆排)
-# 天府 → 太阴 → 贪狼 → 巨门 → 天相 → 天梁 → 七杀 → 破军
-# 注意: 天府与紫微位置有固定的对称关系
-# 紫微在寅, 天府在辰 (寅+2 or something)
-# 实际: 天府 = (4 - 紫微偏移) 的一种对称
-
-# 紫微→天府的映射表
-# 紫微位置地支 → 天府位置地支
-ZIWEI_TO_TIANFU = {
-    "寅": "辰",  # 紫微寅 → 天府辰
-    "卯": "卯",  # 紫微卯 → 天府卯
-    "辰": "寅",  # 紫微辰 → 天府寅
-    "巳": "丑",
-    "午": "子",
-    "未": "亥",
-    "申": "戌",
-    "酉": "酉",
-    "戌": "申",
-    "亥": "未",
-    "子": "午",
-    "丑": "巳",
-}
-
-# 从地支索引到天府索引的映射 (紫微idx → 天府idx)
-ZIWEI_IDX_TO_TIANFU_IDX = {}
-for branch, tf_branch in ZIWEI_TO_TIANFU.items():
-    zi_idx = EARTHLY_BRANCHES.index(branch)
-    tf_idx = EARTHLY_BRANCHES.index(tf_branch)
-    ZIWEI_IDX_TO_TIANFU_IDX[zi_idx] = tf_idx
+# 天府系星序: 天府 → 太阴 → 贪狼 → 巨门 → 天相 → 天梁 → 七杀 → 破军
+#
+# 天府与紫微关于"寅申"连线对称 (紫微斗数铁律, 无流派分歧:
+# 紫微、天府永远同宫于寅宫或申宫)。圆周上关于过 寅(idx 2)/申(idx 8)
+# 轴的反射即: 天府_idx = (4 - 紫微_idx) % 12。
+#
+# 锚点验证:
+#   紫微寅(2) → 天府寅(2)   (同宫)
+#   紫微申(8) → 天府申(8)   (同宫)
+#   紫微子(0) → 天府辰(4)
+#   紫微午(6) → 天府戌(10)
+#
+# 注: 历史实现误用"卯酉"轴 ((6 - 紫微) % 12), 导致全盘天府系 8 颗主星
+#     (天府/太阴/贪狼/巨门/天相/天梁/七杀/破军) 错位, 已修正为寅申轴。
+ZIWEI_IDX_TO_TIANFU_IDX = {z: (4 - z) % 12 for z in range(12)}
 
 
 def place_tianfu_series(layout: StarLayout) -> StarLayout:
