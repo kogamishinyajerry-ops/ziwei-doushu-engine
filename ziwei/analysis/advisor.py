@@ -322,6 +322,118 @@ def _apply_honesty_layer(result: dict, question: str, chart_dict: dict) -> None:
 
 
 # ═══════════════════════════════════════════════════
+# 真实 LLM 诚实顾问层 (① AI 是顾问不是神谕)
+#   - 规则引擎先跑 (确定性 grounding/honesty/high_stakes)
+#   - 真实 LLM 在其之上组织语言, 系统提示强制诚实约束
+#   - 无 key / 网络失败 → 回退本地规则引擎 (离线可用, 无回归)
+# ═══════════════════════════════════════════════════
+
+HONEST_ADVISOR_SYSTEM = (
+    "你是一位严谨、诚实的紫微斗数顾问，不是神谕，也不是算命先生。请严格遵守以下铁律：\n"
+    "1. 只能基于用户提供的【命盘事实】作答，绝不编造盘面上不存在的星曜、宫位或四化；盘面没有的就说没有。\n"
+    "2. 每个结论都要指出依据（哪个宫、哪颗星、哪个四化），让用户能回到命盘逐条核对。\n"
+    "3. 命理是一种参考视角，不是确定性预测。措辞体现倾向与概率，避免「一定/必然/注定/绝对」这类断言。\n"
+    "4. 遇到健康、生死、婚否、财务、法律等高风险话题，明确说明命理不能也不应作为唯一依据，建议咨询医生/律师/理财等专业人士。\n"
+    "5. 不确定时坦诚说不确定，不要为了显得专业而过度发挥或堆砌套话。\n"
+    "6. 语气温和、就事论事，用流畅的简体中文，控制在 400 字以内。"
+)
+
+
+def _chart_facts_for_advisor(chart_dict: dict) -> str:
+    """把命盘压成给 LLM 的「唯一可用依据」事实块 (不含解读指令, 避免与系统提示冲突)。"""
+    d = chart_dict or {}
+    lines = [
+        f"命宫: {d.get('ming_palace', '')}  身宫: {d.get('shen_palace', '')}  "
+        f"五行局: {d.get('wuxing_ju', '')}  生肖: {d.get('zodiac', '')}"
+    ]
+    sihua = d.get("sihua", {})
+    if sihua:
+        lines.append("生年四化: " + "、".join(f"{k}={v}" for k, v in sihua.items()))
+    lines.append("十二宫:")
+    for p in d.get("palaces", []):
+        stars = "、".join(p.get("stars", [])) if p.get("stars") else "无主星"
+        marks = ("[" + "、".join(p.get("sihua", [])) + "]") if p.get("sihua") else ""
+        body = " (身宫)" if p.get("is_body") else ""
+        lines.append(f"- {p.get('name', '')}({p.get('ganzhi', '')}){body}: {stars}{marks}")
+    return "\n".join(lines)
+
+
+def _default_advisor_llm_caller(provider=None, api_key=None):
+    """默认 LLM caller: 走 llm_prompt.call_llm + 诚实系统提示。可被测试替换。"""
+    def _call(system: str, user: str) -> dict:
+        from .llm_prompt import call_llm
+        return call_llm(user, system=system, provider=provider, api_key=api_key,
+                        temperature=0.6, max_tokens=900)
+    return _call
+
+
+def advise(
+    question: str,
+    chart_dict: dict = None,
+    *,
+    use_llm: bool = True,
+    provider: str = None,
+    api_key: str = None,
+    llm_caller=None,
+) -> dict:
+    """
+    诚实顾问编排: 规则引擎确定性初判 + 可选真实 LLM 润色。
+
+    LLM 成功时用其文本替换 answer (answer_source="llm"), 但**保留**规则引擎产出的
+    honesty/grounding/high_stakes/chart_references 等诚实层 metadata (defense-in-depth);
+    无 key / 网络失败 / 空响应 → 原样返回本地规则引擎结果 (离线可用)。
+
+    Args:
+        llm_caller: 可注入的 (system, user)->{"content"|"error",...} 调用器, 供测试免网络。
+    """
+    result = answer_question(question, chart_dict)
+    result.setdefault("answer_source", "local")
+    result.setdefault("local_answer", result["answer"])
+
+    # 不调 LLM 的情形: 显式关闭 / 需要命盘 / 问题被规则拒绝(general 类高置信)
+    if not use_llm:
+        result["llm"] = {"used": False, "reason": "disabled"}
+        return result
+    if result.get("needs_chart"):
+        result["llm"] = {"used": False, "reason": "needs_chart"}
+        return result
+
+    caller = llm_caller or _default_advisor_llm_caller(provider=provider, api_key=api_key)
+    facts = (
+        _chart_facts_for_advisor(chart_dict) if chart_dict
+        else "（用户未提供命盘，仅能基于一般紫微斗数知识回答，不得假设任何具体盘面）"
+    )
+    user = (
+        f"用户问题：{question}\n\n"
+        f"## 命盘事实（唯一可用依据，不得编造未列出的星曜/宫位/四化）\n{facts}\n\n"
+        f"## 规则引擎的结构化初判（基于确定性排盘，供你参考与组织语言）\n{result['answer']}\n\n"
+        "请以诚实顾问的口吻回答用户问题：引用命盘依据、标注不确定性、不下确定性断言。"
+    )
+
+    try:
+        out = caller(HONEST_ADVISOR_SYSTEM, user) or {}
+    except Exception as e:  # noqa: BLE001 - 任何 LLM 故障都回退本地
+        result["llm"] = {"used": False, "reason": f"llm_error: {e}"}
+        return result
+
+    content = (out.get("content") or "").strip()
+    if not content:
+        result["llm"] = {"used": False, "reason": out.get("error") or "empty_response"}
+        return result
+
+    # LLM 成功: 替换答案文本, 保留全部诚实层 metadata
+    result["answer"] = content
+    result["answer_source"] = "llm"
+    result["llm"] = {
+        "used": True,
+        "provider": out.get("provider"),
+        "model": out.get("model"),
+        "system_honesty": True,
+    }
+    return result
+
+
+# ═══════════════════════════════════════════════════
 # 问题校验
 # ═══════════════════════════════════════════════════
 

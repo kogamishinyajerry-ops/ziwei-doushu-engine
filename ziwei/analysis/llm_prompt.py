@@ -210,6 +210,9 @@ def _get_api_config(api_key: str = None, base_url: str = None, model: str = None
     return key, url, mdl, "deepseek"
 
 
+_DEFAULT_SYSTEM = "你是一位资深的紫微斗数命理师，精通星曜解读和命盘分析。你的回复应基于具体命盘数据，专业、详细、有洞察力。使用优雅流畅的中文。"
+
+
 def call_llm(
     prompt: str,
     api_key: str = None,
@@ -218,33 +221,37 @@ def call_llm(
     max_tokens: int = 2048,
     temperature: float = 0.8,
     provider: str = None,
+    system: str = None,
 ) -> dict:
     """
     调用 LLM API (OpenAI兼容接口).
-    
+
+    Args:
+        system: 可选, 覆盖默认 system prompt (诚实顾问层用其注入诚实约束)
+
     Returns:
         {"content": "...", "model": "...", "usage": {...}}
         或 {"error": "..."}
     """
     key, url, mdl, provider_name = _get_api_config(api_key, base_url, model, provider=provider)
-    
+
     if not key:
         return {"error": "未设置API密钥 (MINIMAX_API_KEY / DEEPSEEK_API_KEY / OPENAI_API_KEY)", "content": ""}
-    
+
     try:
         import requests
     except ImportError:
         return {"error": "未安装 requests 库", "content": ""}
-    
+
     headers = {
         "Authorization": f"Bearer {key}",
         "Content-Type": "application/json",
     }
-    
+
     payload = {
         "model": mdl,
         "messages": [
-            {"role": "system", "content": "你是一位资深的紫微斗数命理师，精通星曜解读和命盘分析。你的回复应基于具体命盘数据，专业、详细、有洞察力。使用优雅流畅的中文。"},
+            {"role": "system", "content": system or _DEFAULT_SYSTEM},
             {"role": "user", "content": prompt},
         ],
         "max_tokens": max_tokens,

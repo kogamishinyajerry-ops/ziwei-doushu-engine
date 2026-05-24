@@ -633,6 +633,18 @@ body {
   margin-top: 6px; font-size: 11px; color: var(--text3);
   font-style: italic; white-space: normal;
 }
+.src-badge {
+  display: inline-block; padding: 1px 7px; border-radius: 5px;
+  font-size: 11px; margin-right: 4px; vertical-align: middle;
+}
+.src-llm { background: rgba(167,139,250,.16); border: 1px solid rgba(167,139,250,.4); color: #c4b5fd; }
+.src-local { background: rgba(96,165,250,.12); border: 1px solid rgba(96,165,250,.35); color: #93c5fd; }
+.llm-toggle {
+  display: flex; align-items: center; gap: 7px; margin-top: 12px;
+  font-size: 13px; color: var(--text2); cursor: pointer; user-select: none;
+}
+.llm-toggle input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+.llm-toggle-hint { color: var(--text3); font-size: 11px; }
 
 .chat-input-area {
   display: flex;
@@ -1031,6 +1043,11 @@ body {
         <div class="form-group"><label>性别</label><select id="a-gender"><option>男</option><option selected>女</option></select></div>
         <div class="form-group"><label>城市</label><input id="a-city" value="上海"></div>
       </div>
+      <label class="llm-toggle" title="开启后由真实大模型润色作答(带诚实系统提示); 未配置 API key 时自动回退本地规则引擎, 离线可用">
+        <input type="checkbox" id="a-use-llm" checked>
+        <span>接入真实 AI 润色作答</span>
+        <span class="llm-toggle-hint">（诚实系统提示 · 无 key 自动回退本地）</span>
+      </label>
     </div>
 
     <div class="chat-container">
@@ -1772,7 +1789,8 @@ async function doAsk() {
   const loadId = addChatMessage('assistant', '<span class="loading"></span> 思考中...');
 
   const hasChart = val('a-year') && val('a-month') && val('a-day') && val('a-hour');
-  let payload = { question };
+  const useLlm = document.getElementById('a-use-llm') ? document.getElementById('a-use-llm').checked : true;
+  let payload = { question, use_llm: useLlm };
 
   if (hasChart) {
     Object.assign(payload, {
@@ -1816,9 +1834,20 @@ function buildHonestyHtml(data) {
     general_knowledge: '📖 一般知识',
     needs_chart: '❓ 需命盘',
   }[data.grounding] || '';
+  // 答案来源徽标 (透明: 真实 AI 润色 vs 规则引擎)
+  let srcBadge = '';
+  if (data.answer_source === 'llm' && data.llm && data.llm.used) {
+    const prov = data.llm.provider ? ' · ' + escapeHtml(data.llm.provider) : '';
+    srcBadge = `<span class="src-badge src-llm" title="由真实大模型润色, 带诚实系统提示${prov}">🤖 真实AI润色${prov}</span>`;
+  } else if (data.answer_source === 'local') {
+    const reason = (data.llm && data.llm.reason) || '';
+    const hint = /key|API/i.test(reason) ? '（未配置 AI key，已回退本地）'
+               : reason === 'disabled' ? '（已关闭 AI 润色）' : '';
+    srcBadge = `<span class="src-badge src-local" title="确定性规则引擎">📐 规则引擎${hint}</span>`;
+  }
   let html = '';
-  if (label) {
-    html += `<div class="msg-meta">${label}${h.basis ? ' · ' + escapeHtml(h.basis) : ''}</div>`;
+  if (label || srcBadge) {
+    html += `<div class="msg-meta">${srcBadge}${label ? ' ' + label : ''}${h.basis ? ' · ' + escapeHtml(h.basis) : ''}</div>`;
   }
   if (h.high_stakes && h.disclaimer) {
     html += `<div class="msg-warn">⚠️ ${escapeHtml(h.disclaimer)}</div>`;

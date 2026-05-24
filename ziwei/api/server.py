@@ -513,41 +513,56 @@ class AskRequest(BaseModel):
     minute: int = Field(0, ge=0, le=59)
     gender: str = Field("男")
     city: str = Field("")
+    use_llm: bool = Field(True, description="是否接真实 LLM 润色 (无 key 自动回退本地, 离线可用)")
+    provider: str = Field("auto", description="LLM 提供者: auto/minimax/deepseek/openai")
+
+
+def _advisor_response(question: str, chart_dict: dict, use_llm: bool, provider: str) -> dict:
+    """共享的诚实顾问响应组装 (POST/GET 复用)。"""
+    from ziwei.analysis.advisor import advise
+    llm_provider = None if provider in (None, "auto") else provider
+    result = advise(question, chart_dict, use_llm=use_llm, provider=llm_provider)
+
+    quality_flags = _build_advisor_quality_flags(result, chart_dict)
+    quality_flags["llm"] = result.get("llm", {"used": False, "reason": "local_only"})
+    resp = {
+        "question": question,
+        "answer": result["answer"],
+        "category": result["category"],
+        "confidence": result["confidence"],
+        "needs_chart": result["needs_chart"],
+        "used_knowledge": result["used_knowledge"],
+        "chart_references": result.get("chart_references", []),
+        "grounding": result.get("grounding"),
+        "honesty": result.get("honesty"),
+        "answer_source": result.get("answer_source", "local"),
+        "llm": result.get("llm", {"used": False}),
+        "source": "local_fallback" if quality_flags["analysis"]["fallback"] else "advisor_rules",
+        "quality_flags": quality_flags,
+    }
+    # LLM 润色时保留规则引擎原文供对照核验 (透明原则)
+    if result.get("answer_source") == "llm":
+        resp["local_answer"] = result.get("local_answer", "")
+    if chart_dict:
+        resp["chart"] = chart_dict
+    return resp
 
 
 @app.post("/api/ask")
 async def ask_post(req: AskRequest):
     """智能问答 (POST)."""
     try:
-        from ziwei.analysis.advisor import answer_question
-        
         chart_dict = None
         if req.year is not None and req.month is not None and req.day is not None and req.hour is not None:
             from ziwei.chart.engine import generate_chart, chart_to_dict
             chart = generate_chart(req.year, req.month, req.day,
                                    req.hour, req.minute, req.name, req.gender, req.city)
             chart_dict = chart_to_dict(chart, include_analysis=True)
-        
-        result = answer_question(req.question, chart_dict)
-        
-        quality_flags = _build_advisor_quality_flags(result, chart_dict)
-        resp = {
-            "question": req.question,
-            "answer": result["answer"],
-            "category": result["category"],
-            "confidence": result["confidence"],
-            "needs_chart": result["needs_chart"],
-            "used_knowledge": result["used_knowledge"],
-            "chart_references": result.get("chart_references", []),
-            "grounding": result.get("grounding"),
-            "honesty": result.get("honesty"),
-            "source": "local_fallback" if quality_flags["analysis"]["fallback"] else "advisor_rules",
-            "quality_flags": quality_flags,
-        }
-        if chart_dict:
-            resp["chart"] = chart_dict
-        
+
+        resp = _advisor_response(req.question, chart_dict, req.use_llm, req.provider)
         return JSONResponse(resp)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -558,37 +573,20 @@ async def ask_get(
     name: str = Query(""), year: int = Query(None), month: int = Query(None),
     day: int = Query(None), hour: int = Query(None), minute: int = Query(0),
     gender: str = Query("男"), city: str = Query(""),
+    use_llm: bool = Query(True), provider: str = Query("auto"),
 ):
     """智能问答 (GET)."""
     try:
-        from ziwei.analysis.advisor import answer_question
-        
         chart_dict = None
         if year is not None and month is not None and day is not None and hour is not None:
             from ziwei.chart.engine import generate_chart, chart_to_dict
             chart = generate_chart(year, month, day, hour, minute, name, gender, city)
             chart_dict = chart_to_dict(chart, include_analysis=True)
-        
-        result = answer_question(q, chart_dict)
-        
-        quality_flags = _build_advisor_quality_flags(result, chart_dict)
-        resp = {
-            "question": q,
-            "answer": result["answer"],
-            "category": result["category"],
-            "confidence": result["confidence"],
-            "needs_chart": result["needs_chart"],
-            "used_knowledge": result["used_knowledge"],
-            "chart_references": result.get("chart_references", []),
-            "grounding": result.get("grounding"),
-            "honesty": result.get("honesty"),
-            "source": "local_fallback" if quality_flags["analysis"]["fallback"] else "advisor_rules",
-            "quality_flags": quality_flags,
-        }
-        if chart_dict:
-            resp["chart"] = chart_dict
-        
+
+        resp = _advisor_response(q, chart_dict, use_llm, provider)
         return JSONResponse(resp)
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

@@ -96,6 +96,17 @@ def test_desktop_renders_honest_advisor_layer():
     assert "高风险" in html or "顾问不是神谕" in html
 
 
+def test_desktop_has_llm_toggle_and_source_badge():
+    html = read_frontend("desktop/index.html")
+    # 真实 LLM 开关 + use_llm 入参
+    assert 'id="a-use-llm"' in html
+    assert "use_llm" in html
+    # 答案来源徽标 (真实AI润色 / 规则引擎)
+    assert "answer_source" in html
+    assert "真实AI润色" in html
+    assert "规则引擎" in html
+
+
 def test_desktop_wheel_draws_flying_sihua_lines():
     html = read_frontend("desktop/index.html")
     assert "flying_sihua" in html
