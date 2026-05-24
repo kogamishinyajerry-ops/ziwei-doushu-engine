@@ -142,6 +142,32 @@ async def get_chart_full(
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@app.get("/api/explain")
+async def get_explain(
+    year: int = Query(..., ge=1900, le=2100),
+    month: int = Query(..., ge=1, le=12),
+    day: int = Query(..., ge=1, le=31),
+    hour: int = Query(..., ge=0, le=23),
+    minute: int = Query(0, ge=0, le=59),
+    name: str = Query(""),
+    gender: str = Query("男"),
+    city: str = Query(""),
+):
+    """安星"为什么"解释 — 每颗星的规则/公式/推导/出处 (透明可验证)."""
+    try:
+        from ziwei.chart.explain import explain_chart
+        chart = generate_chart(year, month, day, hour, minute, name, gender, city)
+        return JSONResponse({
+            "ming_palace": chart.ming_palace,
+            "shen_palace": chart.shen_palace,
+            "wuxing_ju": chart.wuxing_ju_name,
+            "explain": explain_chart(chart),
+            "quality_flags": chart.quality_flags,
+        })
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @app.get("/api/cities")
 async def search_cities(q: str = Query("", description="搜索关键词")):
     """搜索城市经纬度."""
