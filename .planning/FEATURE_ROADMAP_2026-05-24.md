@@ -16,6 +16,20 @@ marketplace, 而是把刚完成的工程级算法审计 (68 tests + 结构不变
 
 全部状态: 95 passed, 25 提交, 已 push github.com/kogamishinyajerry-ops/ziwei-doushu-engine。
 
+## 深水区 (第三批, 全部完成 · 120 passed · 已 push)
+- **③飞星图四类线切换**: 轮图 .fly-toggle 切换 化禄(绿)/化权(黄)/化科(蓝)/化忌(红)/全部/隐藏;
+  drawWheelChart 按 window._flyingType 过滤+按类型着色; 默认化忌(无回归)。
+- **①AI 顾问接真实 LLM**: advisor.advise() 编排 — 规则引擎确定性初判 + 真实 LLM 润色,
+  HONEST_ADVISOR_SYSTEM 强制 6 条诚实铁律(不编造盘面没有的星/引用依据/标不确定/高风险不下定论);
+  命盘事实作"唯一可用依据"注入; LLM 成功替换 answer 但保留全部诚实层 metadata + local_answer 对照;
+  无 key/网络失败/use_llm=False/needs_chart → 回退本地(离线可用)。/api/ask 增 use_llm/provider;
+  前端 LLM 开关 + 来源徽标(🤖真实AI润色/📐规则引擎)。真实 DeepSeek 端到端验证通过。
+- **②指纹可分享二维码/校验页**: verify.py 复算比对 + segno 纯 Python 零依赖 SVG 二维码(离线);
+  /api/verify + /api/fingerprint/qr; 指纹可点击 → 分享弹层(QR+校验链接+复制+SHA256);
+  ?verify=1 扫码进入 → 自动独立复算 → ✅一致/⚠️不一致横幅。任何人可自验, 翻转"结果你只能信"。
+
+全部状态: 120 passed, 28 提交, 已 push。新增依赖 segno (纯 Python QR)。
+
 ## Phase A — 安星规则即数据 + /api/explain (基础, 最先)
 - `ziwei/chart/explain.py`: 给定 ChartData, 为每颗星产出 {规则名, 公式, 推导(代入实际索引), 出处}。
 - 复用已加固的安星规则注释 (寅申轴/七杀空三破军/禄前羊刃后陀罗…)。
