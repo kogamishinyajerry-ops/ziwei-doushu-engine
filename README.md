@@ -60,7 +60,7 @@ Run these before handing work to another agent:
 
 Current verified result (after the 2026-05-24 deep-takeover optimization):
 
-- `.venv/bin/python -m pytest -q` -> `67 passed`
+- `.venv/bin/python -m pytest -q` -> `68 passed`
 - `.venv/bin/python -m compileall -q ziwei` -> passed
 
 ## Main API Routes
@@ -186,11 +186,12 @@ curl 'http://localhost:8088/api/reading?year=1998&month=3&day=21&hour=8&minute=3
 - Auxiliary-star tables (`tests/test_aux_star_goldens.py`) are golden-locked
   and were independently cross-checked (Codex web research). This caught a
   地劫/地空 顺逆 swap (now 地劫 advances, 地空 retreats from 亥) and aligned
-  丁-year 天魁/天钺 to the mainstream table. 禄存, 天马 verified correct.
+  丁-year 天魁/天钺 to the mainstream table. 禄存, 天马, and 火星/铃星
+  (mainstream 中州派/全书 table, all groups 顺行) were verified already-correct.
 - These tests verify *structural / tabular* correctness, not interpretive
-  depth. Interpretation text, school-specific 流派 variants, second-level
-  solar-term precision, and 火铃 (火星/铃星) placement remain sample/rule-locked,
-  not authoritatively benchmarked.
+  depth. Interpretation text, school-specific 流派 variants (e.g. the minority
+  宋版 火铃 巳酉丑 variant), and second-level solar-term precision remain
+  sample/rule-locked, not authoritatively benchmarked.
 - Public API input validation is mostly scoped to years `1900..2100`, valid
   month/day ranges, and valid hour/minute ranges. Do not document broader date
   support without new tests.

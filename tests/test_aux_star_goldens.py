@@ -80,3 +80,23 @@ def test_tiankui_tianyue_by_year_stem():
         assert s["天钺"] == yue[stem], f"{stem} 天钺应在 {yue[stem]}"
         # 魁钺配对集合 (流派无关的硬约束)
         assert {s["天魁"], s["天钺"]} == {kui[stem], yue[stem]}
+
+
+def test_huoxing_lingxing_mainstream_zhongzhou():
+    # 主流中州派/全书安火铃: 按年支三合局起子时位, 顺行至生时, 不分阳男阴女。
+    # (Codex gpt-5.5 web 检索独立确认, 2026-05-24; 代码本就匹配, 无需改动。)
+    start = {  # 年支 -> (火星子时起宫, 铃星子时起宫)
+        "申": ("寅", "戌"), "子": ("寅", "戌"), "辰": ("寅", "戌"),
+        "寅": ("丑", "卯"), "午": ("丑", "卯"), "戌": ("丑", "卯"),
+        "巳": ("卯", "戌"), "酉": ("卯", "戌"), "丑": ("卯", "戌"),
+        "亥": ("酉", "戌"), "卯": ("酉", "戌"), "未": ("酉", "戌"),
+    }
+    for yb, (huo0, ling0) in start.items():
+        # 子时起宫
+        z = _stars(year_branch=yb, hour="子")
+        assert z["火星"] == huo0, f"{yb}年 火星子时起宫应 {huo0}"
+        assert z["铃星"] == ling0, f"{yb}年 铃星子时起宫应 {ling0}"
+        # 顺行: 丑时 = 起宫 + 1
+        c = _stars(year_branch=yb, hour="丑")
+        assert c["火星"] == B[(B.index(huo0) + 1) % 12], f"{yb}年 火星应顺行"
+        assert c["铃星"] == B[(B.index(ling0) + 1) % 12], f"{yb}年 铃星应顺行"
