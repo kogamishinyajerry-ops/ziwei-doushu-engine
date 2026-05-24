@@ -58,3 +58,24 @@ def test_reading_endpoint_is_documented_as_deferred_from_frontend():
     assert "reading_frontend_strategy" in readme
     assert "defer_frontend_connection" in readme
     assert "defer_frontend_connection" in slices
+
+
+def test_desktop_has_star_why_transparency_layer():
+    html = read_frontend("desktop/index.html")
+    # 可点击星曜 + "为什么"浮层 + 拉取 /api/explain
+    assert "showStarWhy" in html
+    assert "star-chip" in html
+    assert "/api/explain" in html
+    assert "_explainMap" in html
+
+
+def test_desktop_has_trust_page_and_huoling_selector():
+    html = read_frontend("desktop/index.html")
+    # 算法可信度页 (差异化信任资产)
+    assert 'data-page="trust"' in html
+    assert 'id="page-trust"' in html
+    assert "算法可信度" in html
+    assert "寅申" in html  # 结构铁律展示
+    # 流派切换器前端
+    assert 'id="p-huoling"' in html
+    assert "songban" in html and "mainstream" in html

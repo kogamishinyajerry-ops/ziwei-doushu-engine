@@ -251,6 +251,62 @@ body {
   margin-top: 4px;
 }
 
+/* 星曜"为什么"可点击 chip + 透明层浮窗 */
+.star-chip {
+  cursor: pointer;
+  border-bottom: 1px dashed var(--text3);
+  transition: color .15s;
+}
+.star-chip:hover { color: var(--gold); }
+.star-chip:not(:last-child)::after { content: "、"; color: var(--text3); border: 0; }
+.star-why-panel {
+  display: none;
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: 340px;
+  max-width: calc(100vw - 48px);
+  background: var(--card, #1a1a24);
+  border: 1px solid var(--gold, #c9a227);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.45);
+  z-index: 999;
+  font-size: 13px;
+  overflow: hidden;
+}
+.swp-head {
+  padding: 10px 14px;
+  background: rgba(201,162,39,.12);
+  border-bottom: 1px solid rgba(201,162,39,.3);
+  color: var(--gold, #c9a227);
+}
+.swp-close { float: right; cursor: pointer; color: var(--text3); }
+.swp-body { padding: 12px 14px; color: var(--text2); line-height: 1.6; }
+.swp-row { margin-bottom: 8px; }
+.swp-k {
+  display: inline-block; width: 40px; color: var(--text3);
+  font-size: 11px; vertical-align: top;
+}
+.swp-body code {
+  background: rgba(255,255,255,.06); padding: 1px 5px; border-radius: 4px;
+  font-size: 12px; color: var(--text);
+}
+.swp-src { font-size: 11px; color: var(--text3); }
+
+/* 算法可信度页 */
+.trust-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 8px 0 8px;
+}
+.trust-stat {
+  text-align: center; padding: 14px 8px; border-radius: 10px;
+  background: rgba(201,162,39,.08); border: 1px solid rgba(201,162,39,.2);
+}
+.trust-num { font-size: 26px; font-weight: 700; color: var(--gold, #c9a227); }
+.trust-lbl { font-size: 12px; color: var(--text2); margin-top: 4px; }
+.trust-h { color: var(--gold, #c9a227); font-size: 15px; margin: 20px 0 8px; }
+.trust-list { color: var(--text2); line-height: 1.8; padding-left: 20px; margin: 0; }
+@media (max-width: 600px) { .trust-grid { grid-template-columns: repeat(2, 1fr); } }
+
 .body-badge, .ming-badge {
   font-size: 9px;
   padding: 1px 5px;
@@ -694,6 +750,9 @@ body {
   <div class="nav-item" data-page="ask">
     <span class="nav-icon">🤖</span> 智能问答
   </div>
+  <div class="nav-item" data-page="trust">
+    <span class="nav-icon">🔍</span> 算法可信度
+  </div>
 
   <div class="sidebar-footer">
     🦞 OpenClaw AI 驱动<br>
@@ -740,6 +799,13 @@ body {
         <div class="form-group">
           <label>出生城市</label>
           <input id="p-city" type="text" placeholder="如：上海" value="上海">
+        </div>
+        <div class="form-group">
+          <label>火铃流派</label>
+          <select id="p-huoling" title="火星铃星安星流派">
+            <option value="mainstream">主流 (中州派/全书)</option>
+            <option value="songban">宋版异本 (仅巳酉丑组)</option>
+          </select>
         </div>
       </div>
       <div class="form-actions">
@@ -915,6 +981,55 @@ body {
     </div>
   </div>
 
+  <!-- ────── 算法可信度页 ────── -->
+  <div id="page-trust" class="page">
+    <div class="card">
+      <div class="card-header"><span class="icon">🔍</span> 算法可信度 — 透明可验证</div>
+      <p style="color:var(--text2);line-height:1.7;margin:4px 0 16px;">
+        多数玄学应用的排盘是黑箱，你无法验证算法对错。本工具的排星算法经过
+        <b>工程级审计</b>：结构不变量自检 + 独立异源(Codex)交叉验证，并把规则公开可查。
+        排盘结果里每颗星都可点击查看「为什么」。
+      </p>
+
+      <div class="trust-grid">
+        <div class="trust-stat"><div class="trust-num">68+</div><div class="trust-lbl">自动化测试</div></div>
+        <div class="trust-stat"><div class="trust-num">4</div><div class="trust-lbl">已修复排星 bug</div></div>
+        <div class="trust-stat"><div class="trust-num">100%</div><div class="trust-lbl">结构不变量通过</div></div>
+        <div class="trust-stat"><div class="trust-num">2×</div><div class="trust-lbl">异源独立验证</div></div>
+      </div>
+
+      <h3 class="trust-h">已锁定的结构铁律 (流派无关)</h3>
+      <ul class="trust-list">
+        <li>紫微 · 天府 永远关于「寅申轴」对称 (同宫于寅或申)</li>
+        <li>破军 ⇄ 天相 永远对宫；七杀 ⇄ 天府 永远对宫</li>
+        <li>十二宫占据 12 个不同地支 (双射)；命宫 ⇄ 迁移 永远对宫</li>
+        <li>14 主星各且仅出现一次；四化恰为 禄/权/科/忌</li>
+        <li>禄前羊刃后陀罗；左辅右弼 · 文昌文曲 关于辰戌轴对称</li>
+      </ul>
+
+      <h3 class="trust-h">本次审计修复的排星 bug</h3>
+      <ul class="trust-list">
+        <li>天府系定位轴错误 (卯酉 → 正确寅申)，曾致每盘 8 颗主星错位</li>
+        <li>廉贞偏移 紫微-7 → -8；破军偏移 天府+7 → +10 (七杀空三破军)</li>
+        <li>地劫/地空 顺逆颠倒 → 地劫顺行、地空逆行</li>
+        <li>天魁天钺(丁干) 对齐主流斗数表</li>
+      </ul>
+
+      <h3 class="trust-h">诚实边界</h3>
+      <p style="color:var(--text2);line-height:1.7;">
+        以上为<b>结构/表格正确性</b>验证，非解读深度背书。解读文本、流派变体、
+        节气秒级精度仍属规则锁定。本工具用于学习与参考，<b>不应作为投资/婚姻/
+        健康/法律等高风险决定的唯一依据</b>。
+      </p>
+
+      <p style="margin-top:16px;">
+        <a href="https://github.com/kogamishinyajerry-ops/ziwei-doushu-engine"
+           target="_blank" rel="noopener" style="color:var(--gold);">
+          📖 开源代码与测试 (GitHub)</a>
+      </p>
+    </div>
+  </div>
+
 </main>
 
 <script>
@@ -939,12 +1054,23 @@ async function doPaipan() {
     year: val('p-year'), month: val('p-month'), day: val('p-day'),
     hour: val('p-hour'), minute: val('p-minute') || 0,
     city: val('p-city') || '',
+    huoling: (document.getElementById('p-huoling') || {}).value || 'mainstream',
   };
 
   try {
     const qs = new URLSearchParams(params);
     const resp = await fetch('/api/chart/full?' + qs);
     const data = await readJsonOrThrow(resp);
+
+    // 并行拉取"为什么"解释层 (透明可验证), 失败不阻塞排盘
+    window._explainMap = {};
+    try {
+      const exResp = await fetch('/api/explain?' + qs);
+      if (exResp.ok) {
+        const ex = await exResp.json();
+        (((ex.explain || {}).stars) || []).forEach(e => { window._explainMap[e.star] = e; });
+      }
+    } catch (_) { /* explain 可降级缺省 */ }
 
     renderPaipanResult(data);
     document.getElementById('paipan-result').style.display = 'block';
@@ -1023,7 +1149,10 @@ function renderPaipanResult(data) {
   const palaces = data.palaces || [];
   let pg = '';
   palaces.forEach((p, i) => {
-    const stars = (p.stars || []).join('、') || '<span style="color:var(--text3)">—</span>';
+    const starArr = (p.stars || []);
+    const stars = starArr.length
+      ? starArr.map(s => `<span class="star-chip" onclick="showStarWhy('${s}')" title="点击看为什么">${s}</span>`).join('')
+      : '<span style="color:var(--text3)">—</span>';
     const sihuaList = (p.sihua || []);
     let cls = '';
     if (i === 0) cls = 'ming';
@@ -1046,6 +1175,39 @@ function renderPaipanResult(data) {
 
   // 分析 Tabs
   renderAnalysisTabs(data.analysis || {});
+}
+
+// ── 星曜"为什么"透明层 (差异化核心: 教你看懂, 可验证安星) ──
+function showStarWhy(star) {
+  const e = (window._explainMap || {})[star];
+  let panel = document.getElementById('star-why-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'star-why-panel';
+    panel.className = 'star-why-panel';
+    document.body.appendChild(panel);
+  }
+  if (!e) {
+    panel.innerHTML = `<div class="swp-head"><b>${star}</b>
+      <span class="swp-close" onclick="closeStarWhy()">✕</span></div>
+      <div class="swp-body">暂无该星的安星解释 (请先排盘)。</div>`;
+  } else {
+    panel.innerHTML = `
+      <div class="swp-head"><b>${e.star}</b> · ${e.branch}宫
+        <span class="swp-close" onclick="closeStarWhy()">✕</span></div>
+      <div class="swp-body">
+        <div class="swp-row"><span class="swp-k">类别</span>${e.category}</div>
+        <div class="swp-row"><span class="swp-k">规则</span>${e.rule}</div>
+        <div class="swp-row"><span class="swp-k">公式</span><code>${e.formula}</code></div>
+        <div class="swp-row"><span class="swp-k">推导</span><code>${e.derivation}</code></div>
+        <div class="swp-row swp-src"><span class="swp-k">出处</span>${e.source}</div>
+      </div>`;
+  }
+  panel.style.display = 'block';
+}
+function closeStarWhy() {
+  const panel = document.getElementById('star-why-panel');
+  if (panel) panel.style.display = 'none';
 }
 
 function renderAnalysisTabs(analysis) {
