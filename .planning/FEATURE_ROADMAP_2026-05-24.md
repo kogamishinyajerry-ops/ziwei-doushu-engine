@@ -4,7 +4,7 @@
 marketplace, 而是把刚完成的工程级算法审计 (68 tests + 结构不变量 + Codex 异源验证)
 变成产品灵魂。详细战略见本 session 对话记录。
 
-用户已选定先做三项 (按依赖+风险排序执行):
+用户已选定先做三项 (按依赖+风险排序执行)。**状态: A/B/C/D 全部完成, 78 passed, 已 push。**
 
 ## Phase A — 安星规则即数据 + /api/explain (基础, 最先)
 - `ziwei/chart/explain.py`: 给定 ChartData, 为每颗星产出 {规则名, 公式, 推导(代入实际索引), 出处}。
