@@ -260,7 +260,65 @@ def answer_question(
     if chart_dict:
         result["chart_references"] = _get_chart_references(question, chart_dict)
 
+    _apply_honesty_layer(result, question, chart_dict)
     return result
+
+
+# ═══════════════════════════════════════════════════
+# 诚实顾问层 (差异化: AI 是顾问不是神谕)
+# ═══════════════════════════════════════════════════
+
+# 高风险议题: 命理不应作为这些决定的唯一/确定性依据
+_HIGH_STAKES_KEYWORDS = [
+    "病", "癌", "手术", "住院", "重病", "绝症", "死", "寿命", "几岁走", "活到",
+    "离婚", "结婚", "分手", "复合", "堕胎", "流产",
+    "投资", "股票", "基金", "炒", "买房", "卖房", "梭哈", "All in", "all in", "彩票",
+    "官司", "诉讼", "打官司", "坐牢", "判刑", "自杀", "想不开",
+]
+
+_LIMITS_NOTE = "命理是参考视角而非确定性预测; 重要决定请结合现实情况与专业意见综合判断。"
+
+
+def _apply_honesty_layer(result: dict, question: str, chart_dict: dict) -> None:
+    """为回答附加诚实信号: grounding 来源 + 高风险护栏 + 局限声明。"""
+    refs = result.get("chart_references") or []
+    if result.get("needs_chart"):
+        grounding = "needs_chart"
+        basis = "需要命盘才能个性化回答; 当前为一般性引导。"
+    elif chart_dict and refs:
+        grounding = "chart_grounded"
+        ref_names = "、".join(
+            (r.get("palace") or r.get("star") or "") for r in refs[:4] if isinstance(r, dict)
+        ).strip("、")
+        basis = f"基于本盘的具体宫位/星曜{('（' + ref_names + '）') if ref_names else ''}; 排盘依据可在「为什么」层逐条核验。"
+    elif chart_dict:
+        grounding = "chart_present"
+        basis = "结合了本盘, 但未定位到特定宫位/星曜引用。"
+    else:
+        grounding = "general_knowledge"
+        basis = "一般命理知识, 未结合具体命盘。"
+
+    q = question or ""
+    high_stakes = any(kw in q for kw in _HIGH_STAKES_KEYWORDS)
+
+    honesty = {
+        "grounding": grounding,
+        "basis": basis,
+        "high_stakes": high_stakes,
+        "limits": _LIMITS_NOTE,
+    }
+    if high_stakes:
+        # 高风险议题: 不下确定性断言, 封顶置信度, 追加明确声明
+        honesty["disclaimer"] = (
+            "这类问题涉及健康/重大人生选择/财务/法律等高风险领域，"
+            "命理无法也不应给出确定性结论。以下内容仅为命理视角的参考，"
+            "请务必结合现实情况并咨询医生/律师/理财等专业人士，切勿据此做唯一决定。"
+        )
+        if result.get("confidence") == "high":
+            result["confidence"] = "medium"
+
+    result["grounding"] = grounding
+    result["honesty"] = honesty
 
 
 # ═══════════════════════════════════════════════════

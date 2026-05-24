@@ -619,6 +619,21 @@ body {
   color: var(--accent);
 }
 
+/* 诚实顾问层: grounding / 高风险声明 / 局限 */
+.msg-meta {
+  margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border);
+  font-size: 11px; color: var(--text3); white-space: normal;
+}
+.msg-warn {
+  margin-top: 8px; padding: 8px 10px; border-radius: 8px;
+  background: rgba(244,63,94,.10); border: 1px solid rgba(244,63,94,.35);
+  font-size: 12px; color: #fda4af; line-height: 1.6; white-space: normal;
+}
+.msg-limits {
+  margin-top: 6px; font-size: 11px; color: var(--text3);
+  font-style: italic; white-space: normal;
+}
+
 .chat-input-area {
   display: flex;
   gap: 10px;
@@ -1722,11 +1737,33 @@ async function doAsk() {
 
     // Replace loading
     removeChatMessage(loadId);
-    addChatMessage('assistant', data.answer);
+    addChatMessage('assistant', data.answer + buildHonestyHtml(data));
   } catch(e) {
     removeChatMessage(loadId);
     addChatMessage('assistant', '抱歉，出错了: ' + e.message);
   }
+}
+
+// 诚实顾问层渲染: grounding 来源 + 高风险声明 + 局限 (差异化: 顾问不是神谕)
+function buildHonestyHtml(data) {
+  const h = data.honesty || {};
+  const label = {
+    chart_grounded: '🎯 基于本盘',
+    chart_present: '📊 结合本盘',
+    general_knowledge: '📖 一般知识',
+    needs_chart: '❓ 需命盘',
+  }[data.grounding] || '';
+  let html = '';
+  if (label) {
+    html += `<div class="msg-meta">${label}${h.basis ? ' · ' + escapeHtml(h.basis) : ''}</div>`;
+  }
+  if (h.high_stakes && h.disclaimer) {
+    html += `<div class="msg-warn">⚠️ ${escapeHtml(h.disclaimer)}</div>`;
+  }
+  if (h.limits) {
+    html += `<div class="msg-limits">${escapeHtml(h.limits)}</div>`;
+  }
+  return html;
 }
 
 let msgCounter = 0;

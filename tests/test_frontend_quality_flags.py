@@ -86,3 +86,11 @@ def test_desktop_shows_verifiable_fingerprint():
     assert "fingerprint" in html
     assert "pc-fp" in html
     assert "可验证指纹" in html
+
+
+def test_desktop_renders_honest_advisor_layer():
+    html = read_frontend("desktop/index.html")
+    assert "buildHonestyHtml" in html
+    assert "msg-warn" in html
+    assert "honesty" in html
+    assert "高风险" in html or "顾问不是神谕" in html

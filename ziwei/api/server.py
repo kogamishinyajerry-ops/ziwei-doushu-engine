@@ -539,6 +539,8 @@ async def ask_post(req: AskRequest):
             "needs_chart": result["needs_chart"],
             "used_knowledge": result["used_knowledge"],
             "chart_references": result.get("chart_references", []),
+            "grounding": result.get("grounding"),
+            "honesty": result.get("honesty"),
             "source": "local_fallback" if quality_flags["analysis"]["fallback"] else "advisor_rules",
             "quality_flags": quality_flags,
         }
@@ -578,6 +580,8 @@ async def ask_get(
             "needs_chart": result["needs_chart"],
             "used_knowledge": result["used_knowledge"],
             "chart_references": result.get("chart_references", []),
+            "grounding": result.get("grounding"),
+            "honesty": result.get("honesty"),
             "source": "local_fallback" if quality_flags["analysis"]["fallback"] else "advisor_rules",
             "quality_flags": quality_flags,
         }
