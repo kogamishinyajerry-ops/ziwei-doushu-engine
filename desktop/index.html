@@ -694,6 +694,32 @@ body {
 .llm-toggle input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
 .llm-toggle-hint { color: var(--text3); font-size: 11px; }
 
+/* 🎯 专属深度报告 */
+.report-card { border: 1px solid rgba(167,139,250,.35);
+  background: linear-gradient(160deg, rgba(167,139,250,.06), rgba(96,165,250,.04)); }
+.report-refresh { margin-left: auto; background: transparent; border: 1px solid var(--border);
+  color: var(--text2); border-radius: 6px; width: 26px; height: 26px; cursor: pointer; font-size: 14px; }
+.report-refresh:hover { border-color: var(--accent); color: var(--accent); }
+.report-anchors { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px; margin: 6px 0 16px; }
+.anchor-card { background: var(--bg3); border: 1px solid rgba(167,139,250,.3);
+  border-radius: 10px; padding: 12px; position: relative; }
+.anchor-tag { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 4px;
+  background: var(--accent); color: #fff; margin-bottom: 6px; }
+.anchor-title { font-weight: 600; color: var(--text); font-size: 13px; margin-bottom: 5px; line-height: 1.4; }
+.anchor-detail { font-size: 12px; color: var(--text2); line-height: 1.55; }
+.report-body { font-size: 14px; line-height: 1.85; color: var(--text); }
+.report-body .rb-h2 { font-size: 16px; color: var(--accent); margin: 18px 0 8px; }
+.report-body .rb-h { font-size: 14px; color: #c4b5fd; margin: 16px 0 6px;
+  border-left: 3px solid var(--accent); padding-left: 8px; }
+.report-body p { margin: 6px 0; }
+.report-body b { color: #ddd6fe; }
+.report-body .rb-ul { margin: 6px 0; padding-left: 20px; }
+.report-body .rb-ul li { margin: 5px 0; }
+.report-body .rb-q { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--text3);
+  background: var(--bg3); border-radius: 6px; font-size: 12px; color: var(--text3); font-style: italic; }
+.report-honesty { margin-top: 6px; }
+
 .chat-input-area {
   display: flex;
   gap: 10px;
@@ -953,6 +979,18 @@ body {
         <div id="destiny-summary" style="font-size:14px;line-height:1.7;"></div>
         <div class="star-bars" id="star-bar"></div>
         <div id="compat-tags-display" class="compat-tags mt-sm"></div>
+      </div>
+
+      <!-- 🎯 专属命盘深度解读 (个性化 + 专属感 · 犀利专业直言) -->
+      <div class="card report-card">
+        <div class="card-header">
+          <span class="icon">🎯</span> 专属命盘深度解读
+          <span id="report-source-badge"></span>
+          <button class="report-refresh" id="report-refresh" onclick="loadPersonalReport(true)" title="重新生成">↻</button>
+        </div>
+        <div id="report-anchors" class="report-anchors"></div>
+        <div id="report-body" class="report-body"></div>
+        <div id="report-honesty" class="report-honesty"></div>
       </div>
 
       <!-- 十二宫 -->
@@ -1350,6 +1388,81 @@ function renderPaipanResult(data) {
 
   // 分析 Tabs
   renderAnalysisTabs(data.analysis || {});
+
+  // 🎯 专属深度报告 (异步, 不阻塞排盘渲染)
+  loadPersonalReport(false);
+}
+
+/* ═══════════════ 专属命盘深度解读 (个性化 + 专属感) ═══════════════ */
+async function loadPersonalReport(force) {
+  const b = window._birthInputs;
+  if (!b) return;
+  const anchorsEl = document.getElementById('report-anchors');
+  const bodyEl = document.getElementById('report-body');
+  const badgeEl = document.getElementById('report-source-badge');
+  const honestyEl = document.getElementById('report-honesty');
+  if (!bodyEl) return;
+  anchorsEl.innerHTML = '';
+  honestyEl.innerHTML = '';
+  badgeEl.innerHTML = '';
+  bodyEl.innerHTML = '<span class="loading"></span> 正在生成你的专属解读…';
+
+  const useLlm = document.getElementById('a-use-llm') ? document.getElementById('a-use-llm').checked : true;
+  const params = {
+    name: b.name || '', gender: b.gender || '男',
+    year: b.year, month: b.month, day: b.day, hour: b.hour,
+    minute: b.minute || 0, city: b.city || '',
+    huoling: b.huoling || 'mainstream', use_llm: useLlm,
+  };
+  try {
+    const resp = await fetch('/api/report?' + new URLSearchParams(params).toString());
+    const data = await readJsonOrThrow(resp);
+    const sig = data.signature || {};
+
+    // 开篇专属锚点卡
+    anchorsEl.innerHTML = (sig.anchors || []).map(a =>
+      `<div class="anchor-card">
+         <div class="anchor-tag">${escapeHtml(a.tag||'')}</div>
+         <div class="anchor-title">${escapeHtml(a.title||'')}</div>
+         <div class="anchor-detail">${escapeHtml(a.detail||'')}</div>
+       </div>`).join('');
+
+    // 来源徽标
+    if (data.report_source === 'llm' && data.llm && data.llm.used) {
+      const prov = data.llm.provider ? ' · ' + escapeHtml(data.llm.provider) : '';
+      badgeEl.innerHTML = `<span class="src-badge src-llm">🤖 真实AI润色${prov}</span>`;
+    } else {
+      const reason = (data.llm && data.llm.reason) || '';
+      const hint = /key|API/i.test(reason) ? '（未配置 AI key，已用本地犀利版）' : '';
+      badgeEl.innerHTML = `<span class="src-badge src-local">📐 规则引擎${hint}</span>`;
+    }
+
+    bodyEl.innerHTML = mdLite(data.report || '');
+
+    const h = data.honesty || {};
+    if (h.limits) honestyEl.innerHTML = `<div class="msg-limits">${escapeHtml(h.limits)}</div>`;
+  } catch (e) {
+    bodyEl.innerHTML = '<span style="color:var(--red);">生成失败：' + escapeHtml(e.message) + '</span>';
+  }
+}
+
+// 极简 markdown 渲染 (## 标题 / **粗体** / > 引用 / 列表 / 段落), 先转义再加标记
+function mdLite(src) {
+  const lines = String(src || '').split('\n');
+  let html = '', inList = false;
+  const inline = s => escapeHtml(s)
+    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  for (let raw of lines) {
+    const line = raw.replace(/\s+$/, '');
+    if (/^###\s+/.test(line)) { if(inList){html+='</ul>';inList=false;} html += `<h4 class="rb-h">${inline(line.replace(/^###\s+/,''))}</h4>`; }
+    else if (/^##\s+/.test(line)) { if(inList){html+='</ul>';inList=false;} html += `<h3 class="rb-h2">${inline(line.replace(/^##\s+/,''))}</h3>`; }
+    else if (/^>\s?/.test(line)) { if(inList){html+='</ul>';inList=false;} html += `<blockquote class="rb-q">${inline(line.replace(/^>\s?/,''))}</blockquote>`; }
+    else if (/^(\d+\.|[-*])\s+/.test(line)) { if(!inList){html+='<ul class="rb-ul">';inList=true;} html += `<li>${inline(line.replace(/^(\d+\.|[-*])\s+/,''))}</li>`; }
+    else if (line === '') { if(inList){html+='</ul>';inList=false;} }
+    else { if(inList){html+='</ul>';inList=false;} html += `<p>${inline(line)}</p>`; }
+  }
+  if (inList) html += '</ul>';
+  return html;
 }
 
 // ── 星曜"为什么"透明层 (差异化核心: 教你看懂, 可验证安星) ──

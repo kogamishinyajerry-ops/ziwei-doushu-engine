@@ -120,6 +120,16 @@ def test_desktop_has_fingerprint_share_verify():
     assert "独立复算" in html
 
 
+def test_desktop_has_personal_report():
+    html = read_frontend("desktop/index.html")
+    # 专属深度报告: 自动加载 + 锚点 + 来源徽标
+    assert "loadPersonalReport" in html
+    assert "/api/report" in html
+    assert "专属命盘深度解读" in html
+    assert "report-anchors" in html
+    assert "anchor-card" in html
+
+
 def test_desktop_wheel_draws_flying_sihua_lines():
     html = read_frontend("desktop/index.html")
     assert "flying_sihua" in html

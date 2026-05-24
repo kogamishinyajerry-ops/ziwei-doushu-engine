@@ -672,6 +672,41 @@ async def fingerprint_qr(
         raise HTTPException(status_code=400, detail=str(e))
 
 
+# ═══════════════════════════════════════════════════
+# 专属命盘深度报告 (犀利专业直言型 · 个性化 + 专属感)
+# ═══════════════════════════════════════════════════
+
+@app.get("/api/report")
+async def personal_report(
+    year: int = Query(..., ge=1900, le=2100),
+    month: int = Query(..., ge=1, le=12),
+    day: int = Query(..., ge=1, le=31),
+    hour: int = Query(..., ge=0, le=23),
+    minute: int = Query(0, ge=0, le=59),
+    name: str = Query(""),
+    gender: str = Query("男"),
+    city: str = Query(""),
+    huoling: str = Query("mainstream"),
+    use_llm: bool = Query(True),
+    provider: str = Query("auto"),
+):
+    """生成基于本盘独有结构的专属深度报告 (无 key 自动回退本地犀利拼装, 离线可用)。"""
+    try:
+        from ziwei.analysis.signature import generate_personal_report
+        chart = generate_chart(year, month, day, hour, minute,
+                               name, gender, city, huoling_variant=huoling)
+        chart_dict = chart_to_dict(chart, include_analysis=True)
+        llm_provider = None if provider in (None, "auto") else provider
+        result = generate_personal_report(
+            chart_dict, use_llm=use_llm, provider=llm_provider,
+        )
+        return JSONResponse(result)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
     import os
