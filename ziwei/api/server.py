@@ -231,16 +231,21 @@ async def get_liunian(
     name: str = Query(""),
     gender: str = Query("男"),
     city: str = Query(""),
-    target_year: int = Query(2026, description="目标流年年份"),
+    target_year: int = Query(None, description="目标流年年份, 默认当前年"),
     count: int = Query(3, ge=1, le=10, description="分析年数"),
 ):
     """生成流年运势分析."""
     try:
+        from datetime import datetime
         from ziwei.chart.engine import generate_chart, chart_to_dict
         from ziwei.analysis.liunian import (
             calculate_liunian_info, analyze_liunian, analyze_multi_years, liunian_to_dict
         )
         from ziwei.calendar.constants import EARTHLY_BRANCHES
+
+        # 默认目标流年 = 当前年, 避免硬编码年份随时间漂移
+        if target_year is None:
+            target_year = datetime.now().year
         
         chart = generate_chart(year, month, day, hour, minute, name, gender, city)
         chart_dict = chart_to_dict(chart, include_analysis=True)

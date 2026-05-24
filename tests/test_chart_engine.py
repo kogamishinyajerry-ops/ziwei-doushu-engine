@@ -88,3 +88,34 @@ def test_lunar_conversion_fallback_emits_quality_flag(monkeypatch):
     assert data["quality_flags"]["lunar"]["fallback"] is True
     assert "forced lunar failure" in data["quality_flags"]["lunar"]["reason"]
     assert data["lunar_date"].startswith("农历")
+
+
+def test_analysis_modules_flag_full_on_healthy_chart():
+    chart = generate_chart(1998, 3, 21, 8, 30, name="星辰", gender="男", city="北京")
+    data = chart_to_dict(chart, include_analysis=True)
+
+    am = data["quality_flags"]["analysis_modules"]
+    assert am["status"] == "full"
+    assert am["fallback"] is False
+    assert am["degraded"] == []
+    assert "analysis" in data
+
+
+def test_analysis_modules_flag_marks_partial_on_submodule_failure(monkeypatch):
+    from ziwei.analysis import archetype as archetype_mod
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("forced archetype failure")
+
+    monkeypatch.setattr(archetype_mod, "compute_archetype", boom)
+
+    chart = generate_chart(1998, 3, 21, 8, 30, name="星辰", gender="男", city="北京")
+    data = chart_to_dict(chart, include_analysis=True)
+
+    am = data["quality_flags"]["analysis_modules"]
+    assert am["status"] == "partial"
+    assert am["fallback"] is True
+    assert "archetype_rarity" in am["degraded"]
+    assert "forced archetype failure" in am["errors"]["archetype_rarity"]
+    # 单个子模块失败不应拖垮整体分析输出
+    assert "analysis" in data

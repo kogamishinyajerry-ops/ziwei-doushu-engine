@@ -643,7 +643,10 @@ def _derive_key_ages(chart_data) -> List[dict]:
                     "event": evt[1],
                     "type": evt[2],
                 })
-            except: pass
+            except (ValueError, IndexError, KeyError):
+                # 大限区间字符串解析失败时跳过该节点 (best-effort 时间轴),
+                # 但不再用裸 except 吞掉 KeyboardInterrupt/SystemExit。
+                continue
     
     # 添加四化触发节点 (关键年龄)
     sihua = {}

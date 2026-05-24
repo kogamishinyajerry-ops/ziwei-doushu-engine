@@ -82,6 +82,18 @@ def test_bazi():
     assert data["chart_summary"]["name"] == "星辰"
 
 
+def test_liunian_defaults_to_current_year_not_hardcoded():
+    from datetime import datetime
+
+    resp = client.get("/api/liunian", params=birth_params(count=1))
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert isinstance(data["liunian"], list) and data["liunian"]
+    # 默认目标流年应跟随当前年, 而不是历史硬编码的 2026
+    assert data["liunian"][0]["year"] == datetime.now().year
+
+
 def test_hepan():
     payload = {
         "name1": "甲",

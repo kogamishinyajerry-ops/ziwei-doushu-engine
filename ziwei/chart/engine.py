@@ -326,6 +326,9 @@ def chart_to_dict(chart: ChartData, include_analysis: bool = False) -> dict:
     }
     
     if include_analysis:
+        # 记录各扩展分析子模块的降级情况，便于前端/调用方观测，
+        # 而不是像以前那样静默 pass 丢失信号。
+        _analysis_degraded: Dict[str, str] = {}
         try:
             # 优先使用深度分析引擎
             from ..analysis.deep_analyzer import (
@@ -362,16 +365,16 @@ def chart_to_dict(chart: ChartData, include_analysis: bool = False) -> dict:
                     name_result = analyze_name(chart.name, chart.wuxing_ju_name)
                     if name_result:
                         enhanced["name_analysis"] = name_result
-                except Exception:
-                    pass
+                except Exception as e:
+                    _analysis_degraded["name_analysis"] = str(e)
             
             # ── 人格原型 + 稀有度 ──
             try:
                 from ..analysis.archetype import compute_archetype, compute_rarity
                 enhanced["archetype"] = compute_archetype(chart, palace_stars_map, star_to_branch)
                 enhanced["rarity"] = compute_rarity(chart)
-            except Exception:
-                pass
+            except Exception as e:
+                _analysis_degraded["archetype_rarity"] = str(e)
             
             # ── 命格个性系统 (小红书分享核心) ──
             try:
@@ -410,13 +413,21 @@ def chart_to_dict(chart: ChartData, include_analysis: bool = False) -> dict:
                 }
                 enhanced["element_theme"] = theme
                 enhanced["share"] = share
-            except Exception:
-                pass
-            
+            except Exception as e:
+                _analysis_degraded["personality"] = str(e)
+
             result["analysis"] = enhanced
-        except Exception:
-            pass
-    
+        except Exception as e:
+            _analysis_degraded["core"] = str(e)
+
+        # 暴露分析层降级信号 (纯新增兼容字段, 不改变既有 analysis 内容)
+        result["quality_flags"]["analysis_modules"] = {
+            "status": "partial" if _analysis_degraded else "full",
+            "fallback": bool(_analysis_degraded),
+            "degraded": sorted(_analysis_degraded.keys()),
+            "errors": _analysis_degraded,
+        }
+
     # 添加真太阳时信息
     if chart.solar_correction:
         result["solar_correction"] = chart.solar_correction
