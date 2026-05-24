@@ -99,5 +99,11 @@ def test_desktop_renders_honest_advisor_layer():
 def test_desktop_wheel_draws_flying_sihua_lines():
     html = read_frontend("desktop/index.html")
     assert "flying_sihua" in html
-    assert "jiEdges" in html
-    assert "宫干化忌飞星" in html
+    # 禄/权/科/忌 四类线切换器
+    assert "setFlyingType" in html
+    assert "SIHUA_COLORS" in html
+    for t in ("化禄", "化权", "化科", "化忌"):
+        assert t in html
+    # 切换控件 + 默认高亮化忌
+    assert 'data-fly="化忌"' in html
+    assert "fly-toggle" in html
