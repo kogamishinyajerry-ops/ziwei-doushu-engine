@@ -207,21 +207,62 @@ body {
 .palace-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  grid-template-rows: repeat(4, minmax(96px, auto));
+  gap: 8px;
 }
 
 .palace-card {
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 14px;
+  padding: 8px 9px;
   position: relative;
-  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s, transform .1s;
 }
+.palace-card:hover { border-color: var(--text3); }
 
 .palace-card.ming { border-color: var(--accent); background: rgba(167,139,250,0.08); }
 .palace-card.shen { border-color: var(--gold); background: rgba(245,158,11,0.08); }
 .palace-card.fuqi { border-color: var(--pink); background: rgba(244,114,182,0.08); }
+/* 三方四正高亮 */
+.palace-card.sanfang { box-shadow: inset 0 0 0 2px var(--accent, #a78bfa); }
+.palace-card.sanfang-anchor {
+  box-shadow: inset 0 0 0 2px var(--gold, #f59e0b);
+  background: rgba(245,158,11,0.12);
+}
+
+/* 中宫命主信息 (4×4 盘面正中 2×2) */
+.palace-center {
+  grid-column: 2 / 4;
+  grid-row: 2 / 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(167,139,250,0.06), rgba(245,158,11,0.05));
+  padding: 10px;
+}
+.pc-name { font-size: 20px; font-weight: 700; color: var(--text); }
+.pc-sub { font-size: 12px; color: var(--text2); }
+.pc-pillars { font-size: 14px; color: var(--gold, #f59e0b); letter-spacing: 2px; margin: 2px 0; }
+.pc-hint { font-size: 10px; color: var(--text3); margin-top: 6px; }
+
+/* 宫位底部: 干支 + 大限 */
+.palace-foot {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text3);
+  padding-top: 4px;
+}
 
 .palace-name {
   font-size: 12px;
@@ -726,7 +767,10 @@ body {
   .sidebar-logo h1, .sidebar-logo span, .nav-item span:last-child { display: none; }
   .nav-item { justify-content: center; padding: 12px; }
   .main { margin-left: 60px; padding: 16px; }
-  .palace-grid { grid-template-columns: repeat(3, 1fr); }
+  /* 4×4 盘面在窄屏保持 4 列 (地支固定格位), 仅缩小行高 */
+  .palace-grid { grid-template-rows: repeat(4, minmax(72px, auto)); gap: 5px; }
+  .palace-card { padding: 5px 6px; }
+  .palace-stars { font-size: 11px; }
   .two-col, .hepan-two-form { grid-template-columns: 1fr; }
   .info-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -1145,32 +1189,51 @@ function renderPaipanResult(data) {
     document.getElementById('star-bar').insertAdjacentHTML('afterend', dimHtml);
   }
 
-  // 十二宫
+  // 十二宫 — 传统 4×4 盘面 (12 宫按地支固定格位排外圈, 中宫命主信息)
+  const BR12 = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const CELL = {  // 地支 → [col,row] (传统紫微盘面固定布局)
+    '巳':[1,1],'午':[2,1],'未':[3,1],'申':[4,1],
+    '辰':[1,2],                      '酉':[4,2],
+    '卯':[1,3],                      '戌':[4,3],
+    '寅':[1,4],'丑':[2,4],'子':[3,4],'亥':[4,4],
+  };
   const palaces = data.palaces || [];
   let pg = '';
-  palaces.forEach((p, i) => {
+  palaces.forEach((p) => {
     const starArr = (p.stars || []);
     const stars = starArr.length
-      ? starArr.map(s => `<span class="star-chip" onclick="showStarWhy('${s}')" title="点击看为什么">${s}</span>`).join('')
+      ? starArr.map(s => `<span class="star-chip" onclick="event.stopPropagation();showStarWhy('${s}')" title="点击看为什么">${s}</span>`).join('')
       : '<span style="color:var(--text3)">—</span>';
     const sihuaList = (p.sihua || []);
     let cls = '';
-    if (i === 0) cls = 'ming';
-    if (p.is_body) cls = 'shen';
-    if (p.name === '夫妻') cls = 'fuqi';
+    if (p.name === '命宫') cls += ' ming';
+    if (p.is_body) cls += ' shen';
+    if (p.name === '夫妻') cls += ' fuqi';
+    const cell = CELL[p.branch] || [1, 1];
+    const bi = BR12.indexOf(p.branch);
     pg += `
-      <div class="palace-card ${cls}">
-        <div class="palace-name">
-          <span>${p.name}</span>
-          ${i === 0 ? '<span class="ming-badge">命宫</span>' : ''}
-          ${p.is_body ? '<span class="body-badge">身宫</span>' : ''}
-        </div>
-        <div class="palace-ganzhi">${p.ganzhi||p.stem+p.branch}</div>
+      <div class="palace-card${cls}" data-bi="${bi}"
+           style="grid-column:${cell[0]};grid-row:${cell[1]};"
+           onclick="highlightSanfang(${bi})" title="点击高亮三方四正">
+        <div class="palace-name"><span>${p.name}</span>
+          ${p.name==='命宫'?'<span class="ming-badge">命</span>':''}
+          ${p.is_body?'<span class="body-badge">身</span>':''}</div>
         <div class="palace-stars">${stars}</div>
-        ${sihuaList.length ? `<div class="palace-sihua">${sihuaList.join(' ')}</div>` : ''}
-        ${p.daxian ? `<div style="font-size:10px;color:var(--text3);margin-top:4px;">大限: ${p.daxian}</div>` : ''}
+        ${sihuaList.length?`<div class="palace-sihua">${sihuaList.join(' ')}</div>`:''}
+        <div class="palace-foot"><span>${p.ganzhi||p.stem+p.branch}</span>${p.daxian?`<span>${p.daxian}</span>`:''}</div>
       </div>`;
   });
+  // 中宫信息
+  const cfp = data.four_pillars || {};
+  pg += `
+    <div class="palace-center">
+      <div class="pc-name">${data.name||'命主'}</div>
+      <div class="pc-sub">${data.gender||''} · ${data.zodiac||''}</div>
+      <div class="pc-pillars">${cfp.year||''} ${cfp.month||''} ${cfp.day||''} ${cfp.hour||''}</div>
+      <div class="pc-sub">五行局：${data.wuxing_ju||''}</div>
+      <div class="pc-sub">命宫 ${data.ming_palace||''}　身宫 ${data.shen_palace||''}</div>
+      <div class="pc-hint">点宫位看三方四正 · 点星曜看为什么</div>
+    </div>`;
   document.getElementById('palace-grid').innerHTML = pg;
 
   // 分析 Tabs
@@ -1208,6 +1271,19 @@ function showStarWhy(star) {
 function closeStarWhy() {
   const panel = document.getElementById('star-why-panel');
   if (panel) panel.style.display = 'none';
+}
+
+// ── 三方四正高亮 (本宫 + 对宫 idx+6 + 三合 idx±4); 再点同一本宫则清除 ──
+let _sanfangAnchor = null;
+function highlightSanfang(bi) {
+  const clear = (_sanfangAnchor === bi);
+  _sanfangAnchor = clear ? null : bi;
+  const set = clear ? new Set() : new Set([bi, (bi + 6) % 12, (bi + 4) % 12, (bi + 8) % 12]);
+  document.querySelectorAll('#palace-grid .palace-card').forEach(c => {
+    const cbi = parseInt(c.dataset.bi, 10);
+    c.classList.toggle('sanfang', set.has(cbi));
+    c.classList.toggle('sanfang-anchor', !clear && cbi === bi);
+  });
 }
 
 function renderAnalysisTabs(analysis) {
