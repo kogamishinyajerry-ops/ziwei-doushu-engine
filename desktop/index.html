@@ -252,6 +252,10 @@ body {
 .pc-name { font-size: 20px; font-weight: 700; color: var(--text); }
 .pc-sub { font-size: 12px; color: var(--text2); }
 .pc-pillars { font-size: 14px; color: var(--gold, #f59e0b); letter-spacing: 2px; margin: 2px 0; }
+.pc-fp {
+  font-size: 11px; color: var(--accent, #a78bfa); margin-top: 4px;
+  font-family: ui-monospace, monospace; cursor: help;
+}
 .pc-hint { font-size: 10px; color: var(--text3); margin-top: 6px; }
 
 /* 宫位底部: 干支 + 大限 */
@@ -1232,6 +1236,7 @@ function renderPaipanResult(data) {
       <div class="pc-pillars">${cfp.year||''} ${cfp.month||''} ${cfp.day||''} ${cfp.hour||''}</div>
       <div class="pc-sub">五行局：${data.wuxing_ju||''}</div>
       <div class="pc-sub">命宫 ${data.ming_palace||''}　身宫 ${data.shen_palace||''}</div>
+      ${(data.fingerprint&&data.fingerprint.fingerprint)?`<div class="pc-fp" title="可验证指纹: 用同一生辰重排可复算此值, 证明此盘未被编造/篡改">🔖 ${data.fingerprint.fingerprint}</div>`:''}
       <div class="pc-hint">点宫位看三方四正 · 点星曜看为什么</div>
     </div>`;
   document.getElementById('palace-grid').innerHTML = pg;

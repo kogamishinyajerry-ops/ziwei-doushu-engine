@@ -79,3 +79,10 @@ def test_desktop_has_trust_page_and_huoling_selector():
     # 流派切换器前端
     assert 'id="p-huoling"' in html
     assert "songban" in html and "mainstream" in html
+
+
+def test_desktop_shows_verifiable_fingerprint():
+    html = read_frontend("desktop/index.html")
+    assert "fingerprint" in html
+    assert "pc-fp" in html
+    assert "可验证指纹" in html

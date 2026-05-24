@@ -331,7 +331,11 @@ def chart_to_dict(chart: ChartData, include_analysis: bool = False) -> dict:
         "daxian": chart.daxian,
         "quality_flags": chart.quality_flags,
     }
-    
+
+    # 可验证指纹 (确定性, 可复算校验)
+    from .fingerprint import chart_fingerprint
+    result["fingerprint"] = chart_fingerprint(chart)
+
     if include_analysis:
         # 记录各扩展分析子模块的降级情况，便于前端/调用方观测，
         # 而不是像以前那样静默 pass 丢失信号。
