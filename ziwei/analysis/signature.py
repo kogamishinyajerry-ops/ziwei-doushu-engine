@@ -154,16 +154,10 @@ def extract_signature(chart_dict: dict) -> dict:
 
     # ── 开篇 top3 专属锚点 (优先级挑选, 越独特越靠前) ──
     anchors = []
-    # a) 四化俱全 / 高稀缺 bonus
-    sihua_complete = any(b.get("type") == "sihua" for b in bonuses)
-    if sihua_complete:
-        anchors.append({
-            "tag": "稀缺",
-            "title": "你的生年四化俱全",
-            "detail": f"禄权科忌四星各就各位({'、'.join(f'{k}{v}' for k, v in sihua.items())}), "
-                      "命局动力完整——这是少数盘才有的'四轮驱动'。",
-        })
-    # b) 化忌落宫 = 隐性成本 (犀利抓手)
+    # 注意: 不把"生年四化俱全"当锚点 — 几乎每张盘都四化俱全(年干定四化, 主星必落盘),
+    # 它没有区分度, 当"专属锚点"既千篇一律又违背诚实/专属定位。锚点只取真正区分盘的特征。
+
+    # a) 化忌落宫 = 隐性成本 (犀利抓手, 12 宫各异 → 高区分度)
     if ji_star and ji_palace:
         anchors.append({
             "tag": "成本",
@@ -171,7 +165,15 @@ def extract_signature(chart_dict: dict) -> dict:
             "detail": f"{ji_star}化忌坐{ji_palace}, 这是你这辈子最容易'用力过猛却反噬自己'的地方, "
                       "不是命不好, 是这股能量需要被你看见并驯服。",
         })
-    # c) 最强格局
+    # b) 命主星组合 (不同盘命主主星不同 → 高区分度)
+    if ming_mains:
+        anchors.append({
+            "tag": "命主",
+            "title": f"你是{ming_combo}坐命",
+            "detail": (destiny.get("tagline", "") or (archetype.get("tagline", "")) or
+                       f"命宫主星{'、'.join(ming_mains)}, 奠定你的性格基调与人生主线。"),
+        })
+    # c) 最强格局 (成局与否、何种格局各异)
     if good_patterns:
         gp = good_patterns[0]
         anchors.append({
@@ -179,12 +181,17 @@ def extract_signature(chart_dict: dict) -> dict:
             "title": f"你成局了:{gp.get('name', '')}",
             "detail": gp.get("description", "")[:60],
         })
-    # d) 命主星组合(罕见)
-    if top_bonus and len(anchors) < 3:
+    # d) 罕见星曜组合 (排除 sihua 类的真正稀有组合)
+    combo_bonus = max(
+        (b for b in bonuses if b.get("type") != "sihua"),
+        key=lambda b: b.get("points", 0), default=None,
+    )
+    if combo_bonus and len(anchors) < 3:
         anchors.append({
-            "tag": "组合",
-            "title": f"命主配置:{ming_combo}",
-            "detail": top_bonus.get("desc", "") or (destiny.get("tagline", "")),
+            "tag": "稀有",
+            "title": f"你有罕见组合:{combo_bonus.get('desc', '')}",
+            "detail": f"稀缺度 {rarity.get('tier_label', '')}({rarity.get('score', '')}分), "
+                      "这类配置在多数盘里见不到。",
         })
     # e) 最强宫兜底
     if strongest[0] and len(anchors) < 3:
