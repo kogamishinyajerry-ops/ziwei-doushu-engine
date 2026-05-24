@@ -94,3 +94,10 @@ def test_desktop_renders_honest_advisor_layer():
     assert "msg-warn" in html
     assert "honesty" in html
     assert "高风险" in html or "顾问不是神谕" in html
+
+
+def test_desktop_wheel_draws_flying_sihua_lines():
+    html = read_frontend("desktop/index.html")
+    assert "flying_sihua" in html
+    assert "jiEdges" in html
+    assert "宫干化忌飞星" in html

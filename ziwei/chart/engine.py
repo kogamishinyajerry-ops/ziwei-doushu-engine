@@ -336,6 +336,10 @@ def chart_to_dict(chart: ChartData, include_analysis: bool = False) -> dict:
     from .fingerprint import chart_fingerprint
     result["fingerprint"] = chart_fingerprint(chart)
 
+    # 宫干飞化边 (飞星连线图数据源)
+    from .flying import compute_flying_sihua
+    result["flying_sihua"] = compute_flying_sihua(chart)
+
     if include_analysis:
         # 记录各扩展分析子模块的降级情况，便于前端/调用方观测，
         # 而不是像以前那样静默 pass 丢失信号。
