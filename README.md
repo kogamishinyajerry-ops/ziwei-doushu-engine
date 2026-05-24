@@ -58,9 +58,9 @@ Run these before handing work to another agent:
 .venv/bin/python -m compileall -q ziwei
 ```
 
-Current verified result after Slice 8:
+Current verified result (after the 2026-05-24 deep-takeover optimization):
 
-- `.venv/bin/python -m pytest -q` -> `37 passed`
+- `.venv/bin/python -m pytest -q` -> `63 passed`
 - `.venv/bin/python -m compileall -q ziwei` -> passed
 
 ## Main API Routes
@@ -174,6 +174,19 @@ curl 'http://localhost:8088/api/reading?year=1998&month=3&day=21&hour=8&minute=3
 
 ## Algorithm Confidence And Known Limits
 
+- Core main-star placement is now guarded by structural invariant tests
+  (`tests/test_chart_invariants.py`). These lock canonical, school-independent
+  rules: 紫微/天府 寅申-axis symmetry, 破军⇄天相 and 七杀⇄天府 opposition,
+  the 紫微-series / 天府-series within-series offsets, 12-palace bijection,
+  exactly four canonical 四化, and 擎羊/陀罗/左辅/右弼/文昌/文曲 placement.
+  The 2026-05-24 optimization fixed three P0 placement bugs found this way:
+  天府-series on the wrong (卯酉) reflection axis, 廉贞 at `紫微-7` (should be
+  `-8`), and 破军 at `天府+7` (should be `+10`, "七杀空三破军"). These
+  misplaced 8+ main stars on every chart before the fix.
+- These invariants verify *structural* correctness, not interpretive depth.
+  Interpretation text, school-specific 流派 variants, second-level solar-term
+  precision, and 天魁/天钺/火铃 per-stem-branch tables remain sample/rule-locked,
+  not authoritatively benchmarked.
 - Public API input validation is mostly scoped to years `1900..2100`, valid
   month/day ranges, and valid hour/minute ranges. Do not document broader date
   support without new tests.
@@ -191,8 +204,8 @@ curl 'http://localhost:8088/api/reading?year=1998&month=3&day=21&hour=8&minute=3
 - Use this project for local demonstration and engineering validation. It should
   not be used as the sole basis for investment, marriage, health, legal, or
   other high-stakes decisions.
-- `/api/liunian` currently has a default `target_year=2026`; callers should pass
-  the target year explicitly for stable behavior.
+- `/api/liunian` defaults `target_year` to the current calendar year
+  (`datetime.now().year`); pass it explicitly for reproducible results.
 - `desktop/` and several `ziwei/analysis/*` files were already untracked or
   dirty during takeover. Do not delete or reset them as cleanup.
 - The UI and API are designed for local use. Production deployment still needs a
