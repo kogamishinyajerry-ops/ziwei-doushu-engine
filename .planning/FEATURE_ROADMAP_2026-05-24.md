@@ -4,7 +4,17 @@
 marketplace, 而是把刚完成的工程级算法审计 (68 tests + 结构不变量 + Codex 异源验证)
 变成产品灵魂。详细战略见本 session 对话记录。
 
-用户已选定先做三项 (按依赖+风险排序执行)。**状态: A/B/C/D 全部完成, 78 passed, 已 push。**
+用户已选定先做三项 (按依赖+风险排序执行)。**状态: A/B/C/D 全部完成。**
+
+## 深水区 (第二批, 全部完成 · 95 passed · 已 push)
+- **E 专业传统盘面**: 12宫地支4×4布局 + 中宫命主 + 三方四正点击高亮 (Playwright 视觉验证)。
+- **②命盘可验证指纹**: `fingerprint.py` 确定性 SHA-256, 同生辰可复算校验, UI 展示。
+- **①AI诚实顾问层**: advisor `_apply_honesty_layer` — grounding 来源 + 高风险护栏
+  (健康/婚否/财务/法律→不下决定论+封顶confidence) + 局限声明; /api/ask 暴露; 前端渲染。
+- **③圆形飞星连线图**: `flying.py` 宫干飞化(SSOT) → 轮图叠加化忌飞星红线;
+  附带修复轮图/八字面板 pre-existing `data` 作用域 bug (Playwright 视觉验证)。
+
+全部状态: 95 passed, 25 提交, 已 push github.com/kogamishinyajerry-ops/ziwei-doushu-engine。
 
 ## Phase A — 安星规则即数据 + /api/explain (基础, 最先)
 - `ziwei/chart/explain.py`: 给定 ChartData, 为每颗星产出 {规则名, 公式, 推导(代入实际索引), 出处}。

@@ -60,7 +60,7 @@ Run these before handing work to another agent:
 
 Current verified result (after the 2026-05-24 deep-takeover optimization):
 
-- `.venv/bin/python -m pytest -q` -> `78 passed`
+- `.venv/bin/python -m pytest -q` -> `95 passed`
 - `.venv/bin/python -m compileall -q ziwei` -> passed
 
 ## Main API Routes
