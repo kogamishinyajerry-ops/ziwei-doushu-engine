@@ -76,6 +76,9 @@
   .t-ji{background:rgba(239,68,68,.06);color:var(--ji);border:1px solid rgba(239,68,68,.1)}
   .t-good{background:rgba(34,197,94,.05);color:#16a34a;border:1px solid rgba(34,197,94,.1)}
   .t-warn{background:rgba(239,68,68,.05);color:#dc2626;border:1px solid rgba(239,68,68,.1)}
+  .quality-flags{display:flex;flex-direction:column;gap:6px;margin:10px auto 0;max-width:260px}
+  .quality-flag{padding:6px 10px;border-radius:12px;font-size:.58em;line-height:1.45;background:rgba(34,197,94,.05);color:#16a34a;border:1px solid rgba(34,197,94,.12)}
+  .quality-flag.warn{background:rgba(200,150,64,.07);color:#a86f18;border-color:rgba(200,150,64,.2)}
 
   .nav{position:fixed;bottom:0;left:0;right:0;z-index:100;padding:14px 20px 28px;display:flex;justify-content:center;align-items:center;gap:14px;background:linear-gradient(transparent,rgba(250,248,245,.98) 45%)}
   .nav-btn{padding:12px 30px;border-radius:22px;font-size:.82em;font-weight:600;letter-spacing:.04em;border:none;cursor:pointer;transition:all .3s;font-family:var(--font)}
@@ -144,21 +147,52 @@ async function loadChart(){
   var name=fv.name||'星辰';
   for(var i=0;i<3;i++){showLoadPhase(i,name);await sleep(loadPhases[i].delay)}
   var fp=fetch('/api/chart/full?'+new URLSearchParams(fv));showLoadPhase(3,name);
-  try{var r=await fp;if(!r.ok){var e=await r.json();throw new Error(e.detail||'排盘失败')}cd=await r.json();ad=cd.analysis||{};
+  try{var r=await fp;if(!r.ok){var e={};try{e=await r.json()}catch(_e){}throw new Error(apiError(e,r))}cd=await r.json();if(cd.error)throw new Error(cd.error);ad=cd.analysis||{};
     if(ad.rarity&&ad.rarity.score){var j=(Math.random()-.5)*2.5;ad.rarity.score=Math.max(90,Math.min(100,Math.round((ad.rarity.score+j)*10)/10))}
     showLoadPhase(5,name);await sleep(400);
     buildPages(fh);tp=document.querySelectorAll('.page').length;if(tp<2)throw new Error('页面未能生成');goTo(1)}
   catch(e2){var em=e2.message||'未知错误';deck.innerHTML='<div class="page current"><div class="crd"><div class="crd-icon" style="font-size:2.5em">😔</div><div class="crd-body" style="font-size:1.2em;color:#e85d5d">解读失败</div><div class="crd-hint">'+em+'</div></div><button class="nav-btn pri" style="margin-top:16px" onclick="location.reload()">重试</button></div>';tp=1;cp=0}
   document.getElementById('navBtn').disabled=false;updateNav()}
-function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+  function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function apiError(data,resp){var d=data&&(data.detail||data.error);if(Array.isArray(d))return d.map(function(x){return x.msg||JSON.stringify(x)}).join('; ');return d||((resp&&resp.status)||'')+' '+((resp&&resp.statusText)||'请求失败')}
+
+function renderQualityFlags(flags){
+  if(!flags||typeof flags!=='object'||Array.isArray(flags))return'';
+  var rows=[];
+  addQualityFlag(rows,'solar_time',flags.solar_time);
+  addQualityFlag(rows,'lunar',flags.lunar);
+  addQualityFlag(rows,'llm',flags.llm);
+  if(!rows.length)return'';
+  return'<div class="quality-flags">'+rows.join('')+'</div>'
+}
+
+function addQualityFlag(rows,key,flag){
+  if(!flag||typeof flag!=='object'||Array.isArray(flag))return;
+  var status=String(flag.status||''),labels={solar_time:'真太阳时',lunar:'农历',llm:'AI解读'};
+  var detail=flag.message||flag.reason||flag.source||flag.city||'';
+  var warnStatuses={unknown_city:1,failed:1,fallback:1,local_fallback:1,unavailable:1};
+  var cls='quality-flag'+((flag.fallback||warnStatuses[status])?' warn':'');
+  var text=qualityStatusText(key,status);
+  if(detail)text+=' · '+detail;
+  rows.push('<span class="'+cls+'"><b>'+esc(labels[key]||key)+'</b>: '+esc(text)+'</span>')
+}
+
+function qualityStatusText(key,status){
+  var m={
+    solar_time:{not_requested:'未请求校正',checked:'已校验',corrected:'已校正',unknown_city:'城市未匹配',failed:'校正失败'},
+    lunar:{pending:'待计算',ok:'已换算',fallback:'使用回退'},
+    llm:{llm_ok:'已返回',local_fallback:'本地回退',unavailable:'不可用'}
+  };
+  return(m[key]&&m[key][status])||status||'已记录'
+}
 
 function pg(id,glow,title,body,ec){return'<div class="page below" id="p'+id+'"><div class="crd '+(ec||glow||'')+'" style="border-color:'+(glow==='glow'||glow==='hero-card'?(ad.rarity||{}).color||'#c89640':'rgba(0,0,0,.04)')+'"><div class="crd-title">✦ '+title+' ✦</div>'+body+'</div></div>'}
 
 function buildPages(fh){
   var h='<div class="page above" id="p0">'+fh+'</div>',rar=ad.rarity||{},dc=ad.destiny_code||{},dims=ad.dimensions||{},cpX=ad.career_path||{},kas=ad.key_ages||[],pers=ad.personality||{},th=ad.element_theme||{},tc=rar.color||'#c89640',dp=rar.deep_analysis||{},ul=dp.unlocked||false;
   var bs='',bss=rar.bonuses||[];for(var b=0;b<Math.min(bss.length,4);b++)bs+='<span class="bonus-tag">'+esc(bss[b].desc)+'</span>';
-  h+=pg(1,'glow','命盘品级','<div class="crd-icon">'+(TIER[rar.tier]||'✨')+'</div><div class="rar-badge" style="color:'+tc+';border-color:'+tc+'">'+(rar.tier||'?')+' &middot; '+(rar.tier_label||'')+'</div><div class="rar-tier" style="color:'+tc+'">'+((rar.score||90)).toFixed(1)+'</div><div class="rar-desc">'+esc(rar.rank_text||'')+'</div>'+(bs?'<div class="sep"></div><div class="bonus-row">'+bs+'</div>':'')+(ul?'<div class="crd-hint" style="color:'+tc+'">👑 旷世奇才 · 深度命格已解锁</div>':''),'hero-card');
+  h+=pg(1,'glow','命盘品级','<div class="crd-icon">'+(TIER[rar.tier]||'✨')+'</div><div class="rar-badge" style="color:'+tc+';border-color:'+tc+'">'+(rar.tier||'?')+' &middot; '+(rar.tier_label||'')+'</div><div class="rar-tier" style="color:'+tc+'">'+((rar.score||90)).toFixed(1)+'</div><div class="rar-desc">'+esc(rar.rank_text||'')+'</div>'+renderQualityFlags(cd.quality_flags)+(bs?'<div class="sep"></div><div class="bonus-row">'+bs+'</div>':'')+(ul?'<div class="crd-hint" style="color:'+tc+'">👑 旷世奇才 · 深度命格已解锁</div>':''),'hero-card');
   h+=pg(2,'glow','你的命码','<div class="code-icon">'+esc(dc.emoji||'✨')+'</div><div class="code-name" style="color:'+tc+'">'+esc(dc.full_name||'天命')+'</div><div class="code-quote">「'+esc(dc.tagline||'')+'」</div><div class="kw-row">'+(dc.keywords||[]).map(function(k){return'<span class="kw">'+esc(k)+'</span>'}).join('')+'</div><div class="sep"></div><div class="crd-hint">'+(th.name||'')+'元素 &middot; '+(th.vibe||'')+' &middot; 命宫'+(cd.ming_palace||'')+'</div>');
   h+=pg(3,'glow','五维雷达',radarSVG(dims)+'<div class="crd-hint">'+Object.values(dims).map(function(d){return'<span style="margin:0 3px">'+d.emoji+' '+d.name+' <b>'+d.score+'</b></span>'}).join('')+'</div>');
   h+=pg(4,'glow','命盘星图',wheelSVG()+'<div class="crd-hint">'+(cd.ming_palace||'')+'坐命 &middot; '+(cd.wuxing_ju||'')+' &middot; '+(cd.zodiac||'')+'</div>');

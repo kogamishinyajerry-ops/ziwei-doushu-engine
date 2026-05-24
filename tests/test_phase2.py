@@ -2,10 +2,13 @@
 Phase 2 安星排盘引擎验证测试
 """
 
-import sys
-sys.path.insert(0, '/Users/Zhuanz/ziwei-doushu')
-
 from datetime import datetime
+from pathlib import Path
+import sys
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 from ziwei.calendar.ganzhi import calculate_four_pillars, chinese_hour_from_time
 from ziwei.calendar.constants import EARTHLY_BRANCHES, PALACE_NAMES
 
@@ -41,7 +44,6 @@ def test_palace_layout():
     print(f"  六月午时: 命宫={EARTHLY_BRANCHES[layout3.ming_index]}")
     
     print("✅ place_palaces: 通过")
-    return layout
 
 
 def test_stems_and_wuxing_ju():
@@ -63,7 +65,6 @@ def test_stems_and_wuxing_ju():
     print(f"  五行局: {layout.wuxing_ju_name} ({layout.ming_nayin})")
     
     print("✅ stems & wuxing_ju: 通过")
-    return layout
 
 
 def test_ziwei_placement():
@@ -151,7 +152,6 @@ def test_all_stars():
     print(f"  甲年四化: {get_sihua_stars('甲')}")
     
     print("✅ all_stars: 通过")
-    return stars
 
 
 def test_four_pillars_integration():

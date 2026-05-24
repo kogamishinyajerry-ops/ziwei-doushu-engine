@@ -56,6 +56,7 @@ class ChartData:
     birth_time: str = ""        # 出生时间
     birth_city: str = ""        # 出生城市
     solar_correction: dict = field(default_factory=dict)  # 真太阳时校正信息
+    quality_flags: Dict[str, dict] = field(default_factory=dict)  # 回退/质量信号
     
     # 四柱
     year_pillar: str = ""
@@ -120,6 +121,10 @@ def generate_chart(
     chart.birth_date = f"{year}-{month:02d}-{day:02d}"
     chart.birth_time = f"{hour:02d}:{minute:02d}"
     chart.birth_city = city
+    chart.quality_flags = {
+        "solar_time": {"status": "not_requested", "fallback": False},
+        "lunar": {"status": "pending", "fallback": False},
+    }
     
     # ── 0. 真太阳时校正 ──
     corrected_hour, corrected_minute = hour, minute
@@ -131,8 +136,27 @@ def generate_chart(
             corrected_hour = solar_info["corrected_hour"]
             corrected_minute = solar_info["corrected_minute"]
             chart.solar_correction = solar_info
-        except Exception:
-            pass
+            if solar_info.get("province") == "未知":
+                chart.quality_flags["solar_time"] = {
+                    "status": "unknown_city",
+                    "fallback": True,
+                    "city": city,
+                    "message": "未匹配城市经纬度，使用钟表时间",
+                }
+            else:
+                chart.quality_flags["solar_time"] = {
+                    "status": "corrected" if solar_info.get("hour_changed") else "checked",
+                    "fallback": False,
+                    "city": city,
+                    "hour_changed": bool(solar_info.get("hour_changed")),
+                }
+        except Exception as e:
+            chart.quality_flags["solar_time"] = {
+                "status": "failed",
+                "fallback": True,
+                "city": city,
+                "reason": str(e),
+            }
     
     # ── 1. 四柱 ──
     pillars = calculate_four_pillars(year, month, day, corrected_hour, corrected_minute)
@@ -158,12 +182,18 @@ def generate_chart(
         chart.lunar_month = lunar.month
         chart.lunar_day = lunar.day
         chart.lunar_date = str(lunar)
-    except Exception:
+        chart.quality_flags["lunar"] = {"status": "ok", "fallback": False}
+    except Exception as e:
         # fallback: 用节气推算月数
         dt = datetime(year, month, day, hour, minute)
         chart.lunar_month = get_lunar_month_by_jieqi(dt)
         chart.lunar_day = day  # 近似
         chart.lunar_date = f"农历{chart.lunar_month}月{chart.lunar_day}日"
+        chart.quality_flags["lunar"] = {
+            "status": "fallback",
+            "fallback": True,
+            "reason": str(e),
+        }
     
     # ── 3. 排十二宫 ──
     layout = place_palaces(chart.lunar_month, hour_branch)
@@ -171,7 +201,11 @@ def generate_chart(
     layout = determine_wuxing_ju(layout)
     
     chart.ming_palace = f"{layout.ming_stem}{layout.ming_branch}"
-    chart.shen_palace = f"{layout.stems.get('命宫', '')}{EARTHLY_BRANCHES[layout.shen_index]}"
+    shen_palace_name = next(
+        name for name, branch_idx in layout.palaces.items()
+        if branch_idx == layout.shen_index
+    )
+    chart.shen_palace = f"{layout.stems.get(shen_palace_name, '')}{EARTHLY_BRANCHES[layout.shen_index]}"
     chart.wuxing_ju = layout.wuxing_ju
     chart.wuxing_ju_name = layout.wuxing_ju_name
     chart.ming_nayin = layout.ming_nayin
@@ -288,6 +322,7 @@ def chart_to_dict(chart: ChartData, include_analysis: bool = False) -> dict:
         "sihua": {v: k for k, v in chart.sihua_map.items()}
         if chart.sihua_map else {},
         "daxian": chart.daxian,
+        "quality_flags": chart.quality_flags,
     }
     
     if include_analysis:

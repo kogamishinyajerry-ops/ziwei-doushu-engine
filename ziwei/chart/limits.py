@@ -20,8 +20,8 @@ from ..calendar.constants import (
 @dataclass
 class LimitsLayout:
     """大限小限布局."""
-    # 大限: {宫名: (起始年龄, 结束年龄)}
-    daxian: Dict[str, tuple] = field(default_factory=dict)
+    # 大限: {顺序索引: (起始年龄, 结束年龄, 地支索引)}
+    daxian: Dict[int, tuple] = field(default_factory=dict)
     
     # 小限: {年龄: 宫名}
     xiaoxian: Dict[int, str] = field(default_factory=dict)

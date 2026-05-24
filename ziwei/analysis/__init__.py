@@ -52,6 +52,20 @@ from .personality import (
     Dimension,
 )
 
+from .bazi import (
+    analyze_bazi,
+    analyze_liunian_bazi,
+    analyze_multi_years_bazi,
+    bazi_to_dict,
+    liunian_bazi_to_dict,
+    year_ganzhi as bazi_year_ganzhi,
+    TEN_GODS,
+    TEN_GOD_EMOJI,
+    TEN_GOD_NATURE,
+    BaziAnalysis,
+    LiunianBazi,
+)
+
 from .name_analysis import (
     analyze_name,
     calculate_five_grid,
@@ -81,6 +95,11 @@ __all__ = [
     # Personality
     "generate_destiny_code", "calculate_dimensions",
     "generate_share_text", "get_element_theme", "Dimension",
+    # Bazi
+    "analyze_bazi", "analyze_liunian_bazi", "analyze_multi_years_bazi",
+    "bazi_to_dict", "liunian_bazi_to_dict", "bazi_year_ganzhi",
+    "TEN_GODS", "TEN_GOD_EMOJI", "TEN_GOD_NATURE",
+    "BaziAnalysis", "LiunianBazi",
     # Name Analysis
     "analyze_name", "calculate_five_grid", "full_name_analysis",
     # LLM Prompt

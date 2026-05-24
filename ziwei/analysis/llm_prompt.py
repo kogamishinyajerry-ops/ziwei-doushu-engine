@@ -161,6 +161,9 @@ def _get_api_config(api_key: str = None, base_url: str = None, model: str = None
     Returns:
         (api_key, base_url, model, provider_name)
     """
+    if provider == "auto":
+        provider = None
+
     # 如果显式指定了 provider
     if provider == "minimax":
         key = api_key or os.environ.get("MINIMAX_API_KEY") or ""
@@ -186,8 +189,22 @@ def _get_api_config(api_key: str = None, base_url: str = None, model: str = None
         mdl = model or os.environ.get("MINIMAX_MODEL") or "MiniMax-M2.7"
         return mm_key, url, mdl, "minimax"
     
-    # 2. DeepSeek (default fallback)
-    key = api_key or os.environ.get("DEEPSEEK_API_KEY") or os.environ.get("OPENAI_API_KEY") or ""
+    # 2. DeepSeek
+    ds_key = os.environ.get("DEEPSEEK_API_KEY", "")
+    if ds_key and not api_key:
+        url = base_url or os.environ.get("DEEPSEEK_BASE_URL") or "https://api.deepseek.com/v1"
+        mdl = model or os.environ.get("DEEPSEEK_MODEL") or "deepseek-chat"
+        return ds_key, url, mdl, "deepseek"
+
+    # 3. OpenAI
+    openai_key = os.environ.get("OPENAI_API_KEY", "")
+    if openai_key and not api_key:
+        url = base_url or os.environ.get("OPENAI_BASE_URL") or "https://api.openai.com/v1"
+        mdl = model or os.environ.get("OPENAI_MODEL") or "gpt-4o"
+        return openai_key, url, mdl, "openai"
+
+    # No detected key: keep DeepSeek defaults for local fallback metadata.
+    key = api_key or ""
     url = base_url or os.environ.get("DEEPSEEK_BASE_URL") or "https://api.deepseek.com/v1"
     mdl = model or os.environ.get("DEEPSEEK_MODEL") or "deepseek-chat"
     return key, url, mdl, "deepseek"
