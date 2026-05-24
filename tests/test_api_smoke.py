@@ -277,3 +277,17 @@ def test_invalid_chart_input_returns_validation_error():
     assert resp.status_code == 422
     data = resp.json()
     assert "detail" in data
+
+
+def test_chart_full_huoling_variant_param():
+    # 默认 mainstream 可用
+    r1 = client.get("/api/chart/full", params=birth_params())
+    assert r1.status_code == 200
+    assert r1.json()["quality_flags"]["school"]["huoling"] == "mainstream"
+    # songban 变体可用
+    r2 = client.get("/api/chart/full", params=birth_params(huoling="songban"))
+    assert r2.status_code == 200
+    assert r2.json()["quality_flags"]["school"]["huoling"] == "songban"
+    # 非法变体被拒
+    r3 = client.get("/api/chart/full", params=birth_params(huoling="bogus"))
+    assert r3.status_code == 400

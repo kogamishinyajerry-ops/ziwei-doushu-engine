@@ -133,11 +133,17 @@ async def get_chart_full(
     name: str = Query(""),
     gender: str = Query("男"),
     city: str = Query(""),
+    huoling: str = Query("mainstream", description="火铃流派: mainstream/songban"),
 ):
     """生成命盘 + 完整分析."""
     try:
-        chart = generate_chart(year, month, day, hour, minute, name, gender, city)
+        if huoling not in {"mainstream", "songban"}:
+            raise HTTPException(status_code=400, detail="huoling must be mainstream or songban")
+        chart = generate_chart(year, month, day, hour, minute, name, gender, city,
+                               huoling_variant=huoling)
         return JSONResponse(chart_to_dict(chart, include_analysis=True))
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -152,11 +158,15 @@ async def get_explain(
     name: str = Query(""),
     gender: str = Query("男"),
     city: str = Query(""),
+    huoling: str = Query("mainstream", description="火铃流派: mainstream/songban"),
 ):
     """安星"为什么"解释 — 每颗星的规则/公式/推导/出处 (透明可验证)."""
     try:
+        if huoling not in {"mainstream", "songban"}:
+            raise HTTPException(status_code=400, detail="huoling must be mainstream or songban")
         from ziwei.chart.explain import explain_chart
-        chart = generate_chart(year, month, day, hour, minute, name, gender, city)
+        chart = generate_chart(year, month, day, hour, minute, name, gender, city,
+                               huoling_variant=huoling)
         return JSONResponse({
             "ming_palace": chart.ming_palace,
             "shen_palace": chart.shen_palace,
@@ -164,6 +174,8 @@ async def get_explain(
             "explain": explain_chart(chart),
             "quality_flags": chart.quality_flags,
         })
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

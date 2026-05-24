@@ -15,6 +15,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from ziwei.chart.stars import place_all_stars
+from ziwei.chart.engine import generate_chart
 from ziwei.calendar.constants import EARTHLY_BRANCHES, HEAVENLY_STEMS
 
 B = EARTHLY_BRANCHES
@@ -100,3 +101,33 @@ def test_huoxing_lingxing_mainstream_zhongzhou():
         c = _stars(year_branch=yb, hour="丑")
         assert c["火星"] == B[(B.index(huo0) + 1) % 12], f"{yb}年 火星应顺行"
         assert c["铃星"] == B[(B.index(ling0) + 1) % 12], f"{yb}年 铃星应顺行"
+
+
+def _engine_pos(year, variant="mainstream"):
+    c = generate_chart(year, 6, 1, 0, 0, "T", "男", huoling_variant=variant)
+    return {s: p.branch for p in c.palaces for s in p.stars}, c
+
+
+def test_huoling_default_is_mainstream_no_regression():
+    # 默认 (不传 variant) 必须等于显式 mainstream
+    a = {s: p.branch for p in generate_chart(1989, 6, 1, 0, 0, "T", "男").palaces for s in p.stars}
+    b, _ = _engine_pos(1989, "mainstream")
+    assert a["火星"] == b["火星"] and a["铃星"] == b["铃星"]
+
+
+def test_huoling_songban_swaps_only_siyouchou_group():
+    # 1989 己巳 (巳酉丑组): songban 火星戌/铃星卯; mainstream 火星卯/铃星戌
+    m, cm = _engine_pos(1989, "mainstream")
+    s, cs = _engine_pos(1989, "songban")
+    assert cm.year_pillar[1] in ("巳", "酉", "丑")
+    assert (m["火星"], m["铃星"]) == ("卯", "戌")
+    assert (s["火星"], s["铃星"]) == ("戌", "卯")
+    # quality_flags.school 记录变体
+    assert cs.quality_flags["school"]["huoling"] == "songban"
+
+
+def test_huoling_songban_does_not_affect_other_groups():
+    # 1992 壬申 (申子辰组, 非巳酉丑): variant 不应改变火铃
+    m, _ = _engine_pos(1992, "mainstream")
+    s, _ = _engine_pos(1992, "songban")
+    assert m["火星"] == s["火星"] and m["铃星"] == s["铃星"]

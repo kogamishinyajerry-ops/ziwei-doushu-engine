@@ -99,6 +99,7 @@ def generate_chart(
     hour: int, minute: int = 0,
     name: str = "", gender: str = "男",
     city: str = "",
+    huoling_variant: str = "mainstream",
 ) -> ChartData:
     """
     生成完整的紫微斗数命盘.
@@ -219,7 +220,13 @@ def generate_chart(
         month_branch=month_branch,
         hour_branch=hour_branch,
         lunar_month=chart.lunar_month,
+        huoling_variant=huoling_variant,
     )
+    # 记录采用的流派变体, 供前端/explain 显式标注 (默认 mainstream)
+    chart.quality_flags["school"] = {
+        "huoling": huoling_variant,
+        "fallback": False,
+    }
     
     # ── 5. 四化 ──
     sihua_raw = determine_sihua(year_stem)

@@ -207,6 +207,7 @@ def place_auxiliary_stars(
     month_branch: str,
     hour_branch: str,
     lunar_month: int,
+    huoling_variant: str = "mainstream",
 ) -> StarLayout:
     """
     安辅星 (月系、时系、年系).
@@ -271,16 +272,19 @@ def place_auxiliary_stars(
     }
     
     trio = trio_map[year_branch]
-    
-    # 火星起宫
-    huo_start = [yi("寅"), yi("卯"), yi("丑"), yi("酉")][trio]
-    huo_xing_idx = (huo_start + h_idx) % 12
-    layout.stars["火星"] = huo_xing_idx
-    
-    # 铃星起宫
-    ling_start = [yi("戌"), yi("戌"), yi("卯"), yi("戌")][trio]
-    ling_xing_idx = (ling_start + h_idx) % 12
-    layout.stars["铃星"] = ling_xing_idx
+
+    # 火星/铃星起宫 (trio 顺序: 申子辰=0, 巳酉丑=1, 寅午戌=2, 亥卯未=3)。
+    # mainstream = 主流中州派/全书 (Codex 异源确认); songban = 少数"宋版"异本,
+    # 仅巳酉丑组不同 (火星戌起/铃星卯起), 仍顺行。流派可切换且显式标注。
+    if huoling_variant == "songban":
+        huo_starts = [yi("寅"), yi("戌"), yi("丑"), yi("酉")]
+        ling_starts = [yi("戌"), yi("卯"), yi("卯"), yi("戌")]
+    else:  # mainstream (default)
+        huo_starts = [yi("寅"), yi("卯"), yi("丑"), yi("酉")]
+        ling_starts = [yi("戌"), yi("戌"), yi("卯"), yi("戌")]
+
+    layout.stars["火星"] = (huo_starts[trio] + h_idx) % 12
+    layout.stars["铃星"] = (ling_starts[trio] + h_idx) % 12
     
     # ── 地劫、地空 (时系星) ──
     # 口诀: "亥上起子顺安劫, 逆回安空" → 地劫顺行、地空逆行。
@@ -318,6 +322,7 @@ def place_all_stars(
     month_branch: str,
     hour_branch: str,
     lunar_month: int,
+    huoling_variant: str = "mainstream",
 ) -> StarLayout:
     """
     一次性安放所有星曜.
@@ -345,7 +350,8 @@ def place_all_stars(
     
     # 4. 安辅星
     layout = place_auxiliary_stars(
-        layout, year_branch, month_branch, hour_branch, lunar_month
+        layout, year_branch, month_branch, hour_branch, lunar_month,
+        huoling_variant=huoling_variant,
     )
     
     # 5. 安禄存/擎羊/陀罗 (年干决定)
