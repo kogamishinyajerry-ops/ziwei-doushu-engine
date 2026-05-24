@@ -129,20 +129,23 @@ def place_tianfu_series(layout: StarLayout) -> StarLayout:
     layout.stars["天府"] = tianfu_idx
     layout.star_wuxing["天府"] = "土"
     
-    # 天府系星顺序 (从天府顺时针)
-    tf_series = ["天府", "太阴", "贪狼", "巨门", "天相", "天梁", "七杀", "破军"]
+    # 天府系相对天府的顺时针偏移。
+    # 天府→太阴→贪狼→巨门→天相→天梁→七杀 为连续 (+1..+6),
+    # 但"七杀空三破军" — 七杀之后空三宫才是破军, 故 破军 = 天府+10。
+    # 校验铁律: 破军永远与天相对宫 (天相+10-4=+6, 差6); 七杀与天府对宫 (+6)。
+    tf_offsets = {
+        "太阴": 1, "贪狼": 2, "巨门": 3, "天相": 4,
+        "天梁": 5, "七杀": 6, "破军": 10,
+    }
     tf_wuxing = {
-        "天府": "土", "太阴": "水", "贪狼": "木", "巨门": "水",
+        "太阴": "水", "贪狼": "木", "巨门": "水",
         "天相": "水", "天梁": "土", "七杀": "金", "破军": "水",
     }
-    
-    for i, star_name in enumerate(tf_series):
-        if i == 0:
-            continue  # 天府已经设置
-        star_idx = (tianfu_idx + i) % 12
-        layout.stars[star_name] = star_idx
+
+    for star_name, offset in tf_offsets.items():
+        layout.stars[star_name] = (tianfu_idx + offset) % 12
         layout.star_wuxing[star_name] = tf_wuxing.get(star_name, "")
-    
+
     return layout
 
 
@@ -154,31 +157,31 @@ def place_ziwei_series(layout: StarLayout) -> StarLayout:
     """
     安紫微系六星.
     
-    紫微系星从紫微开始, 逆时针(逆数)排列:
-    紫微 → 天机(逆1) → (跳过) → 太阳(逆3) → 武曲(逆4) → 天同(逆5) → (跳过) → 廉贞(逆7)
-    
-    即紫微系五曜相对于紫微的偏移:
+    紫微系星从紫微开始, 逆时针(逆数)排列, gap 结构为"隔一/隔二/空三":
+    紫微 →天机(逆1)→[隔一]→太阳(逆3)→武曲(逆4)→天同(逆5)→[隔二]→廉贞(逆8)→[空三]→紫微
+
+    即紫微系五曜相对于紫微的逆时针偏移:
     天机: -1
     太阳: -3
     武曲: -4
     天同: -5
-    廉贞: -7 (实际是 -7 或 +5, 等价)
-    
+    廉贞: -8 (天同后空二位; 校验铁律: 紫微在申时廉贞天相同宫于子)
+
     Args:
         layout: StarLayout (已有紫微)
-    
+
     Returns:
         更新后的 StarLayout
     """
     ziwei_idx = layout.ziwei_index
-    
+
     # 紫微系星相对于紫微的逆时针偏移
     zw_offsets = {
         "天机": -1,
         "太阳": -3,
         "武曲": -4,
         "天同": -5,
-        "廉贞": -7,
+        "廉贞": -8,
     }
     
     zw_wuxing = {

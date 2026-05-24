@@ -18,8 +18,22 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from ziwei.chart.engine import generate_chart
-from ziwei.chart.stars import ZIWEI_IDX_TO_TIANFU_IDX
+from ziwei.chart.stars import (
+    ZIWEI_IDX_TO_TIANFU_IDX,
+    StarLayout,
+    place_tianfu_series,
+    place_ziwei_series,
+)
 from ziwei.calendar.constants import EARTHLY_BRANCHES, PALACE_NAMES
+
+
+def _layout_for_ziwei(ziwei_idx: int) -> StarLayout:
+    """构造仅由紫微位置决定的 14 主星布局 (绕过历法, 直接验证安星律)."""
+    layout = StarLayout(ziwei_index=ziwei_idx)
+    layout.stars["紫微"] = ziwei_idx
+    layout = place_tianfu_series(layout)
+    layout = place_ziwei_series(layout)
+    return layout
 
 
 ZIWEI_SERIES = {"紫微", "天机", "太阳", "武曲", "天同", "廉贞"}
@@ -104,6 +118,41 @@ def test_sihua_is_exactly_four_canonical_types():
         chart = generate_chart(*params[:4], 0, "T", params[4])
         assert len(chart.sihua_map) == 4, f"{params}: 四化数量 != 4"
         assert set(chart.sihua_map.values()) == SIHUA_TYPES, f"{params}: 四化类型异常"
+
+
+def test_main_star_offsets_are_canonical_for_all_ziwei_positions():
+    """对全部 12 个紫微位置, 校验紫微系/天府系系内偏移符合 canonical 安星诀."""
+    zw_off = {"天机": -1, "太阳": -3, "武曲": -4, "天同": -5, "廉贞": -8}
+    tf_off = {"太阴": 1, "贪狼": 2, "巨门": 3, "天相": 4,
+              "天梁": 5, "七杀": 6, "破军": 10}
+    for zw in range(12):
+        layout = _layout_for_ziwei(zw)
+        fu = layout.stars["天府"]
+        assert fu == (4 - zw) % 12
+        for star, off in zw_off.items():
+            assert layout.stars[star] == (zw + off) % 12, f"紫微{zw} {star} 偏移错"
+        for star, off in tf_off.items():
+            assert layout.stars[star] == (fu + off) % 12, f"天府{fu} {star} 偏移错"
+
+
+def test_pojun_always_opposite_tianxiang():
+    """破军永远与天相对宫 (差6) — 锁死破军 '七杀空三' 定位修复。"""
+    for zw in range(12):
+        layout = _layout_for_ziwei(zw)
+        assert (layout.stars["破军"] - layout.stars["天相"]) % 12 == 6
+
+
+def test_qisha_always_opposite_tianfu():
+    """七杀永远与天府对宫 (差6)。"""
+    for zw in range(12):
+        layout = _layout_for_ziwei(zw)
+        assert (layout.stars["七杀"] - layout.stars["天府"]) % 12 == 6
+
+
+def test_lianzhen_tianxiang_conjunct_when_ziwei_in_shen():
+    """紫微在申(8)时, 廉贞天相同宫于子 — 锁死廉贞 紫微-8 定位修复。"""
+    layout = _layout_for_ziwei(8)
+    assert layout.stars["廉贞"] == layout.stars["天相"] == 0
 
 
 def test_shen_palace_falls_in_valid_palace():
