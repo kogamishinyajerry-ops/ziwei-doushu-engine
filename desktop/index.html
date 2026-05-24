@@ -1516,9 +1516,25 @@ function renderQualityFlags(flags) {
   addQualityFlag(rows, 'solar_time', flags.solar_time);
   addQualityFlag(rows, 'lunar', flags.lunar);
   addQualityFlag(rows, 'llm', flags.llm);
+  addAnalysisModulesFlag(rows, flags.analysis_modules);
 
   if (!rows.length) return '';
   return `<div class="quality-flags">${rows.join('')}</div>`;
+}
+
+function addAnalysisModulesFlag(rows, flag) {
+  if (!flag || typeof flag !== 'object' || Array.isArray(flag)) return;
+  // 仅在部分降级时提示; 完整(full)时不展示, 避免干扰正常结果。
+  if (String(flag.status) !== 'partial') return;
+  const names = {
+    name_analysis: '姓名学',
+    archetype_rarity: '原型/稀有度',
+    personality: '命格个性',
+    core: '核心分析',
+  };
+  const degraded = Array.isArray(flag.degraded) ? flag.degraded : [];
+  const list = degraded.map(k => names[k] || k).join('、') || '部分模块';
+  rows.push(`<span class="quality-flag warn"><b>深度分析</b>: ${escapeHtml('部分降级 · ' + list)}</span>`);
 }
 
 function addQualityFlag(rows, key, flag) {

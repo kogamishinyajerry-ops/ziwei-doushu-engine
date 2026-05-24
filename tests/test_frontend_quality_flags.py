@@ -24,6 +24,16 @@ def test_desktop_surfaces_quality_flags_contract():
         assert status in html
 
 
+def test_desktop_surfaces_analysis_modules_degradation():
+    html = read_frontend("desktop/index.html")
+
+    assert "addAnalysisModulesFlag" in html
+    assert "analysis_modules" in html
+    assert "部分降级" in html
+    # 仅在 partial 状态提示, 完整时不展示
+    assert "'partial'" in html or '"partial"' in html
+
+
 def test_legacy_frontend_surfaces_chart_quality_flags_safely():
     html = read_frontend("frontend/index.html")
 
